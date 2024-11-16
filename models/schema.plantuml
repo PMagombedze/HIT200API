@@ -1,0 +1,54 @@
+@startuml PricePick
+
+entity User {
+  * id : int
+  * username : string
+  * email : string
+  * password : string
+}
+
+entity Forum {
+  * id : int
+  * title : string
+  * description : string
+  * created_at : datetime
+  * user_id : int
+}
+
+entity Deal {
+  * id : int
+  * title : string
+  * description : string
+  * price : float
+  * url : string
+  * created_at : datetime
+}
+
+entity Subscription {
+  * id : int
+  * user_id : int
+  * deal_id : int
+  * subscribed_at : datetime
+}
+
+entity Product {
+  * id : int
+  * name : string
+  * description : string
+  * price : float
+  * url : string
+}
+
+entity Scraper {
+  * id : int
+  * name : string
+  * base_url : string
+}
+
+User ||--o{ Forum : "creates"
+User ||--o{ Subscription : "subscribes"
+Deal ||--o{ Subscription : "is subscribed to"
+Product ||--o{ Deal : "is part of"
+Scraper ||--o{ Product : "scrapes"
+
+@enduml
