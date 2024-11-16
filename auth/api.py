@@ -8,6 +8,7 @@ from datetime import timedelta, datetime
 import arrow
 import smtplib
 from email.mime.text import MIMEText
+from flask_bcrypt import generate_password_hash
 
 jwt = JWTManager()
 
@@ -164,5 +165,18 @@ def forgotPassword():
     except Exception as e:
         return jsonify({'message': str(e)}), 500
 
-
-
+@auth.route('/resetPassword', methods=['POST'])
+@jwt_required()
+def resetPassword():
+    data = request.get_json()
+    password = data.get('password')
+    if not password:
+        return jsonify({'message': 'Password is required'}), 400
+    if not checkPassword(password):
+        return jsonify({'message': 'Password not secure'}), 400
+    user =  User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    user.password = generate_password_hash(password)
+    db.session.commit()
+    return jsonify({'message': 'Password reset successfully'}), 200
