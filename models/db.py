@@ -31,6 +31,7 @@ class User(db.Model):
     id = db.Column(db.String(120), primary_key=True, default=str(uuid.uuid4()))
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     def __init__(self, email, password):
         self.email = email
@@ -46,7 +47,6 @@ class User(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'username': self.username,
             'email': self.email
         }
 

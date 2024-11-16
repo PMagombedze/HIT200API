@@ -8,6 +8,11 @@ from datetime import timedelta, datetime
 import arrow
 import smtplib
 from email.mime.text import MIMEText
+import redis
+import json
+
+# Initialize Redis client
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 adminJwt = JWTManager()
 
@@ -20,9 +25,21 @@ def userProfiles():
     if not user:
         return jsonify({'message': 'User not found'}), 404
     if not user.is_admin:
-        return jsonify({'message': 'Fobbiden'}), 403
+        return jsonify({'message': 'Forbidden'}), 403
+    
+    # Try to get users from Redis cache
+    cached_users = redis_client.get('all_users')
+    if cached_users:
+        return jsonify({'users': json.loads(cached_users)}), 200
+    
+    # If not in cache, get from database
     users = User.query.all()
-    return jsonify({'users': [user.to_dict() for user in users]}), 200
+    users_data = [user.to_dict() for user in users]
+    
+    redis_client.setex('all_users', 300, json.dumps(users_data))
+    
+    return jsonify({'users': users_data}), 200
+
 
 @admin.route('/users/<int:id>', methods=['DELETE'])
 @jwt_required()
