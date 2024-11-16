@@ -5,11 +5,11 @@ import re
 import pyotp
 import os
 from datetime import timedelta, datetime
-from flask_mail import Mail, Message
 import arrow
+import smtplib
+from email.mime.text import MIMEText
 
 jwt = JWTManager()
-mail = Mail()
 
 auth = Blueprint('auth', __name__)
 
@@ -21,7 +21,7 @@ def checkPassword(password):
 
 #use pyotp for otp generation
 totp = pyotp.TOTP(os.environ.get('OTP_SECRET'))
-otp_ = totp.now()
+otp_ = totp.at(datetime.now() + timedelta(minutes=15))
 
 @auth.route('/register', methods=['POST'])
 def register():
@@ -82,19 +82,34 @@ def verifyToken():
 @auth.route('/sendOtp', methods=['POST'])
 @jwt_required()
 def sendOtp():
-    current_user = get_jwt_identity()
-    if not current_user:
-        return jsonify({'message': 'Invalid token'}), 401
+    userId = get_jwt_identity()
+    user = User.query.filter_by(id=userId).first()
+    if user:
+        # Send the OTP to the user via email
+        subject = "OTP Verification"
+        sender = os.getenv('MAIL_USERNAME')
+        recipients = [user.email]
+        body = f"Hello,\n\n" \
+                f"Your OTP for verification is: {otp_}\n\n" \
+                f"Please enter this OTP to complete the verification process.\n\n" \
+                f"Best regards,\n" \
+                f"The Support Team"
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = 'PricePick Team'
+        msg['To'] = ', '.join(recipients)
 
-    #send otp to user email
-    user = User.query.get(current_user)
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-
-    msg = Message('Your OTP Code',
-                  sender=os.environ.get('MAIL_USERNAME'),
-                  recipients=[user.email])
-    msg.body = f'Your OTP code is: {otp_}'
+        try:
+            # Set up the SMTP server
+            with smtplib.SMTP(os.getenv('MAIL_SERVER'), os.getenv('MAIL_PORT')) as server:
+                server.starttls()
+                server.login(sender, os.getenv('MAIL_APP_PASSWORD'))
+                server.sendmail(sender, recipients, msg.as_string())
+            return {'message': 'OTP sent successfully'}, 200
+        except Exception as e:
+            return {"message": str(e)}, 500
+    else:
+        return {'message': 'User not found'}, 404
 
     try:
         mail.send(msg)
@@ -105,16 +120,49 @@ def sendOtp():
 @auth.route('/verifyOtp', methods=['POST'])
 @jwt_required()
 def verifyOtp():
-    current_user = get_jwt_identity()
-    if not current_user:
-        return jsonify({'message': 'Invalid token'}), 401
     data = request.get_json()
     otp = data.get('otp')
     if not otp:
         return jsonify({'message': 'OTP is required'}), 400
-    if totp.verify(otp):
-        return jsonify({'message': 'OTP verified successfully'}), 200
-    else:
+    if otp != otp_:
         return jsonify({'message': 'Invalid OTP'}), 401
+    return jsonify({'message': 'OTP verified successfully'}), 200
+
+@auth.route('/forgotPassword', methods=['POST'])
+def forgotPassword():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'message': 'Email is required'}), 400
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    #send email with reset password link
+    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
+    reset_link = f"http://localhost:5000/forgotpassword?token={access_token}"
+    subject = "Password Reset Request"
+    sender = os.getenv('MAIL_USERNAME')
+    recipients = [user.email]
+    body = f"Hello,\n\n" \
+           f"To reset your password, please click the following link:\n" \
+           f"{reset_link}\n\n" \
+           f"If you did not request a password reset, please ignore this email.\n\n" \
+           f"Best regards,\n" \
+           f"The Support Team"
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = 'PricePick Team'
+    msg['To'] = ', '.join(recipients)
+
+    try:
+        # Set up the SMTP server
+        with smtplib.SMTP(os.getenv('MAIL_SERVER'), os.getenv('MAIL_PORT')) as server:
+            server.starttls()
+            server.login(sender, os.getenv('MAIL_APP_PASSWORD'))
+            server.sendmail(sender, recipients, msg.as_string())
+        return jsonify({'message': 'Password reset email sent successfully'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
+
 
 
