@@ -1,22 +1,37 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager
+from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager, create_access_token
 from models.db import db, User, Forum
-import re
-import pyotp
-import os
-from datetime import timedelta, datetime
-import arrow
-import smtplib
-from email.mime.text import MIMEText
+from datetime import timedelta
 import redis
 import json
+import os
 
 # Initialize Redis client
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+redisClient = redis.StrictRedis(host=os.environ.get('REDIS_URL'), port=os.environ.get('REDIS_PORT'), db=int(os.environ.get('REDIS_DB')))
 
 adminJwt = JWTManager()
 
 admin = Blueprint('admin', __name__)
+
+@admin.route('/admin/login', methods=['POST'])
+def adminLogin():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    if not email or not password:
+        return jsonify({'message': 'Email and password are required'}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user.is_admin:
+        return jsonify({'message': 'Fobbiden'}), 403
+
+    if not user or not user.check_password(password):
+        return jsonify({'message': 'Invalid email or password'}), 401
+
+    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
+    return jsonify({'access_token': access_token, 'message': 'login succesful'}), 200
+
 
 @admin.route('/users')
 @jwt_required()
@@ -26,22 +41,22 @@ def userProfiles():
         return jsonify({'message': 'User not found'}), 404
     if not user.is_admin:
         return jsonify({'message': 'Forbidden'}), 403
-    
+
     # Try to get users from Redis cache
-    cached_users = redis_client.get('all_users')
+    cached_users = redisClient.get('all_users')
     if cached_users:
         return jsonify({'users': json.loads(cached_users)}), 200
-    
+
     # If not in cache, get from database
     users = User.query.all()
     users_data = [user.to_dict() for user in users]
-    
-    redis_client.setex('all_users', 300, json.dumps(users_data))
-    
+
+    redisClient.setex('all_users', 60, json.dumps(users_data))
+
     return jsonify({'users': users_data}), 200
 
 
-@admin.route('/users/<int:id>', methods=['DELETE'])
+@admin.route('/users/<string:id>', methods=['DELETE'])
 @jwt_required()
 def deleteUser(id):
     user = User.query.filter_by(id=get_jwt_identity()).first()
@@ -56,6 +71,7 @@ def deleteUser(id):
     db.session.commit()
     return jsonify({'message': 'User deleted successfully'}), 200
 
+
 @admin.route('/forums')
 @jwt_required()
 def forumProfiles():
@@ -67,7 +83,8 @@ def forumProfiles():
     forums = Forum.query.all()
     return jsonify({'forums': [forum.to_dict() for forum in forums]}), 200
 
-@admin.route('/forums/<int:id>', methods=['DELETE'])
+
+@admin.route('/forums/<string:id>', methods=['DELETE'])
 @jwt_required()
 def deleteForum(id):
     user = User.query.filter_by(id=get_jwt_identity()).first()
@@ -81,5 +98,3 @@ def deleteForum(id):
     db.session.delete(forum)
     db.session.commit()
     return jsonify({'message': 'Forum deleted successfully'}), 200
-
-

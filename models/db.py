@@ -47,7 +47,8 @@ class User(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'email': self.email
+            'email': self.email,
+            'is_admin': self.is_admin
         }
 
 class Forum(db.Model):
@@ -67,15 +68,15 @@ class Forum(db.Model):
 
     __tablename__ = 'forums'
     id = db.Column(db.String(120), primary_key=True, default=str(uuid.uuid4()))
-    title = db.Column(db.String(80), unique=True, nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    comment = db.Column(db.String(80), unique=True, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     user_id = db.Column(db.String(120), db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('forums', lazy=True))
 
-    def __init__(self, title, description, user_id):
-        self.title = title
-        self.description = description
+    def __init__(self, rating, comment, user_id):
+        self.rating = rating
+        self.comment = comment
         self.user_id = user_id
         self.id = str(uuid.uuid4())
         self.created_at = db.func.now()
@@ -83,8 +84,8 @@ class Forum(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'title': self.title,
-            'description': self.description,
+            'rating': self.rating,
+            'comment': self.comment,
             'created_at': self.created_at,
             'user_id': self.user_id
         }

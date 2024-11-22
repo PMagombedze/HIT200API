@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
-from models.db import db, User, Forum
+from models.db import db, User
 import re
 import pyotp
 import os
@@ -20,7 +20,7 @@ def checkEmail(email):
 def checkPassword(password):
     return re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", password)
 
-#use pyotp for otp generation
+# use pyotp for otp generation
 totp = pyotp.TOTP(os.environ.get('OTP_SECRET'))
 otp_ = totp.at(datetime.now() + timedelta(minutes=15))
 
@@ -41,7 +41,7 @@ def register():
 
     if not checkPassword(password):
             return jsonify({'message': 'Password not secure'}), 400
-    
+
     if not checkEmail(email):
         return jsonify({'message': 'Invalid email format'}), 400
 
@@ -62,12 +62,14 @@ def login():
     if not email or not password:
         return jsonify({'message': 'Email and password are required'}), 400
 
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()   
+    if user.is_admin:
+        return jsonify({'message': 'Please use admin panel'}), 417
     if not user or not user.check_password(password):
         return jsonify({'message': 'Invalid email or password'}), 401
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
-    return jsonify({'access_token': access_token, 'message': 'login succesful'}), 200
+    return jsonify({'access_token': access_token, 'message': 'login successfull'}), 200
 
 
 @auth.route('/verifyToken', methods=['POST'])
@@ -78,7 +80,7 @@ def verifyToken():
         return jsonify({'message': 'Invalid token'}), 401
     user = User.query.filter_by(id=str(current_user)).first()
     expires_at = arrow.utcnow().shift(minutes=15, hours=2).isoformat()
-    return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email}), 200
+    return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email, 'is_admin': user.is_admin}), 200
 
 @auth.route('/sendOtp', methods=['POST'])
 @jwt_required()
@@ -90,16 +92,26 @@ def sendOtp():
         subject = "OTP Verification"
         sender = os.getenv('MAIL_USERNAME')
         recipients = [user.email]
-        body = f"Hello,\n\n" \
-                f"Your OTP for verification is: {otp_}\n\n" \
-                f"Please enter this OTP to complete the verification process.\n\n" \
-                f"Best regards,\n" \
-                f"The Support Team"
-        msg = MIMEText(body)
+        body = f"""
+            <html>
+                <body>
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #333;border: none; border-bottom:2px solid #000; padding-bottom: 4px;">OTP Verification</h2>
+                        <p style="font-size: 10pt;">Hello,</p>
+                        <p style="font-size: 10pt;">Your OTP for verification is:</p>
+                        <div style="background-color: #f5f5f5; padding: 15px; margin: 20px 0; text-align: center; font-size: 24px; font-weight: bold;">
+                            {otp_}
+                        </div>
+                        <p style="font-size: 10pt;">Please enter this OTP to complete the verification process.</p>
+                        <p style="font-size: 10pt;">Best regards,<br>The Support Team</p>
+                    </div>
+                </body>
+            </html>
+            """
+        msg = MIMEText(body, 'html')
         msg['Subject'] = subject
         msg['From'] = 'PricePick Team'
         msg['To'] = ', '.join(recipients)
-
         try:
             # Set up the SMTP server
             with smtplib.SMTP(os.getenv('MAIL_SERVER'), os.getenv('MAIL_PORT')) as server:
@@ -112,11 +124,6 @@ def sendOtp():
     else:
         return {'message': 'User not found'}, 404
 
-    try:
-        mail.send(msg)
-        return jsonify({'message': 'OTP sent successfully'}), 200
-    except Exception as e:
-        return jsonify({'message': 'Failed to send OTP'}), 500
 
 @auth.route('/verifyOtp', methods=['POST'])
 @jwt_required()
@@ -144,13 +151,23 @@ def forgotPassword():
     subject = "Password Reset Request"
     sender = os.getenv('MAIL_USERNAME')
     recipients = [user.email]
-    body = f"Hello,\n\n" \
-           f"To reset your password, please click the following link:\n" \
-           f"{reset_link}\n\n" \
-           f"If you did not request a password reset, please ignore this email.\n\n" \
-           f"Best regards,\n" \
-           f"The Support Team"
-    msg = MIMEText(body)
+    body = f"""
+        <html>
+            <body>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #333;border: none; border-bottom:2px solid #000; padding-bottom: 4px;">Password Reset Request</h2>
+                    <p style="font-size: 10pt;">Hello,</p>
+                    <p style="font-size: 10pt;">To reset your password, please click the following link:</p>
+                    <div style="background-color: #f5f5f5; padding: 15px; margin: 20px 0; text-align: center; font-size: 14px;">
+                        <a href="{reset_link}" style="color: #1a73e8; text-decoration: none;">Reset Password</a>
+                    </div>
+                    <p style="font-size: 10pt;">If you did not request a password reset, please ignore this email.</p>
+                    <p style="font-size: 10pt;">Best regards,<br>The Support Team</p>
+                </div>
+            </body>
+        </html>
+        """
+    msg = MIMEText(body, 'html')
     msg['Subject'] = subject
     msg['From'] = 'PricePick Team'
     msg['To'] = ', '.join(recipients)
