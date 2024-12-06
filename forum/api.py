@@ -14,7 +14,7 @@ def createForum():
     user_id = get_jwt_identity()
     if not rating and not comment:
         return jsonify({'message': 'Title and description are required'}), 400
-    
+
     if type(rating) != int or rating < 1 or rating > 5:
         return jsonify({'message': 'Rating must be an integer between 1 and 5'}), 400
 

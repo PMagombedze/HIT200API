@@ -62,11 +62,13 @@ def login():
     if not email or not password:
         return jsonify({'message': 'Email and password are required'}), 400
 
-    user = User.query.filter_by(email=email).first()   
-    if user.is_admin:
-        return jsonify({'message': 'Please use admin panel'}), 417
+    user = User.query.filter_by(email=email).first()
+
     if not user or not user.check_password(password):
         return jsonify({'message': 'Invalid email or password'}), 401
+
+    if user.is_admin:
+        return jsonify({'message': 'Please use admin panel'}), 417
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
     return jsonify({'access_token': access_token, 'message': 'login successfull'}), 200
@@ -128,13 +130,15 @@ def sendOtp():
 @auth.route('/verifyOtp', methods=['POST'])
 @jwt_required()
 def verifyOtp():
+    userId = get_jwt_identity()
     data = request.get_json()
     otp = data.get('otp')
     if not otp:
         return jsonify({'message': 'OTP is required'}), 400
     if otp != otp_:
         return jsonify({'message': 'Invalid OTP'}), 401
-    return jsonify({'message': 'OTP verified successfully'}), 200
+    dash_access_token = create_access_token(identity=userId, expires_delta=timedelta(minutes=15))
+    return jsonify({'message': 'OTP verified successfully', 'dash_token': dash_access_token}), 200
 
 @auth.route('/forgotPassword', methods=['POST'])
 def forgotPassword():
