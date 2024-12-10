@@ -8,7 +8,17 @@ recommendations = Blueprint('recommendations', __name__)
 @recommendations.route('/products/<product_id>/visit', methods=['POST'])
 @jwt_required()
 def track_product_visit(product_id):
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
     current_user_id = get_jwt_identity()
+    if not current_user_id:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Check if the visit already exists
+    existing_visit = UserProductVisit.query.filter_by(user_id=current_user_id, product_id=product_id).first()
+    if existing_visit:
+        return jsonify({'message': 'Visit already recorded'}), 200
+
     visit = UserProductVisit(user_id=current_user_id, product_id=product_id)
     db.session.add(visit)
     db.session.commit()

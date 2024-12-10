@@ -3,11 +3,47 @@ import os
 import smtplib
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity
-from app import check_price_changes
+import requests
 from auth.api import jwt_redis_blocklist
 from models.db import User, db, Product
+from celery import Celery
+from celery.schedules import crontab
 
 notifications = Blueprint('notifications', __name__)
+
+celery = Celery('tasks', broker=os.environ.get('CELERY_BROKER_URL'))
+celery.conf.broker_connection_retry_on_startup = True
+
+CELERYBEAT_SCHEDULE = {
+    'check-price-changes': {
+        'task': 'notifications.tasks.check_price_changes',
+        'schedule': crontab(minute='*/15')  # Runs every 15 minutes
+    }
+}
+
+
+@celery.task
+def check_price_changes():
+    products = Product.query.all()
+    for product in products:
+        old_price = product.last_recorded_price
+        current_price = product.price
+        
+        if old_price != current_price:
+            notify_price_change.delay(product.id, old_price, current_price)
+            product.last_recorded_price = current_price
+            db.session.commit()
+
+@celery.task
+def notify_price_change(product_id, old_price, new_price):
+    product = Product.query.get(product_id)
+    users = User.query.all()
+    if users.subscribed:
+        notification = {
+            'message': f'Price changed for {product.name} from ${old_price} to ${new_price}'
+        }
+        requests.post('http://localhost:5000/api/user/notifications', json=notification)
+
 
 @notifications.route('/product/<int:product_id>/price', methods=['PUT'])
 @jwt_required()
@@ -48,7 +84,7 @@ def create_notification():
     if not user:
         return jsonify({'message': 'User not found'}), 404
     
-    subject = "Password Reset Request"
+    subject = "Change in product price"
     sender = os.getenv('MAIL_USERNAME')
     recipients = [user.email]
     body = f"""
