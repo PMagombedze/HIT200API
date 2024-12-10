@@ -32,6 +32,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    subscribed = db.Column(db.Boolean, default=False)
 
     def __init__(self, email, password):
         self.email = email
@@ -190,6 +191,7 @@ class Product(db.Model):
         description (str): A brief description of the product. Cannot be null.
         price (float): The price of the product. Cannot be null.
         url (str): The URL of the product. Cannot be null.
+        category (str): The category of the product. Cannot be null.
     Methods:
         to_dict(): Returns a dictionary representation of the product.
         __repr__(): Returns a string representation of the product instance.
@@ -201,12 +203,14 @@ class Product(db.Model):
     description = db.Column(db.String(255), nullable=False)
     price = db.Column(db.Float, nullable=False)
     url = db.Column(db.String(255), nullable=False)
+    category = db.Column(db.String(80), nullable=False)
 
-    def __init__(self, name, description, price, url):
+    def __init__(self, name, description, price, url, category):
         self.name = name
         self.description = description
         self.price = price
         self.url = url
+        self.category = category
         self.id = str(uuid.uuid4())
 
     def to_dict(self):
@@ -215,7 +219,8 @@ class Product(db.Model):
             'name': self.name,
             'description': self.description,
             'price': self.price,
-            'url': self.url
+            'url': self.url,
+            'category': self.category
         }
 
     def __repr__(self):
@@ -253,3 +258,28 @@ class Scraper(db.Model):
 
     def __repr__(self):
         return '<Scraper %r>' % self.name
+
+# personalized products based on what user visits most
+class UserProductVisit(db.Model):
+    __tablename__ = 'user_product_visits'
+    id = db.Column(db.String(120), primary_key=True, default=str(uuid.uuid4()))
+    user_id = db.Column(db.String(120), db.ForeignKey('users.id'), nullable=False)
+    product_id = db.Column(db.String(120), db.ForeignKey('products.id'), nullable=False)
+    visit_timestamp = db.Column(db.DateTime, default=db.func.now())
+    user = db.relationship('User', backref=db.backref('product_visits', lazy=True))
+    product = db.relationship('Product', backref=db.backref('user_visits', lazy=True))
+
+    def __init__(self, user_id, product_id):
+        self.user_id = user_id
+        self.product_id = product_id
+        self.id = str(uuid.uuid4())
+        self.visit_timestamp = db.func.now()
+        self.id = str(uuid.uuid4())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'product_id': self.product_id,
+            'visit_timestamp': self.visit_timestamp
+        }
