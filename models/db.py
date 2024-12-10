@@ -202,6 +202,7 @@ class Product(db.Model):
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     price = db.Column(db.Float, nullable=False)
+    last_recorded_price = db.Column(db.Float, nullable=True)
     url = db.Column(db.String(255), nullable=False)
     category = db.Column(db.String(80), nullable=False)
 
