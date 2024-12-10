@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity
 from models.db import Forum, User, db
+from auth.api import jwt_redis_blocklist
 
 # user post a comment
 forum = Blueprint('forum', __name__)
@@ -8,6 +9,9 @@ forum = Blueprint('forum', __name__)
 @forum.route('/forum', methods=['POST'])
 @jwt_required()
 def createForum():
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+
     data = request.get_json()
     rating = data.get('rating')
     comment = data.get('comment')
@@ -26,6 +30,9 @@ def createForum():
 @forum.route('/forum/<string:id>', methods=['PUT', 'DELETE'])
 @jwt_required()
 def updateForum(id):
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+
     if request.method == 'DELETE':
         user_id = get_jwt_identity()
         forum = Forum.query.filter_by(id=id).first()

@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, JWTManager, create_access_token
+from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity, JWTManager, create_access_token
 from models.db import db, User, Forum
 from datetime import timedelta
 import redis
 import json
 import os
+from auth.api import jwt_redis_blocklist
 
 # Initialize Redis client
 redisClient = redis.StrictRedis(host=os.environ.get('REDIS_URL'), port=os.environ.get('REDIS_PORT'), db=int(os.environ.get('REDIS_DB')))
@@ -36,6 +37,10 @@ def adminLogin():
 @admin.route('/users')
 @jwt_required()
 def userProfiles():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404
@@ -59,6 +64,9 @@ def userProfiles():
 @admin.route('/users/<string:id>', methods=['DELETE'])
 @jwt_required()
 def deleteUser(id):
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404
@@ -75,6 +83,9 @@ def deleteUser(id):
 @admin.route('/forums')
 @jwt_required()
 def forumProfiles():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404
@@ -87,6 +98,9 @@ def forumProfiles():
 @admin.route('/forums/<string:id>', methods=['DELETE'])
 @jwt_required()
 def deleteForum(id):
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404

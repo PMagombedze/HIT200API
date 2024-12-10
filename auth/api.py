@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
 from models.db import db, User
 import re
 import pyotp
@@ -9,6 +9,13 @@ import arrow
 import smtplib
 from email.mime.text import MIMEText
 from flask_bcrypt import generate_password_hash
+import redis
+
+
+jwt_redis_blocklist = redis.StrictRedis(
+    host="localhost", port=6379, db=0, decode_responses=True
+)
+
 
 jwt = JWTManager()
 
@@ -77,6 +84,10 @@ def login():
 @auth.route('/verifyToken', methods=['POST'])
 @jwt_required()
 def verifyToken():
+    jti = get_jwt()["jti"]
+    if jwt_redis_blocklist.get(jti):
+        return jsonify({'message': 'Token revoked'}), 401
+
     current_user = get_jwt_identity()
     if not current_user:
         return jsonify({'message': 'Invalid token'}), 401
@@ -87,6 +98,10 @@ def verifyToken():
 @auth.route('/sendOtp', methods=['POST'])
 @jwt_required()
 def sendOtp():
+    jti = get_jwt()["jti"]
+    if jwt_redis_blocklist.get(jti):
+        return jsonify({'message': 'Token revoked'}), 401
+
     userId = get_jwt_identity()
     user = User.query.filter_by(id=userId).first()
     if user:
@@ -130,6 +145,10 @@ def sendOtp():
 @auth.route('/verifyOtp', methods=['POST'])
 @jwt_required()
 def verifyOtp():
+    jti = get_jwt()["jti"]
+    if jwt_redis_blocklist.get(jti):
+        return jsonify({'message': 'Token revoked'}), 401
+
     userId = get_jwt_identity()
     data = request.get_json()
     otp = data.get('otp')
@@ -189,6 +208,11 @@ def forgotPassword():
 @auth.route('/resetPassword', methods=['POST'])
 @jwt_required()
 def resetPassword():
+    # check if not in redis blocklist
+    jti = get_jwt()["jti"]
+    if jwt_redis_blocklist.get(jti):
+        return jsonify({'message': 'Token revoked'}), 401
+
     data = request.get_json()
     password = data.get('password')
     if not password:
@@ -201,3 +225,11 @@ def resetPassword():
     user.password = generate_password_hash(password)
     db.session.commit()
     return jsonify({'message': 'Password reset successfully'}), 200
+
+# logout
+@auth.route("/logout", methods=["DELETE"])
+@jwt_required()
+def logout():
+    jti = get_jwt()["jti"]
+    jwt_redis_blocklist.set(jti, "revoked", ex=timedelta(days=30))
+    return jsonify(msg="Access token revoked"), 200
