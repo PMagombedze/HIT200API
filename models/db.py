@@ -204,16 +204,20 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     last_recorded_price = db.Column(db.Float, nullable=True)
     url = db.Column(db.String(255), nullable=False)
-    category = db.Column(db.String(80), nullable=False)
+    model = db.Column(db.String(80), nullable=False)
+    brand = db.Column(db.String(80), nullable=False)
+    store = db.Column(db.String(80), nullable=False)
 
-    def __init__(self, name, description, price, url, category):
+    def __init__(self, name, description, price, url, model, brand, store):
         self.name = name
         self.description = description
         self.price = price
         self.url = url
-        self.category = category
+        self.model = model
+        self.brand = brand
+        self.store = store
         self.id = str(uuid.uuid4())
-
+    
     def to_dict(self):
         return {
             'id': self.id,
@@ -221,7 +225,9 @@ class Product(db.Model):
             'description': self.description,
             'price': self.price,
             'url': self.url,
-            'category': self.category
+            'model': self.model,
+            'brand': self.brand,
+            'store': self.store
         }
 
     def __repr__(self):

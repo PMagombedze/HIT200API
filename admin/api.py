@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity, JWTManager, create_access_token
-from models.db import db, User, Forum
+from models.db import db, User, Forum, Product
 from datetime import timedelta
 import redis
 import json
@@ -112,3 +112,32 @@ def deleteForum(id):
     db.session.delete(forum)
     db.session.commit()
     return jsonify({'message': 'Forum deleted successfully'}), 200
+
+@admin.route('/products', methods=['POST'])
+@jwt_required()
+def createProduct():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user_id = get_jwt_identity()
+    if not user_id:
+        return jsonify({'message': 'User not found'}), 404
+    user = User.query.filter_by(id=user_id).first()
+    if not user.is_admin:
+        return jsonify({'message': 'Fobbiden'}), 403
+    json_file_path = os.path.join('electronics_zimall.json')
+    with open(json_file_path, 'r') as file:
+        products = json.load(file)
+        for product_data in products:
+            product = Product(
+                name=product_data['name'],
+                price=float(product_data['price'].replace('$', '')),
+                model=product_data['model'],
+                brand=product_data['brand'],
+                description=product_data['description'],
+                url=product_data['url'],
+                store=product_data['store']
+            )
+            db.session.add(product)
+    db.session.commit()
+    return jsonify({'message': 'Products created successfully'}), 201

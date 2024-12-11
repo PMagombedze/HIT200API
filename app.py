@@ -6,7 +6,9 @@ from forum.api import forum
 from recommendations.api import recommendations
 from payments.api import payments
 from notifications.api import notifications
+from scraper.api import products
 from flask_migrate import Migrate
+from notifications.api import celery
 
 
 app = Flask(__name__)
@@ -19,6 +21,7 @@ app.register_blueprint(forum, url_prefix='/api')
 app.register_blueprint(recommendations, url_prefix='/api')
 app.register_blueprint(payments, url_prefix='/api')
 app.register_blueprint(notifications, url_prefix='/api')
+app.register_blueprint(products, url_prefix='/api')
 
 
 with app.app_context():
@@ -26,6 +29,7 @@ with app.app_context():
     db.create_all()
     adminJwt.init_app(app)
     jwt.init_app(app)
+    celery.init_app(app)
 
 if __name__ == '__main__':
     app.run()

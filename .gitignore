@@ -2,3 +2,5 @@ __pycache__
 apivenv
 migrations
 .env
+instance
+celerybeat-schedule

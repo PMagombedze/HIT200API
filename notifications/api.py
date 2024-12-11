@@ -6,12 +6,13 @@ from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity
 import requests
 from auth.api import jwt_redis_blocklist
 from models.db import User, db, Product
-from celery import Celery
+from flask_celery import Celery
 from celery.schedules import crontab
+
 
 notifications = Blueprint('notifications', __name__)
 
-celery = Celery('tasks', broker=os.environ.get('CELERY_BROKER_URL'))
+celery = Celery()
 celery.conf.broker_connection_retry_on_startup = True
 
 CELERYBEAT_SCHEDULE = {
@@ -22,19 +23,19 @@ CELERYBEAT_SCHEDULE = {
 }
 
 
-@celery.task
+@celery.task()
 def check_price_changes():
     products = Product.query.all()
     for product in products:
         old_price = product.last_recorded_price
         current_price = product.price
-        
+
         if old_price != current_price:
             notify_price_change.delay(product.id, old_price, current_price)
             product.last_recorded_price = current_price
             db.session.commit()
 
-@celery.task
+@celery.task()
 def notify_price_change(product_id, old_price, new_price):
     product = Product.query.get(product_id)
     users = User.query.all()
@@ -42,10 +43,10 @@ def notify_price_change(product_id, old_price, new_price):
         notification = {
             'message': f'Price changed for {product.name} from ${old_price} to ${new_price}'
         }
-        requests.post('http://localhost:5000/api/user/notifications', json=notification)
+    requests.post('http://localhost:5000/api/user/notifications', json=notification)
 
 
-@notifications.route('/product/<int:product_id>/price', methods=['PUT'])
+@notifications.route('/product/<string:product_id>/price', methods=['PUT'])
 @jwt_required()
 def update_product_price(product_id):
     if jwt_redis_blocklist.get(get_jwt()['jti']):
@@ -54,17 +55,17 @@ def update_product_price(product_id):
     product = Product.query.get(product_id)
     if not product:
         return jsonify({'message': 'Product not found'}), 404
-        
+
     new_price = request.json.get('price')
     if not new_price:
         return jsonify({'message': 'Price is required'}), 400
-        
+
     product.price = new_price
     db.session.commit()
-    
+
     # Trigger price check task
     check_price_changes.delay()
-    
+
     return jsonify({'message': 'Price updated successfully'}), 200
 
 @notifications.route('/user/notifications', methods=['POST'])
@@ -78,12 +79,12 @@ def create_notification():
     user_id = get_jwt_identity()
     if not user_id:
         return jsonify({'message': 'User not found'}), 404
-    
+
     # send notification to user via email
     user = User.query.get(user_id)
     if not user:
         return jsonify({'message': 'User not found'}), 404
-    
+
     subject = "Change in product price"
     sender = os.getenv('MAIL_USERNAME')
     recipients = [user.email]
