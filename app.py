@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from models.db import db
 from auth.api import auth, jwt
 from admin.api import admin, adminJwt
@@ -14,6 +14,10 @@ from notifications.api import celery
 app = Flask(__name__)
 app.config.from_object('config.Config')
 migrate = Migrate(app, db)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 app.register_blueprint(auth, url_prefix='/api')
 app.register_blueprint(admin, url_prefix='/api')

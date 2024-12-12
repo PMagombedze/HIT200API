@@ -4,6 +4,7 @@
 import os
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 class Config(object):
@@ -25,3 +26,5 @@ class Config(object):
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+    UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER')
+    MAX_CONTENT_LENGTH = 16 * 1000 * 1000

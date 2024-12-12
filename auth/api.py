@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
-from models.db import db, User
+from models.db import db, User, UserProfilePic
 import re
 import pyotp
 import os
@@ -10,6 +10,13 @@ import smtplib
 from email.mime.text import MIMEText
 from flask_bcrypt import generate_password_hash
 import redis
+from werkzeug.utils import secure_filename
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -60,6 +67,62 @@ def register():
     db.session.add(user)
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
+
+@auth.route('/user/profile', methods=['POST'])
+@jwt_required()
+def userProfile():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    # upload profile pic
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # Check if user already has a profile pic
+            existing_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+            if existing_pic:
+                return jsonify({'message': 'User already has a profile picture'}), 400
+            file.save(os.path.join(os.getenv('UPLOAD_FOLDER'), filename))
+            user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=filename)
+            db.session.add(user_profile_pic)
+            db.session.commit()
+            return jsonify({'message': 'Profile pic uploaded successfully'}), 200
+        else:
+            return jsonify({'message': 'Invalid file format'}), 400
+    return jsonify({'message': 'Profile pic not found'}), 404
+
+@auth.route('/user/profile', methods=['PUT'])
+@jwt_required()
+def updateProfile():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    # upload profile pic
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(os.getenv('UPLOAD_FOLDER'), filename))
+            # Check if user already has a profile pic
+            existing_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+            if existing_pic:
+                existing_pic.profile_pic = filename
+            else:
+                user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=filename)
+                db.session.add(user_profile_pic)
+            db.session.commit()
+            return jsonify({'message': 'Profile pic updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Invalid file format'}), 400
+    return jsonify({'message': 'Profile pic not found'}), 404
+
 
 @auth.route('/login', methods=['POST'])
 def login():
