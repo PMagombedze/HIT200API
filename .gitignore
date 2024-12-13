@@ -4,3 +4,5 @@ migrations
 .env
 instance
 celerybeat-schedule
+selfsigned.key
+selfsigned.crt

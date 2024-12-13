@@ -238,6 +238,7 @@ class Product(db.Model):
             'description': self.description,
             'price': self.price,
             'url': self.url,
+            'last_recorded_price': self.last_recorded_price,
             'model': self.model,
             'brand': self.brand,
             'store': self.store

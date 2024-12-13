@@ -136,6 +136,7 @@ def createProduct():
                 brand=product_data['brand'],
                 description=product_data['description'],
                 url=product_data['url'],
+                last_recorded_price=float(product_data['price'].replace('$', '')),
                 store=product_data['store']
             )
             db.session.add(product)

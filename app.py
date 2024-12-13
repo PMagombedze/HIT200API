@@ -15,10 +15,6 @@ app = Flask(__name__)
 app.config.from_object('config.Config')
 migrate = Migrate(app, db)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 app.register_blueprint(auth, url_prefix='/api')
 app.register_blueprint(admin, url_prefix='/api')
 app.register_blueprint(forum, url_prefix='/api')

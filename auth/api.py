@@ -1,17 +1,19 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, session, url_for
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
 from models.db import db, User, UserProfilePic
+from oauthlib.oauth2 import WebApplicationClient
 import re
 import pyotp
 import os
 from datetime import timedelta, datetime
+import requests
+import json
 import arrow
 import smtplib
 from email.mime.text import MIMEText
 from flask_bcrypt import generate_password_hash
 import redis
 from werkzeug.utils import secure_filename
-
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
@@ -296,3 +298,81 @@ def logout():
     jti = get_jwt()["jti"]
     jwt_redis_blocklist.set(jti, "revoked", ex=timedelta(days=30))
     return jsonify(msg="Access token revoked"), 200
+
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
+def get_google_provider_cfg():
+    return requests.get(GOOGLE_DISCOVERY_URL).json()
+
+# Configure Google OAuth
+@auth.route('/google/login')
+def google_login():
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=request.base_url + "/callback",
+        scope=["openid", "email", "profile"],
+    )
+    return redirect(request_uri)
+   
+
+@auth.route('/google/login/callback')
+def google_callback():
+    code = request.args.get("code")
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code,
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+    client.parse_request_body_response(json.dumps(token_response.json()))
+    userinfo_response = requests.get(userinfo_endpoint, headers={"Authorization": f"Bearer {client.access_token}"})
+    if userinfo_response.json().get("email_verified"):
+        unique_id = userinfo_response.json()["sub"]
+        users_email = userinfo_response.json()["email"]
+        picture = userinfo_response.json()["picture"]
+        users_name = userinfo_response.json()["given_name"]
+        # Check if user already exists
+        user = User.query.filter_by(email=users_email).first()
+        if not user:
+            # Create a new user in the database
+            new_user = User(
+            id=unique_id,
+            email=users_email,
+            name=users_name,
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            # Add profile picture
+            user_profile_pic = UserProfilePic(user_id=new_user.id, profile_pic=picture)
+            db.session.add(user_profile_pic)
+            db.session.commit()
+        else:
+            user_profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+            if user_profile_pic:
+                user_profile_pic.profile_pic = picture
+            else:
+                user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=picture)
+                db.session.add(user_profile_pic)
+                db.session.commit()
+        # create access token
+        access_token = create_access_token(identity=unique_id, expires_delta=timedelta(minutes=15))
+        return jsonify({'access_token': access_token, 'message': 'login successful'}), 200
+    else:
+        return "User email not available or not verified by Google.", 400
