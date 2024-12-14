@@ -1,0 +1,55 @@
+{% include 'imports.html' %}
+
+<section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: none; border: 1px solid #f1f1f1;">
+                <h2 class="title">Forgot Password</h2>
+                <p class="subtitle is-6 mt-2">Please enter your email to receive a password reset link.</p>
+                <form class="forgot-password-form">
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="email" type="email" placeholder="Enter your email"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button style="width: 100%; height: 50px;" id="send-reset-link" class="button is-link" type="submit">Send Reset Link</button>
+                        </div>
+                    </div>
+                    <p class="subtitle is-6 mt-2">Remembered your password? <a href="/login" class="has-text-weight-bold">Login</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('email').addEventListener('input', function () {
+        const emailInput = this.value;
+        let messageElement = document.getElementById('email-message');
+        const sendButton = document.getElementById('send-reset-link');
+
+        if (!messageElement) {
+            messageElement = document.createElement('p');
+            messageElement.id = 'email-message';
+            messageElement.classList.add('has-text-danger', 'mt-2');
+            this.parentNode.appendChild(messageElement);
+        }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailPattern.test(emailInput)) {
+            this.setCustomValidity('');
+            this.classList.remove('is-danger');
+            messageElement.textContent = '';
+            sendButton.disabled = false;
+        } else {
+            this.classList.add('is-danger');
+            messageElement.textContent = 'Please enter a valid email address';
+            sendButton.disabled = true;
+        }
+    });
+
+    document.getElementById('send-reset-link').disabled = true;
+</script>

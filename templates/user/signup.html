@@ -1,0 +1,121 @@
+{% include 'imports.html' %}
+
+<section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: none; border: 1px solid #f1f1f1;">
+                <h2 class="title">Sign Up</h2>
+                <p class="subtitle is-6 mt-2">Please fill in the form to create an account.</p>
+                <form class="signup-form"></form>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="email" type="email" placeholder="Enter your email"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="password" type="password" placeholder="Enter your password"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="confirm-password" type="password" placeholder="Confirm your password"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button style="width: 100%; height: 50px;" id="signup-button" class="button is-link"
+                                type="submit">Sign Up</button>
+                        </div>
+                    </div>
+                    <p class="subtitle is-6 mt-2">Already have an account? <a href="/login" class="has-text-weight-bold">Login</a></p>
+                    <div class="field">
+                        <div class="control">
+                            <button style="width: 100%; height: 50px;" id="google-signup-button" class="button"
+                                type="button">
+                                <span class="icon">
+                                    <img src="{{ url_for('static', filename='images/google.ico')}}" alt="Google icon">
+                                </span>
+                                <span>Continue with Google</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/validator@13.6.0/validator.min.js"></script>
+<script>
+    document.getElementById('email').addEventListener('input', function () {
+        const emailInput = this.value;
+        const signupButton = document.getElementById('signup-button');
+
+        if (validator.isEmail(emailInput)) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (validator.isEmail(emailInput) && validatePassword(document.getElementById('password').value) && 
+            document.getElementById('password').value === document.getElementById('confirm-password').value) {
+            signupButton.disabled = false;
+        } else {
+            signupButton.disabled = true;
+        }
+    });
+
+    document.getElementById('password').addEventListener('input', function () {
+        const passwordInput = this.value;
+        const signupButton = document.getElementById('signup-button');
+
+        if (validatePassword(passwordInput)) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (validatePassword(passwordInput) && validator.isEmail(document.getElementById('email').value) && 
+            passwordInput === document.getElementById('confirm-password').value) {
+            signupButton.disabled = false;
+        } else {
+            signupButton.disabled = true;
+        }
+    });
+
+    document.getElementById('confirm-password').addEventListener('input', function () {
+        const confirmPasswordInput = this.value;
+        const signupButton = document.getElementById('signup-button');
+
+        if (confirmPasswordInput === document.getElementById('password').value) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (confirmPasswordInput === document.getElementById('password').value && 
+            validatePassword(document.getElementById('password').value) && 
+            validator.isEmail(document.getElementById('email').value)) {
+            signupButton.disabled = false;
+        } else {
+            signupButton.disabled = true;
+        }
+    });
+
+    document.getElementById('signup-button').disabled = true;
+
+    function validatePassword(password) {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return regex.test(password);
+    }
+</script>

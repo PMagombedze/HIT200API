@@ -29,6 +29,11 @@ app.register_blueprint(products, url_prefix='/api')
 def index():
     return render_template('index.html')
 
+@app.route('/reset/success')
+def reset_success():
+    return render_template('user/reset_success.html')
+
+
 @app.route('/a/dashboard')
 def admin_dashboard():
     return render_template('admin/dashboard.html')
