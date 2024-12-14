@@ -83,11 +83,14 @@
         event.preventDefault();
 
         const password = document.getElementById('password').value;
+        const token = new URLSearchParams(window.location.search).get('token');
+        cookie.set('token', token, { expires: 0.014 });
+
         fetch('/api/resetPassword', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + new URLSearchParams(window.location.search).get('token')
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({ password: password })
         })
