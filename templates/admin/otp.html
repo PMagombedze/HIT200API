@@ -1,0 +1,146 @@
+{% include 'imports.html' %}
+
+<script>
+    const token = cookie.get('admin_access_token');
+    if (!token) {
+        window.location.href = '/login';
+    }
+
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.message === "Token is valid") {
+                window.location.href = '/login';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/login';
+        });
+</script>
+
+<section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: none; border: 1px solid #f1f1f1;">
+                <h2 class="title">OTP Code Verification </h2>
+                <p class="subtitle is-6 mt-2">Please enter the OTP code sent to your email.</p>
+                <form class="otp-form">
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="OTP" type="text" placeholder="Enter your OTP"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button style="width: 100%; height: 50px;" id="verify-otp" class="button is-link"
+                                type="submit">Verify OTP</button>
+                        </div>
+                    </div>
+                    <p class="subtitle is-6 mt-2">Didn't receive the OTP code? <a id="resendOtp"
+                            class="has-text-weight-bold">Resend OTP</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('OTP').addEventListener('input', function () {
+        const otpInput = this.value;
+        let messageElement = document.getElementById('otp-message');
+        const verifyButton = document.getElementById('verify-otp');
+
+        if (!messageElement) {
+            messageElement = document.createElement('p');
+            messageElement.id = 'otp-message';
+            messageElement.classList.add('has-text-danger', 'mt-2');
+            this.parentNode.appendChild(messageElement);
+        }
+
+        if (otpInput.length === 6 && /^\d+$/.test(otpInput)) {
+            this.setCustomValidity('');
+            this.classList.remove('is-danger');
+            messageElement.textContent = '';
+            verifyButton.disabled = false;
+        } else {
+            this.classList.add('is-danger');
+            verifyButton.disabled = true;
+        }
+    });
+
+    document.getElementById('verify-otp').disabled = true;
+
+    /*
+    * post to /api/verifyOtp using jwt only
+    */
+    document.getElementById('verify-otp').addEventListener('click', function (event) {
+        event.preventDefault();
+        const otpInput = document.getElementById('OTP').value;
+        const token_ = cookie.get('admin_access_token');
+        if (!token_) {
+            window.location.href = '/login';
+        }
+        const data = {
+            otp: otpInput
+        };
+        fetch('/api/verifyOtp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token_}`
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "OTP verified successfully") {
+                    showNotification(data.message, 'success');
+                    cookie.set('admin_dash_token', data.dash_token, { expires: 0.0104 });
+                    setTimeout(() => {
+                        window.location.href = '/a/dashboard';
+                    }, 4000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred. Please try again later.', 'error');
+            });
+    });
+
+    document.getElementById('resendOtp').addEventListener('click', function (event) {
+        event.preventDefault();
+        const token_ = cookie.get('admin_access_token');
+        if (!token_) {
+            window.location.href = '/login';
+        }
+        fetch('/api/sendOtp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token_}`
+            }
+        })
+            .then(response => response.json())
+            .then(otpData => {
+                if (otpData.message === "OTP sent successfully") {
+                    showNotification('OTP sent successfully', 'success');
+                    setTimeout(function () {
+                        window.location.href = '/admin/otp';
+                    }, 4000);
+                } else {
+                    showNotification(otpData.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred while sending OTP, please try again', 'error');
+            });
+    });
+</script>

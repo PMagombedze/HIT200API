@@ -31,7 +31,7 @@ def adminLogin():
         return jsonify({'message': 'Invalid email or password'}), 401
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
-    return jsonify({'access_token': access_token, 'message': 'login succesful'}), 200
+    return jsonify({'access_token': access_token, 'message': 'Login succesful'}), 200
 
 
 @admin.route('/users')

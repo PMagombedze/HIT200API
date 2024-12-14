@@ -1,0 +1,26 @@
+{% include 'imports.html' %}
+
+<script>
+    const token = cookie.get('admin_dash_token');
+    if (!token) {
+        window.location.href = '/login';
+    }
+
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.message === "Token is valid") {
+            window.location.href = '/login';
+        }
+    })
+    .catch(error => {
+        window.location.href = '/login';
+    });
+</script>
+

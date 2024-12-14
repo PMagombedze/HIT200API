@@ -58,6 +58,10 @@ def user_register():
 def otp():
     return render_template('user/otp.html')
 
+@app.route('/admin/otp')
+def adminOtp():
+    return render_template('admin/otp.html')
+
 @app.route('/forgot_password')
 def forgot_password():
     return render_template('user/forgotpass.html')
