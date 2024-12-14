@@ -18,3 +18,15 @@
 
 <!--cookie-js-->
 <script src="{{ url_for('static', filename='js/cookie.js') }}"></script>
+
+<script>
+    function showNotification(message, type) {
+        new Notify({
+            status: type,
+            autoclose: true,
+            autotimeout: 3000,
+            text: message,
+            type: 'filled'
+        });
+    }
+</script>

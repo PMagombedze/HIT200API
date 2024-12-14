@@ -49,7 +49,6 @@
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/validator@13.6.0/validator.min.js"></script>
 <script>
     document.getElementById('email').addEventListener('input', function () {
         const emailInput = this.value;
@@ -118,4 +117,49 @@
         const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return regex.test(password);
     }
+
+    document.getElementById('google-signup-button').addEventListener('click', function () {
+        window.location.href = '/auth/google/login';
+    });
+
+    /** 
+     * post to /api/signup
+     */
+    document.getElementById('signup-button').addEventListener('click', function () {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const signupButton = document.getElementById('signup-button');
+        signupButton.disabled = true;
+        signupButton.innerHTML = '<span class="icon is-loading"><i class="fas fa-spinner fa-spin"></i></span>';
+        setTimeout(() => {
+            signupButton.innerHTML = 'Sign Up';
+        }, 3000);
+        fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                confirmPassword: confirmPassword
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "User registered successfully") {
+                    showNotification(data.message, 'success');
+                } else {
+                    signupButton.disabled = false;
+                    signupButton.innerHTML = 'Sign Up';
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred. Please try again', 'error');
+                signupButton.disabled = false;
+                signupButton.innerHTML = 'Sign Up';
+            });
+    });
 </script>

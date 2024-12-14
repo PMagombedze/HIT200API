@@ -45,7 +45,6 @@
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/validator@13.6.0/validator.min.js"></script>
 <script>
     document.getElementById('email').addEventListener('input', function () {
         const emailInput = this.value;
@@ -91,4 +90,46 @@
         const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return regex.test(password);
     }
+
+    document.getElementById('google-login-button').addEventListener('click', function () {
+        window.location.href = '/api/google/login';
+    });
+
+    /**
+     * post to /api/login
+     */
+    document.getElementById('login-button').addEventListener('click', function () {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const loginButton = document.getElementById('login-button');
+        loginButton.disabled = true;
+        loginButton.innerHTML = '<span class="icon is-loading is-small"><i class="fas fa-spinner fa-spin"></i></span>';
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error('Invalid email or password');
+                }
+            })
+            .then(data => {
+                localStorage.setItem('token', data.token);
+                window.location.href = '/';
+            })
+            .catch(error => {
+                console.error(error);
+                loginButton.disabled = false;
+                loginButton.innerHTML = 'Login';
+                alert('Invalid email or password');
+            });
+    });
 </script>
