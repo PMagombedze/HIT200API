@@ -1,6 +1,6 @@
 {% include 'imports.html' %}
 
-<script>
+<!-- <script>
     const token = cookie.get('admin_dash_token');
     if (!token) {
         window.location.href = '/login';
@@ -22,5 +22,149 @@
     .catch(error => {
         window.location.href = '/login';
     });
-</script>
+</script> -->
 
+<script src="{{ url_for('static', filename='js/apexcharts.js')}}"></script>
+
+<!--dashboard navbar-->
+<nav class="navbar pt-3 pb-3" style="border-bottom: 1.5px solid #f1f1f1;" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            PricePick
+        </a>
+    </div>
+
+    <div class="navbar-menu is-active">
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <a class="navbar-item">
+                    <span class="icon">
+                        <img src="{{ url_for('static', filename='images/user.svg')}}" alt="">
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!--dashboard sidebar-->
+<div style="display: flex;">
+    <aside class="menu" style="width: 250px; height: 100vh; border-right: 1.5px solid #f1f1f1;">
+        <ul class="menu-list">
+            <li>
+                <a href="/a/dashboard">
+                    <span class="icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </span>
+                    Overview
+                </a>
+            </li>
+            <li>
+                <a href="/admin/users">
+                    <span class="icon">
+                        <i class="fas fa-users"></i>
+                    </span>
+                    Users
+                </a>
+            </li>
+            <li>
+                <a href="/admin/settings">
+                    <span class="icon">
+                        <i class="fas fa-cogs"></i>
+                    </span>
+                    Settings
+                </a>
+            </li>
+            <li>
+                <a href="/admin/reports">
+                    <span class="icon">
+                        <i class="fas fa-chart-line"></i>
+                    </span>
+                    Reports
+                </a>
+            </li>
+            <li>
+                <a href="/admin/support">
+                    <span class="icon">
+                        <i class="fas fa-life-ring"></i>
+                    </span>
+                    Support
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!--dashboard content-->
+    <div class="container is-fluid" style="height: 100vh; overflow-y: auto;">
+        <div class="columns is-variable is-8" style="height: 50%;">
+            <div class="column is-half">
+                <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 100%;">
+                    <div id="chart" style="height: 100%;"></div>
+
+                    <script>
+                        var options = {
+                            chart: {
+                                type: 'bar',
+                                height: '100%'
+                            },
+                            series: [{
+                                name: 'sales',
+                                data: [30, 40, 45, 50, 49, 60, 70, 91, 125]
+                            }],
+                            xaxis: {
+                                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+                            }
+                        }
+
+                        var chart = new ApexCharts(document.querySelector("#chart"), options);
+                        chart.render();
+                    </script>
+                </div>
+            </div>
+            <div class="column is-half">
+                <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 100%;">
+                    <div id="pieChart" style="height: 100%;"></div>
+
+                    <script>
+                        var pieOptions = {
+                            chart: {
+                                type: 'pie',
+                                height: '100%'
+                            },
+                            series: [44, 55, 13, 43, 22],
+                            labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E']
+                        }
+
+                        var pieChart = new ApexCharts(document.querySelector("#pieChart"), pieOptions);
+                        pieChart.render();
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 50%;">
+            <div id="splineChart" style="height: 100%;"></div>
+
+            <script>
+                var splineOptions = {
+                    chart: {
+                        type: 'line',
+                        height: '100%'
+                    },
+                    series: [{
+                        name: 'sales',
+                        data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+                    }],
+                    xaxis: {
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+                    },
+                    stroke: {
+                        curve: 'smooth'
+                    }
+                }
+
+                var splineChart = new ApexCharts(document.querySelector("#splineChart"), splineOptions);
+                splineChart.render();
+            </script>
+        </div>
+    </div>
+</div>
