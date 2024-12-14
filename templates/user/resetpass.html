@@ -15,8 +15,8 @@
                     </div>
                     <div class="field">
                         <div class="control">
-                            <input class="input" id="cfm-password" type="password" placeholder="Confirm your new password"
-                                style="width: 100%; height: 50px;">
+                            <input class="input" id="cfm-password" type="password"
+                                placeholder="Confirm your new password" style="width: 100%; height: 50px;">
                         </div>
                     </div>
                     <div class="field">
@@ -78,4 +78,31 @@
         const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return regex.test(password);
     }
+
+    document.querySelector('.resetpass-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const password = document.getElementById('password').value;
+        fetch('/api/resetPassword', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + new URLSearchParams(window.location.search).get('token')
+            },
+            body: JSON.stringify({ password: password })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Password reset successfully') {
+
+                    window.location.href = '/reset/success';
+
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred. Please try again later.', 'error');
+            });
+    });
 </script>

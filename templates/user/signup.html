@@ -134,6 +134,7 @@
         signupButton.innerHTML = '<span class="icon is-loading"><i class="fas fa-spinner fa-spin"></i></span>';
         setTimeout(() => {
             signupButton.innerHTML = 'Sign Up';
+            signupButton.disabled = false;
         }, 3000);
         fetch('/api/register', {
             method: 'POST',

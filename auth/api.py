@@ -235,7 +235,7 @@ def forgotPassword():
         return jsonify({'message': 'User not found'}), 404
     #send email with reset password link
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
-    reset_link = f"http://localhost:5000/forgotpassword?token={access_token}"
+    reset_link = f"http://localhost:5000/reset_password?token={access_token}"
     subject = "Password Reset Request"
     sender = os.getenv('MAIL_USERNAME')
     recipients = [user.email]

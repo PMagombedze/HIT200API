@@ -19,7 +19,8 @@
                                 style="width: 100%; height: 50px;">
                         </div>
                     </div>
-                    <p class="subtitle is-6"><a href="/forgot_password" class="has-text-weight-bold">Forgot password?</a></p>
+                    <p class="subtitle is-6"><a href="/forgot_password" class="has-text-weight-bold">Forgot
+                            password?</a></p>
 
                     <div class="field">
                         <div class="control">
@@ -27,7 +28,8 @@
                                 type="submit">Login</button>
                         </div>
                     </div>
-                    <p class="subtitle is-6 mt-2">Don't have an account? <a href="/register" class="has-text-weight-bold">Sign Up</a></p>
+                    <p class="subtitle is-6 mt-2">Don't have an account? <a href="/register"
+                            class="has-text-weight-bold">Sign Up</a></p>
                     <div class="field">
                         <div class="control">
                             <button style="width: 100%; height: 50px;" id="google-login-button" class="button"
@@ -104,6 +106,10 @@
         const loginButton = document.getElementById('login-button');
         loginButton.disabled = true;
         loginButton.innerHTML = '<span class="icon is-loading is-small"><i class="fas fa-spinner fa-spin"></i></span>';
+        setTimeout(function () {
+            loginButton.innerHTML = 'Login';
+            loginButton.disabled = false;
+        }, 3000);
         fetch('/api/login', {
             method: 'POST',
             headers: {
@@ -114,22 +120,37 @@
                 password: password
             })
         })
-            .then(response => {
-                if (response.status === 200) {
-                    return response.json();
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "login successfull") {
+                    cookie.set('access_token', data.access_token, { expires: 0.0104 });
+                    fetch('/api/sendOtp', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${data.access_token}`
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(otpData => {
+                        if (otpData.message === "OTP sent successfully") {
+                            showNotification('OTP sent successfully', 'success');
+                            setTimeout(function () {
+                                window.location.href = '/otp';
+                            }, 4000);
+                        } else {
+                            showNotification(otpData.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showNotification('An error occurred while sending OTP, please try again', 'error');
+                    });
                 } else {
-                    throw new Error('Invalid email or password');
+                    showNotification(data.message, 'error');
                 }
             })
-            .then(data => {
-                localStorage.setItem('token', data.token);
-                window.location.href = '/';
-            })
             .catch(error => {
-                console.error(error);
-                loginButton.disabled = false;
-                loginButton.innerHTML = 'Login';
-                alert('Invalid email or password');
+                showNotification('An error occurred, please try again', 'error');
             });
     });
 </script>

@@ -46,10 +46,35 @@
             sendButton.disabled = false;
         } else {
             this.classList.add('is-danger');
-            messageElement.textContent = 'Please enter a valid email address';
             sendButton.disabled = true;
         }
     });
 
     document.getElementById('send-reset-link').disabled = true;
+
+    document.querySelector('.forgot-password-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const data = { email: email };
+
+        fetch('/api/forgotPassword', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Password reset email sent successfully") {
+                showNotification(data.message, 'success');
+            } else {
+               showNotification(data.message, 'error');
+            }
+        })
+        .catch((error) => {
+            showNotification('An error occurred. Please try again later.', 'error');
+        });
+    });
 </script>
