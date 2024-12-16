@@ -1,7 +1,7 @@
 <nav class="navbar pt-3 pb-3" style="border-bottom: 1.5px solid #f1f1f1;box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;" role="navigation"
     aria-label="main navigation">
     <div class="navbar-brand">
-        <a class="navbar-item" href="/a/dashboard">
+        <a class="navbar-item ml-4" href="/a/dashboard">
             PricePick
         </a>
     </div>
@@ -9,7 +9,7 @@
     <div class="navbar-menu is-active" style="box-shadow: none;">
         <div class="navbar-end">
             <div class="navbar-item">
-                <a class="navbar-item" id="logout">
+                <a class="navbar-item mr-2" id="logout">
                     <span class="icon">
                         <img src="{{ url_for('static', filename='images/user.svg')}}" alt="">
                     </span>
@@ -18,3 +18,32 @@
         </div>
     </div>
 </nav>
+
+
+<script>
+    document.getElementById('logout').addEventListener('click', function () {
+        fetch('/api/logout', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cookie.get('admin_dash_token')}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.msg === "Access token revoked") {
+                    cookie.remove('admin_dash_token');
+                    cookie.clear();
+                    showNotification('Logged out successfully', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 3000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred. Please try again later.', 'error');
+            });
+    });
+</script>

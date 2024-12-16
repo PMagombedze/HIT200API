@@ -81,6 +81,10 @@ def deleteUser(id):
         db.session.delete(user)
         db.session.commit()
         return jsonify({'message': 'User deleted successfully'}), 200
+    else:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User deleted successfully'}), 200
 
 
 @admin.route('/forums')

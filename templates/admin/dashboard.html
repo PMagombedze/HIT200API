@@ -1,6 +1,6 @@
 {% include 'imports.html' %}
 
-<!-- <script>
+<script>
     const token = cookie.get('admin_dash_token');
     if (!token) {
         window.location.href = '/e/404';
@@ -17,6 +17,8 @@
         .then(data => {
             if (data.message === "Token is valid") {
                 document.querySelector('.admin-section').style.display = 'block';
+                document.querySelector('#dashboard').classList.add('has-text-link');
+
             } else {
                 window.location.href = '/e/404';
             }
@@ -24,7 +26,7 @@
         .catch(error => {
             window.location.href = '/e/404';
         });
-</script> -->
+</script>
 
 <div class="admin-section">
     <!--dashboard navbar-->
@@ -32,7 +34,7 @@
 
     <!--dashboard sidebar-->
     <div style="display: flex;">
-       {% include 'admin/sidebar.html' %}
+        {% include 'admin/sidebar.html' %}
 
         <!--dashboard content-->
         <div class="container is-fluid" style="height: 100vh; overflow-y: auto;">
@@ -40,31 +42,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.getElementById('logout').addEventListener('click', function () {
-        fetch('/api/logout', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${cookie.get('admin_dash_token')}`
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.msg === "Access token revoked") {
-                    cookie.remove('admin_dash_token');
-                    cookie.clear();
-                    showNotification('Logged out successfully', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 3000);
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('An error occurred. Please try again later.', 'error');
-            });
-    });
-</script>

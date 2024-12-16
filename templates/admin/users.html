@@ -17,6 +17,7 @@
         .then(data => {
             if (data.message === "Token is valid") {
                 document.querySelector('.admin-section').style.display = 'block';
+                document.querySelector('#users').classList.add('has-text-link');
             } else {
                 window.location.href = '/e/404';
             }
