@@ -1,6 +1,6 @@
 {% include 'imports.html' %}
 
-<script>
+<!-- <script>
     const token = cookie.get('admin_dash_token');
     if (!token) {
         window.location.href = '/e/404';
@@ -24,243 +24,19 @@
         .catch(error => {
             window.location.href = '/e/404';
         });
-</script>
+</script> -->
 
-<div class="admin-section" style="display: none;">
+<div class="admin-section">
     <!--dashboard navbar-->
-    <nav class="navbar pt-3 pb-3" style="border-bottom: 1.5px solid #f1f1f1;" role="navigation"
-        aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="/">
-                PricePick
-            </a>
-        </div>
-
-        <div class="navbar-menu is-active" style="box-shadow: none;">
-            <div class="navbar-end">
-                <div class="navbar-item">
-                    <a class="navbar-item" id="logout">
-                        <span class="icon">
-                            <img src="{{ url_for('static', filename='images/user.svg')}}" alt="">
-                        </span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    {% include 'admin/navbar.html' %}
 
     <!--dashboard sidebar-->
     <div style="display: flex;">
-        <aside class="menu" style="width: 250px; height: 100vh; border-right: 1.5px solid #f1f1f1;">
-            <ul class="menu-list">
-                <li>
-                    <a href="/a/dashboard">
-                        <span class="icon">
-                            <i class="fas fa-tachometer-alt"></i>
-                        </span>
-                        Overview
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/users">
-                        <span class="icon">
-                            <i class="fas fa-users"></i>
-                        </span>
-                        Users
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/settings">
-                        <span class="icon">
-                            <i class="fas fa-cogs"></i>
-                        </span>
-                        Settings
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/reports">
-                        <span class="icon">
-                            <i class="fas fa-chart-line"></i>
-                        </span>
-                        Reports
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/support">
-                        <span class="icon">
-                            <i class="fas fa-life-ring"></i>
-                        </span>
-                        Support
-                    </a>
-                </li>
-            </ul>
-        </aside>
+       {% include 'admin/sidebar.html' %}
 
         <!--dashboard content-->
         <div class="container is-fluid" style="height: 100vh; overflow-y: auto;">
-            <div class="columns is-variable is-8 mt-4">
-                <div class="column">
-                    <div class="box has-text-centered" style="box-shadow: none; border: 1px solid #f1f1f1;">
-                        <span class="icon is-large"
-                            style="background-color: #f1f1f1; border-radius: 50%; padding: 30px;">
-                            <i class="fas fa-users fa-2x"></i>
-                        </span>
-                        <h3 class="title is-4">Total Users</h3>
-                        <p class="subtitle is-6">1,234</p>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="box has-text-centered" style="box-shadow: none; border: 1px solid #f1f1f1;">
-                        <span class="icon is-large"
-                            style="background-color: #f1f1f1; border-radius: 50%; padding: 30px;">
-                            <i class="fas fa-box-open fa-2x"></i>
-                        </span>
-                        <h3 class="title is-4">Total Products</h3>
-                        <p class="subtitle is-6">567</p>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="box has-text-centered" style="box-shadow: none; border: 1px solid #f1f1f1;">
-                        <span class="icon is-large"
-                            style="background-color: #f1f1f1; border-radius: 50%; padding: 30px;">
-                            <i class="fas fa-dollar-sign fa-2x"></i>
-                        </span>
-                        <h3 class="title is-4">Total Profits</h3>
-                        <p class="subtitle is-6">$12,345</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="columns is-variable is-8" style="height: 50%;">
-                <div class="column is-half">
-                    <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 100%;">
-                        <canvas id="chart" style="height: 100%;"></canvas>
-                        <script>
-                            var ctx = document.getElementById('chart').getContext('2d');
-                            var lineChart = new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                                    datasets: [{
-                                        label: 'Sales',
-                                        data: [65, 59, 80, 81, 56, 55, 40],
-                                        borderColor: '#3273dc',
-                                        borderWidth: 4,
-                                        fill: true,
-                                        backgroundColor: 'rgba(50, 115, 220, 0.2)',
-                                        tension: 0.4 // This makes the line curvy
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    scales: {
-                                        x: {
-                                            display: true,
-                                            title: {
-                                                display: true,
-                                                text: 'Month',
-                                                font: {
-                                                    size: 16,
-                                                    weight: 'bold',
-                                                    family: 'Inter'
-                                                }
-                                            },
-                                            ticks: {
-                                                font: {
-                                                    family: 'Inter'
-                                                }
-                                            }
-                                        },
-                                        y: {
-                                            display: true,
-                                            title: {
-                                                display: true,
-                                                text: 'Value',
-                                                font: {
-                                                    size: 16,
-                                                    weight: 'bold',
-                                                    family: 'Inter'
-                                                }
-                                            },
-                                            ticks: {
-                                                font: {
-                                                    family: 'Inter'
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                        </script>
-                    </div>
-                </div>
-                <div class="column is-half">
-                    <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 100%;">
-                        <canvas id="pieChart" style="height: 100%;"></canvas>
-                        <script>
-                            var ctx = document.getElementById('pieChart').getContext('2d');
-                            var doughnutChart = new Chart(ctx, {
-                                type: 'doughnut',
-                                data: {
-                                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                                    datasets: [{
-                                        label: 'Votes',
-                                        data: [12, 19, 3, 5, 2, 3],
-                                        backgroundColor: [
-                                            '#4B0082',
-                                            '#0000FF',
-                                            '#8A2BE2',
-                                            '#5F9EA0',
-                                            '#7B68EE',
-                                            '#6A5ACD'
-                                        ],
-                                        borderColor: [
-                                            '#4B0082',
-                                            '#0000FF',
-                                            '#8A2BE2',
-                                            '#5F9EA0',
-                                            '#7B68EE',
-                                            '#6A5ACD'
-                                        ],
-                                        borderWidth: 2
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: {
-                                            position: 'top',
-                                            labels: {
-                                                font: {
-                                                    size: 14,
-                                                    family: 'Inter'
-                                                }
-                                            }
-                                        },
-                                        tooltip: {
-                                            callbacks: {
-                                                label: function (tooltipItem) {
-                                                    return tooltipItem.label + ': ' + tooltipItem.raw + '%';
-                                                }
-                                            },
-                                            titleFont: {
-                                                size: 16,
-                                                family: 'Inter'
-                                            },
-                                            bodyFont: {
-                                                size: 14,
-                                                family: 'Inter'
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                        </script>
-                    </div>
-                </div>
-            </div>
+            {% include 'admin/overview.html' %}
         </div>
     </div>
 </div>

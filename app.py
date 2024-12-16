@@ -74,6 +74,22 @@ def reset_password():
 def forum_page():
     return render_template('user/forum.html')
 
+@app.route('/a/users')
+def users():
+    return render_template('admin/users.html')
+
+@app.route('/a/support')
+def support():
+    return render_template('admin/support.html')
+
+@app.route('/a/settings')
+def settings():
+    return render_template('admin/settings.html')
+
+@app.route('/a/reports')
+def reports():
+    return render_template('admin/reports.html')
+
 @app.route('/e/404')
 def error_404():
     return render_template('error/404.html')

@@ -1,0 +1,164 @@
+<div class="columns is-variable is-8 mt-4">
+    <div class="column">
+        <div class="box has-text-centered" style="box-shadow: none; border: 1px solid #f1f1f1;">
+            <span class="icon is-large"
+                style="background-color: #f1f1f1; border-radius: 50%; padding: 30px;">
+                <i class="fas fa-users fa-2x"></i>
+            </span>
+            <h3 class="title is-4 mt-3">Total Users</h3>
+            <p class="subtitle is-6">1,234</p>
+        </div>
+    </div>
+    <div class="column">
+        <div class="box has-text-centered" style="box-shadow: none; border: 1px solid #f1f1f1;">
+            <span class="icon is-large"
+                style="background-color: #f1f1f1; border-radius: 50%; padding: 30px;">
+                <i class="fas fa-box-open fa-2x"></i>
+            </span>
+            <h3 class="title is-4 mt-3">Total Products</h3>
+            <p class="subtitle is-6">567</p>
+        </div>
+    </div>
+    <div class="column">
+        <div class="box has-text-centered" style="box-shadow: none; border: 1px solid #f1f1f1;">
+            <span class="icon is-large"
+                style="background-color: #f1f1f1; border-radius: 50%; padding: 30px;">
+                <i class="fas fa-dollar-sign fa-2x"></i>
+            </span>
+            <h3 class="title is-4 mt-3">Total Profits</h3>
+            <p class="subtitle is-6">$12,345</p>
+        </div>
+    </div>
+</div>
+
+<div class="columns is-variable is-8" style="height: 50%;">
+    <div class="column is-half">
+        <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 100%;">
+            <canvas id="chart" style="height: 100%;"></canvas>
+            <script>
+                var ctx = document.getElementById('chart').getContext('2d');
+                var lineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                        datasets: [{
+                            label: 'Sales',
+                            data: [65, 59, 80, 81, 56, 55, 40],
+                            borderColor: '#3273dc',
+                            borderWidth: 4,
+                            fill: true,
+                            backgroundColor: 'rgba(50, 115, 220, 0.2)',
+                            tension: 0.4 // This makes the line curvy
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Month',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold',
+                                        family: 'Inter'
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        family: 'Inter'
+                                    }
+                                }
+                            },
+                            y: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Value',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold',
+                                        family: 'Inter'
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        family: 'Inter'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+    <div class="column is-half">
+        <div class="box mt-3" style="box-shadow: none; border: 1px solid #f1f1f1; height: 100%;">
+            <canvas id="pieChart" style="height: 100%;"></canvas>
+            <script>
+                var ctx = document.getElementById('pieChart').getContext('2d');
+                var doughnutChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                        datasets: [{
+                            label: 'Votes',
+                            data: [12, 19, 3, 5, 2, 3],
+                            backgroundColor: [
+                                '#3273dc',
+                                '#023e8a',
+                                '#0096c7',
+                                '#48cae4',
+                                '#90e0ef',
+                                '#caf0f8'
+                            ],
+                            borderColor: [
+                                '#3273dc',
+                                '#023e8a',
+                                '#0096c7',
+                                '#48cae4',
+                                '#90e0ef',
+                                '#caf0f8'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%', // This makes the chart thinner
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: 14,
+                                        family: 'Inter'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + '%';
+                                    }
+                                },
+                                titleFont: {
+                                    size: 18,
+                                    family: 'Inter'
+                                },
+                                bodyFont: {
+                                    size: 18,
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>
