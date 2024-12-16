@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template
 from models.db import db
 from auth.api import auth, jwt
 from admin.api import admin, adminJwt
@@ -81,7 +81,7 @@ def error_404():
 # 404 error
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('error/404.html'), 404
+    return redirect('/e/404')
 
 # 500 error
 @app.errorhandler(500)

@@ -1,6 +1,10 @@
 <!--bulma css-->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
 <!--simple-notify css-->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notify.css') }}">
 
@@ -9,6 +13,9 @@
 
 <!--validator js-->
 <script src="{{ url_for('static', filename='js/validator.js') }}"></script>
+
+<!-- charts js-->
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 
 <!--font awesome-->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
@@ -22,6 +29,23 @@
 <style>
     body {
         background-color: #fff;
+    }
+
+    /* Make scrollbar thin */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 </style>
 
