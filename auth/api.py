@@ -37,8 +37,10 @@ def checkPassword(password):
     return re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", password)
 
 # use pyotp for otp generation
+from dotenv import load_dotenv
+load_dotenv()
 totp = pyotp.TOTP(os.environ.get('OTP_SECRET'))
-otp_ = totp.at(datetime.now() + timedelta(minutes=15))
+otp_ = totp.now()
 
 @auth.route('/register', methods=['POST'])
 def register():
