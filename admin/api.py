@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity, JWTManager, create_access_token
-from models.db import db, User, Forum, Product
+from models.db import db, User, Forum, Product, UserProfilePic
 from datetime import timedelta
 import redis
 import json
@@ -75,9 +75,12 @@ def deleteUser(id):
     user = User.query.filter_by(id=id).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'message': 'User deleted successfully'}), 200
+    user_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+    if user_pic:
+        db.session.delete(user_pic)
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User deleted successfully'}), 200
 
 
 @admin.route('/forums')

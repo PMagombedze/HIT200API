@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template
 from models.db import db
 from auth.api import auth, jwt
 from admin.api import admin, adminJwt
@@ -70,6 +70,39 @@ def forgot_password():
 def reset_password():
     return render_template('user/resetpass.html')
 
+@app.route('/forum')
+def forum_page():
+    return render_template('user/forum.html')
+
+@app.route('/a/users')
+def users():
+    return render_template('admin/users.html')
+
+@app.route('/a/support')
+def support():
+    return render_template('admin/support.html')
+
+@app.route('/a/settings')
+def settings():
+    return render_template('admin/settings.html')
+
+@app.route('/a/reports')
+def reports():
+    return render_template('admin/reports.html')
+
+@app.route('/e/404')
+def error_404():
+    return render_template('error/404.html')
+
+# 404 error
+@app.errorhandler(404)
+def page_not_found(e):
+    return redirect('/e/404')
+
+# 500 error
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error/500.html'), 500
 
 with app.app_context():
     db.init_app(app)

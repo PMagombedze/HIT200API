@@ -16,7 +16,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.message === "Token is valid") {
-                document.querySelector('.dash-section').style.display = 'block';
+                document.querySelector('.forum-section').style.display = 'block';
             } else {
                 window.location.href = '/e/404';
             }
@@ -27,6 +27,6 @@
 </script>
 
 <!-- Initially hidden section -->
-<div class="dash-section" style="display: none;">
-    welcome to dash
-</div>
+ <div class="forum-section" style="display: none;">
+forum
+ </div>

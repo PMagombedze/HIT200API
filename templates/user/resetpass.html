@@ -1,35 +1,65 @@
 {% include 'imports.html' %}
 
-<section class="hero is-fullheight">
-    <div class="hero-body">
-        <div class="container has-text-centered">
-            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: none; border: 1px solid #f1f1f1;">
-                <h2 class="title">Reset Password</h2>
-                <p class="subtitle is-6 mt-2">Please enter your new password and confirm it.</p>
-                <form class="resetpass-form">
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="password" type="password" placeholder="Enter your new password"
-                                style="width: 100%; height: 50px;">
+<script>
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    if (!token) {
+        window.location.href = '/e/404';
+    }
+
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Token is valid") {
+                document.querySelector('.resetpass-section').style.display = 'block';
+            } else {
+                window.location.href = '/e/404';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/e/404';
+        });
+</script>
+
+
+<div class="resetpass-section" style="display: none;">
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: none; border: 1px solid #f1f1f1;">
+                    <h2 class="title">Reset Password</h2>
+                    <p class="subtitle is-6 mt-2">Please enter your new password and confirm it.</p>
+                    <form class="resetpass-form">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input" id="password" type="password" placeholder="Enter your new password"
+                                    style="width: 100%; height: 50px;">
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="cfm-password" type="password"
-                                placeholder="Confirm your new password" style="width: 100%; height: 50px;">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input" id="cfm-password" type="password"
+                                    placeholder="Confirm your new password" style="width: 100%; height: 50px;">
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <button style="width: 100%; height: 50px;" id="reset-button" class="button is-link"
-                                type="submit">Reset</button>
+                        <div class="field">
+                            <div class="control">
+                                <button style="width: 100%; height: 50px;" id="reset-button" class="button is-link"
+                                    type="submit">Reset</button>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 
 <script>
     document.getElementById('password').addEventListener('input', function () {

@@ -3,7 +3,7 @@
 <script>
     const token = cookie.get('token');
     if (!token) {
-        window.location.href = '/';
+        window.location.href = '/e/404';
     }
 
     fetch('/api/verifyToken', {
@@ -15,19 +15,19 @@
     })
         .then(response => response.json())
         .then(data => {
-            if (data.message !== "Token is valid") {
-                window.location.href = '/';
+            if (data.message === "Token is valid") {
+                document.querySelector('.reset-section').style.display = 'block';
             } else {
-                document.getElementById('reset-section').style.display = 'block';
+                window.location.href = '/e/404';
             }
         })
         .catch(error => {
-            window.location.href = '/';
+            window.location.href = '/e/404';
         });
 </script>
 
 <!-- Initially hidden section -->
-<div id="reset-section" style="display: none;">
+<div class="reset-section" style="display: none;">
     <section class="hero is-fullheight">
         <div class="hero-body">
             <div class="container has-text-centered">

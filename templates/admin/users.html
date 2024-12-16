@@ -1,0 +1,146 @@
+{% include 'imports.html' %}
+
+<script>
+    const token = cookie.get('admin_dash_token');
+    if (!token) {
+        window.location.href = '/e/404';
+    }
+
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Token is valid") {
+                document.querySelector('.admin-section').style.display = 'block';
+            } else {
+                window.location.href = '/e/404';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/e/404';
+        });
+</script>
+
+<div class="admin-section">
+    <!--dashboard navbar-->
+    {% include 'admin/navbar.html' %}
+
+    <!--dashboard sidebar-->
+    <div style="display: flex;">
+       {% include 'admin/sidebar.html' %}
+
+        <!--dashboard content-->
+        <div class="container is-fluid" style="height: 100vh; overflow-y: auto;">
+            <div class="box" style="border: 1px solid #f1f1f1;box-shadow: none;margin-top: 50px;">
+                <table class="table is-fullwidth is-striped" style="--stripe-color: #f1f1f1;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Is Admin?</th>
+                            <th>Subscribed?</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = cookie.get('admin_dash_token');
+        if (!token) {
+            window.location.href = '/e/404';
+            return;
+        }
+
+        fetch('/api/verifyToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Token is valid") {
+                document.querySelector('.admin-section').style.display = 'block';
+                fetchUsers(token);
+            } else {
+                window.location.href = '/e/404';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/e/404';
+        });
+    });
+
+    function fetchUsers(token) {
+        fetch('/api/users', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('table tbody');
+            data.users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.email}</td>
+                    <td>${user.is_admin ? 'Yes' : 'No'}</td>
+                    <td>${user.subscribed ? 'Yes' : 'No'}</td>
+                    <td>
+                        <!-- Add action buttons here -->
+                        <button class="button is-small is-danger">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            showNotification('Error fetching users', 'error');
+        });
+    }
+
+    document.querySelector('table').addEventListener('click', function(event) {
+        if (event.target.classList.contains('is-danger')) {
+            const row = event.target.closest('tr');
+            const userId = row.querySelector('td').textContent;
+            const token = cookie.get('admin_dash_token');
+
+            fetch(`/api/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "User deleted successfully") {
+                    row.remove();
+                    showNotification('User deleted successfully', 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error deleting user', 'error');
+            });
+        }
+    });
+</script>

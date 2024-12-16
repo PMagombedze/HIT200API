@@ -3,7 +3,7 @@
 <script>
     const token = cookie.get('access_token');
     if (!token) {
-        window.location.href = '/login';
+        window.location.href = '/e/404';
     }
 
     fetch('/api/verifyToken', {
@@ -15,14 +15,14 @@
     })
         .then(response => response.json())
         .then(data => {
-            if (data.message !== "Token is valid") {
-                window.location.href = '/';
+            if (data.message === "Token is valid") {
+                document.querySelector('.otp-section').style.display = 'block';
             } else {
-                document.getElementById('otp-section').style.display = 'block';
+                window.location.href = '/e/404';
             }
         })
         .catch(error => {
-            window.location.href = '/login';
+            window.location.href = '/e/404';
         });
 </script>
 
