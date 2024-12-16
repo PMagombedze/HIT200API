@@ -27,7 +27,8 @@
             <div class="navbar-item">
                 <div class="field">
                     <p class="control has-icons-left">
-                        <input class="input" type="text" placeholder="Search for products...">
+                        <input class="input" type="text" placeholder="Search for products..."
+                        style="width: 600px;">
                         <span class="icon is-left">
                             <i class="fas fa-search"></i>
                         </span>
@@ -38,21 +39,23 @@
 
         <div class="navbar-end">
             <div class="navbar-item">
+                <button>Login</button>
+            </div>
+            <div class="navbar-item">
+                <button>Register</button>
+            </div>
+            <div class="navbar-item">
                 <figure class="image is-32x32">
-                    <img class="is-rounded" src="/path/to/profile-photo.jpg" alt="Profile Photo">
+                    <img class="is-rounded profile-photo" src="{{ url_for('static', filename='images/user.svg') }}" alt="Profile Photo">
                 </figure>
             </div>
             <div class="navbar-item">
-                <p>User Name</p>
+                <p>My Account</p>
             </div>
             <div class="navbar-item">
-                <span class="icon">
-                    <i class="fas fa-chart-bar"></i>
-                </span>
-            </div>
-            <div class="navbar-item">
-                <span class="icon">
+                <span class="icon wishlist-count">
                     <i class="fas fa-heart"></i>
+                    <span class="count">10</span>
                 </span>
             </div>
         </div>
