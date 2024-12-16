@@ -70,6 +70,23 @@ def forgot_password():
 def reset_password():
     return render_template('user/resetpass.html')
 
+@app.route('/forum')
+def forum_page():
+    return render_template('user/forum.html')
+
+@app.route('/e/404')
+def error_404():
+    return render_template('error/404.html')
+
+# 404 error
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error/404.html'), 404
+
+# 500 error
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error/500.html'), 500
 
 with app.app_context():
     db.init_app(app)
