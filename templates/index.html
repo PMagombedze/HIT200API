@@ -3,6 +3,43 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <p>Your paragraph text goes here !</p>
-    {{ content }}
+<div class="container" style="margin-top: 9vh; margin-bottom: 9vh;">
+    <div class="columns">
+        <div class="column is-two-thirds">
+            <div class="columns is-multiline">
+                <div class="column is-half">
+                    <div class="box short" id="section1"></div>
+                </div>
+                <div class="column is-half">
+                    <div class="box short" id="section2"></div>
+                </div>
+                <div class="column is-half">
+                    <div class="box tall" id="section3"></div>
+                </div>
+                <div class="column is-half">
+                    <div class="box tall" id="section4"></div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box tall" id="section5"></div>
+            <div class="columns">
+                <div class="column">
+                    <div class="box short" id="section6"></div>
+                </div>
+                <div class="column">
+                    <div class="box short" id="section7"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="slider" style="margin-bottom: 9vh;">
+    <span class="dot" onclick="currentSlide(1)"></span>
+    <span class="dot" onclick="currentSlide(2)"></span>
+    <span class="dot" onclick="currentSlide(3)"></span>
+    <span class="dot" onclick="currentSlide(4)"></span>
+    <span class="dot" onclick="currentSlide(5)"></span>
+    <span class="dot" onclick="currentSlide(6)"></span>
+</div>
 {% endblock %}

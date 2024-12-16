@@ -1,3 +1,60 @@
-<nav>
-    <!-- Your navbar content here -->
+<!-- filepath: HIT200API/templates/navbar.html -->
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Site Logo" width="112" height="28">
+        </a>
+    </div>
+
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    Catalogue
+                </a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item">
+                        Option 1
+                    </a>
+                    <a class="navbar-item">
+                        Option 2
+                    </a>
+                    <a class="navbar-item">
+                        Option 3
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-item">
+                <div class="field">
+                    <p class="control has-icons-left">
+                        <input class="input" type="text" placeholder="Search for products...">
+                        <span class="icon is-left">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <figure class="image is-32x32">
+                    <img class="is-rounded" src="/path/to/profile-photo.jpg" alt="Profile Photo">
+                </figure>
+            </div>
+            <div class="navbar-item">
+                <p>User Name</p>
+            </div>
+            <div class="navbar-item">
+                <span class="icon">
+                    <i class="fas fa-chart-bar"></i>
+                </span>
+            </div>
+            <div class="navbar-item">
+                <span class="icon">
+                    <i class="fas fa-heart"></i>
+                </span>
+            </div>
+        </div>
+    </div>
 </nav>
