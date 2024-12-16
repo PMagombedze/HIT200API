@@ -8677,7 +8677,8 @@ a.navbar-item.is-selected {
 
     .navbar-end {
         justify-content: flex-end;
-        margin-inline-start: auto
+        margin-inline-start: auto;
+        margin-right: 5rem
     }
 
     .navbar-dropdown {
@@ -24419,4 +24420,26 @@ screen and (min-width:769px) {
     background-size: cover; /* or 'contain' if you prefer */
     background-position: center;
     background-repeat: no-repeat;
+}
+
+.wishlist-count {
+    position: relative;
+    display: inline-block;
+}
+
+.wishlist-count .count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 0px 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.profile-photo {
+    border: 2px solid black;
+    margin-top: 0.2rem;
 }
