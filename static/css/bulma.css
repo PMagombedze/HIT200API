@@ -24387,8 +24387,8 @@ screen and (min-width:769px) {
     pointer-events: all !important
 }
 
-/* index styles */
-
+/* Index.html */
+/* Short and Tall classes for height settings */
 .short {
     height: 150px;
 }
@@ -24397,6 +24397,7 @@ screen and (min-width:769px) {
     height: 300px;
 }
 
+/* Slider and dot styles for navigation */
 .slider {
     text-align: center;
     margin-top: 20px;
@@ -24413,15 +24414,17 @@ screen and (min-width:769px) {
 }
 
 .active {
-    background-color: #717171;
+    background-color: deepskyblue;
 }
 
+/* Background settings for size classes */
 .short, .tall, .large, .small {
     background-size: cover; /* or 'contain' if you prefer */
     background-position: center;
     background-repeat: no-repeat;
 }
 
+/* Wishlist count and icon styles */
 .wishlist-count {
     position: relative;
     display: inline-block;
@@ -24439,6 +24442,22 @@ screen and (min-width:769px) {
     font-weight: bold;
 }
 
+.wishlist-icon {
+    position: absolute;
+    top: 10px;
+    left: 178px;
+    cursor: pointer;
+}
+
+.wishlist-icon svg {
+    fill: black;
+}
+
+.wishlist-icon svg.filled {
+    fill: red;
+}
+
+/* Profile photo border and margin */
 .profile-photo {
     border: 2px solid black;
     margin-top: 0.2rem;

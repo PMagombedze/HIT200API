@@ -3,9 +3,14 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+
+<!-- The sections are laid out in a grid using Bulma's column classes. The boxes are
+    then assigned to these columns. The grid is responsive, meaning that the
+    layout will change depending on the screen size. -->
+
 <div class="container" style="margin-top: 9vh; margin-bottom: 9vh;">
     <div class="columns">
-        <div class="column is-two-thirds">
+        <div class="column is-half">
             <div class="columns is-multiline">
                 <div class="column is-half">
                     <div class="box short" id="section1"></div>
@@ -22,7 +27,7 @@
             </div>
         </div>
         <div class="column">
-            <div class="box tall" id="section5"></div>
+            <div class="box tall long" id="section5"></div>
             <div class="columns">
                 <div class="column">
                     <div class="box short" id="section6"></div>
@@ -34,6 +39,9 @@
         </div>
     </div>
 </div>
+
+<!-- This is a slider with dots that represent each section/image being displayed. -->
+
 <div class="slider" style="margin-bottom: 9vh;">
     <span class="dot" onclick="currentSlide(1)"></span>
     <span class="dot" onclick="currentSlide(2)"></span>
@@ -42,4 +50,16 @@
     <span class="dot" onclick="currentSlide(5)"></span>
     <span class="dot" onclick="currentSlide(6)"></span>
 </div>
+
+<!-- This section displays a list of products with super discounts -->
+
+<section class="section">
+    <div class="container">
+      <h2 class="title is-4" style="color: black;">Super Discounts</h2>
+      <div class="columns is-multiline" id="products-grid">
+        <!-- Products will be injected here by JavaScript -->
+      </div>
+    </div>
+</section>
+
 {% endblock %}
