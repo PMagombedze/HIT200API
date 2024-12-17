@@ -1,6 +1,6 @@
 {% include 'imports.html' %}
 
-<!-- <script>
+<script>
     const token = cookie.get('admin_dash_token');
     if (!token) {
         window.location.href = '/e/404';
@@ -26,7 +26,47 @@
         .catch(error => {
             window.location.href = '/e/404';
         });
-</script> -->
+
+    fetch('/api/users', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Users retrieved") {
+                const users = document.getElementById('num-users');
+                users.textContent = data.num_users;
+            } else {
+                const users = document.getElementById('num-users');
+                users.textContent = '0';
+            }
+        })
+        .catch(error => {
+            showNotification('Error fetching users', 'error');
+        });
+
+    fetch('/api/products', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Products retrieved successfully") {
+                const products = document.getElementById('num-products');
+                products.textContent = data.num_products;
+            } else {
+                const products = document.getElementById('num-products');
+                products.textContent = '0';
+            }
+        })
+        .catch(error => {
+            showNotification('Error fetching products', 'error');
+        });
+</script>
 
 <div class="admin-section">
     <!--dashboard navbar-->

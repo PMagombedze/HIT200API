@@ -176,13 +176,14 @@ class Product(db.Model):
     brand = db.Column(db.String(80), nullable=False)
     store = db.Column(db.String(80), nullable=False)
 
-    def __init__(self, name, description, price, url, model, brand, store):
+    def __init__(self, name, description, price, url, model, brand, store, last_recorded_price):
         self.name = name
         self.description = description
         self.price = price
         self.url = url
         self.model = model
         self.brand = brand
+        self.last_recorded_price = last_recorded_price
         self.store = store
         self.id = str(uuid.uuid4())
     

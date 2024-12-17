@@ -8,7 +8,6 @@ import os
 from auth.api import jwt_redis_blocklist
 
 # Initialize Redis client
-redisClient = redis.StrictRedis(host=os.environ.get('REDIS_URL'), port=os.environ.get('REDIS_PORT'), db=int(os.environ.get('REDIS_DB')))
 
 adminJwt = JWTManager()
 
@@ -46,19 +45,12 @@ def userProfiles():
         return jsonify({'message': 'User not found'}), 404
     if not user.is_admin:
         return jsonify({'message': 'Forbidden'}), 403
-
-    # Try to get users from Redis cache
-    cached_users = redisClient.get('all_users')
-    if cached_users:
-        return jsonify({'users': json.loads(cached_users)}), 200
-
-    # If not in cache, get from database
+    # Get users from database
     users = User.query.all()
     users_data = [user.to_dict() for user in users]
-
-    redisClient.setex('all_users', 60, json.dumps(users_data))
-
-    return jsonify({'users': users_data}), 200
+    # count number of users
+    num_users = len(users_data)
+    return jsonify({'users': users_data, 'num_users': num_users, 'message': 'Users retrieved'}), 200
 
 
 @admin.route('/users/<string:id>', methods=['DELETE'])
@@ -149,3 +141,19 @@ def createProduct():
             db.session.add(product)
     db.session.commit()
     return jsonify({'message': 'Products created successfully'}), 201
+
+@admin.route('/products', methods=['GET'])
+@jwt_required()
+def getProducts():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    if not user.is_admin:
+        return jsonify({'message': 'Fobbiden'}), 403
+    products = Product.query.all()
+    # product count
+    num_products = len(products)
+    return jsonify({'products': [product.to_dict() for product in products], 'message': 'Products retrieved successfully', 'num_products': num_products}), 200
