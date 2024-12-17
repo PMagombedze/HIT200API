@@ -117,34 +117,6 @@ def displayProfilePic():
         return jsonify({'message': 'Profile pic not found'}), 404
     return jsonify({'img_url': profile_pic.profile_pic, 'message': 'Profile pic found'}), 200
 
-@auth.route('/user/profile', methods=['PUT'])
-@jwt_required()
-def updateProfile():
-    # check redis blocklist
-    if jwt_redis_blocklist.get(get_jwt()['jti']):
-        return jsonify({'message': 'Token revoked'}), 401
-    user = User.query.filter_by(id=get_jwt_identity()).first()
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-    # upload profile pic
-    if 'profile_pic' in request.files:
-        file = request.files['profile_pic']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(os.getenv('UPLOAD_FOLDER'), filename))
-            # Check if user already has a profile pic
-            existing_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
-            if existing_pic:
-                existing_pic.profile_pic = filename
-            else:
-                user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=filename)
-                db.session.add(user_profile_pic)
-            db.session.commit()
-            return jsonify({'message': 'Profile pic updated successfully'}), 200
-        else:
-            return jsonify({'message': 'Invalid file format'}), 400
-    return jsonify({'message': 'Profile pic not found'}), 404
-
 @auth.route('/user/profile', methods=['DELETE'])
 @jwt_required()
 def deleteProfilePic():
@@ -185,7 +157,7 @@ def login():
     if user.is_admin:
         return jsonify({'message': 'Please use admin panel'}), 417
 
-    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
+    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=60))
     return jsonify({'access_token': access_token, 'message': 'login successfull'}), 200
 
 
@@ -200,7 +172,7 @@ def verifyToken():
     if not current_user:
         return jsonify({'message': 'Invalid token'}), 401
     user = User.query.filter_by(id=str(current_user)).first()
-    expires_at = arrow.utcnow().shift(minutes=15, hours=2).isoformat()
+    expires_at = arrow.utcnow().shift(minutes=60, hours=2).isoformat()
     return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email, 'is_admin': user.is_admin}), 200
 
 @auth.route('/sendOtp', methods=['POST'])
@@ -264,7 +236,7 @@ def verifyOtp():
         return jsonify({'message': 'OTP is required'}), 400
     if otp != otp_:
         return jsonify({'message': 'Invalid OTP'}), 401
-    dash_access_token = create_access_token(identity=userId, expires_delta=timedelta(minutes=15))
+    dash_access_token = create_access_token(identity=userId, expires_delta=timedelta(minutes=60))
     return jsonify({'message': 'OTP verified successfully', 'dash_token': dash_access_token}), 200
 
 @auth.route('/forgotPassword', methods=['POST'])
@@ -277,7 +249,7 @@ def forgotPassword():
     if not user:
         return jsonify({'message': 'User not found'}), 404
     #send email with reset password link
-    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=15))
+    access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=60))
     reset_link = f"http://localhost:5000/reset_password?token={access_token}"
     subject = "Password Reset Request"
     sender = os.getenv('MAIL_USERNAME')
@@ -312,6 +284,39 @@ def forgotPassword():
         return jsonify({'message': 'Password reset email sent successfully'}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 500
+    
+# update profile
+@auth.route('/updateProfile', methods=['PUT'])
+@jwt_required()
+def updateProfile():
+    jti = get_jwt()["jti"]
+    if jwt_redis_blocklist.get(jti):
+        return jsonify({'message': 'Token revoked'}), 401
+    userId = get_jwt_identity()
+    if not userId:
+        return jsonify({'message': 'User not found'}), 404
+    user = User.query.filter_by(id=userId).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    data = request.get_json()
+    if not data:
+        return jsonify({'message': 'No data provided'}), 400
+    email = data.get('email')
+    password = data.get('password')
+
+    if email:
+        if not checkEmail(email):
+            return jsonify({'message': 'Email not valid'}), 400
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user and existing_user.id != userId:
+            return jsonify({'message': 'Email already exists'}), 400
+        user.email = email
+    if password:
+        if not checkPassword(password):
+            return jsonify({'message': 'Password not secure'}), 400
+        user.password = generate_password_hash(password)
+    db.session.commit()
+    return jsonify({'message': 'Profile updated successfully'}), 200
 
 @auth.route('/resetPassword', methods=['POST'])
 @jwt_required()
@@ -415,7 +420,7 @@ def google_callback():
                 db.session.add(user_profile_pic)
                 db.session.commit()
         # create access token
-        access_token = create_access_token(identity=unique_id, expires_delta=timedelta(minutes=15))
+        access_token = create_access_token(identity=unique_id, expires_delta=timedelta(minutes=60))
         return jsonify({'access_token': access_token, 'message': 'login successful'}), 200
     else:
         return "User email not available or not verified by Google.", 400

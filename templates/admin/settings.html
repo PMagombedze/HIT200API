@@ -63,12 +63,12 @@
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
                     <h3 class="is-size-6 has-text-weight-bold">Email</h3>
-                    <input type="text" class="input" style="width: 30%;">
+                    <input id="email" type="text" class="input" style="width: 30%;">
                 </div>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
                     <h3 class="is-size-6 has-text-weight-bold">Password</h3>
-                    <input type="text" class="input" style="width: 30%;">
+                    <input id="password" type="text" class="input" style="width: 30%;">
                 </div>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
@@ -90,6 +90,9 @@
                             </div>
                         </button>
                     </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; align-items: center; padding: 15px 0;">
+                    <button id="save-changes" class="button is-link" style="width: 10%;">Save Changes</button>
                 </div>
 
             </div>
@@ -117,30 +120,9 @@
                     // reload the page
                     setTimeout(() => {
                         window.location.reload();
-                    }, 3000);
-                } else if (data.message === "User already has a profile picture") {
-                    const updateFormData = new FormData();
-                    updateFormData.append('file', file);
-
-                    fetch('/api/user/profile', {
-                        method: 'PUT',
-                        body: updateFormData,
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(updateData => {
-                            if (updateData.message === "Profile pic updated successfully") {
-                                showNotification('Profile picture updated successfully!', 'success');
-                            } else {
-                                showNotification(data.message, 'error');
-                            }
-                        })
-                        .catch(updateError => {
-                            showNotification('An error occurred while updating the profile picture.', 'error');
-                        });
+                    }, 4000);
+                } else {
+                    showNotification(data.message, 'error');
                 }
             })
             .catch(error => {
@@ -161,7 +143,7 @@
                     showNotification('Profile picture deleted successfully!', 'success');
                     setTimeout(() => {
                         window.location.reload();
-                    }, 3000);
+                    }, 4000);
                     document.getElementById('pro-pic').src = '/static/images/user.svg';
                 } else {
                     showNotification(data.message, 'error');
@@ -169,6 +151,34 @@
             })
             .catch(error => {
                 showNotification('An error occurred while deleting the profile picture.', 'error');
+            });
+    });
+
+    document.getElementById('save-changes').addEventListener('click', function () {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        fetch('/api/updateProfile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ email, password })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Profile updated successfully") {
+                    showNotification('Profile updated successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 4000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred while updating the profile.', 'error');
             });
     });
 
