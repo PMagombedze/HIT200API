@@ -1,3 +1,23 @@
+<script>
+     fetch('/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Profile pic found") {
+                document.querySelector('.pro-pic').src = '/api/uploads/' + data.img_url;
+            } else {
+                document.querySelector('.pro-pic').src = '/static/images/user.svg';
+            }
+        })
+        .catch(error => {
+            showNotification('An error occurred while fetching the profile picture.', 'error');
+        });
+</script>
+
 <nav class="navbar pt-3 pb-3" style="border-bottom: 1.5px solid #f1f1f1;box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;" role="navigation"
     aria-label="main navigation">
     <div class="navbar-brand">
@@ -11,7 +31,7 @@
             <div class="navbar-item">
                 <a class="navbar-item" id="logout">
                     <span class="icon">
-                        <img src="{{ url_for('static', filename='images/user.svg')}}" alt="">
+                        <img class="pro-pic" alt="">
                     </span>
                 </a>
             </div>

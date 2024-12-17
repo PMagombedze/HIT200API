@@ -1,11 +1,11 @@
-from flask import Blueprint, request, jsonify, redirect, session, url_for
+from flask import Blueprint, request, jsonify, redirect, send_from_directory
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
 from models.db import db, User, UserProfilePic
 from oauthlib.oauth2 import WebApplicationClient
 import re
 import pyotp
 import os
-from datetime import timedelta, datetime
+from datetime import timedelta
 import requests
 import json
 import arrow
@@ -72,6 +72,8 @@ def register():
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
 
+
+
 @auth.route('/user/profile', methods=['POST'])
 @jwt_required()
 def userProfile():
@@ -82,8 +84,8 @@ def userProfile():
     if not user:
         return jsonify({'message': 'User not found'}), 404
     # upload profile pic
-    if 'profile_pic' in request.files:
-        file = request.files['profile_pic']
+    if 'file' in request.files:
+        file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             # Check if user already has a profile pic
@@ -98,6 +100,22 @@ def userProfile():
         else:
             return jsonify({'message': 'Invalid file format'}), 400
     return jsonify({'message': 'Profile pic not found'}), 404
+
+# display profile pic path
+@auth.route('/user/profile', methods=['GET'])
+@jwt_required()
+def displayProfilePic():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    # get profile pic path
+    profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+    if not profile_pic:
+        return jsonify({'message': 'Profile pic not found'}), 404
+    return jsonify({'img_url': profile_pic.profile_pic, 'message': 'Profile pic found'}), 200
 
 @auth.route('/user/profile', methods=['PUT'])
 @jwt_required()
@@ -126,6 +144,29 @@ def updateProfile():
         else:
             return jsonify({'message': 'Invalid file format'}), 400
     return jsonify({'message': 'Profile pic not found'}), 404
+
+@auth.route('/user/profile', methods=['DELETE'])
+@jwt_required()
+def deleteProfilePic():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    # get profile pic path
+    profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+    if not profile_pic:
+        return jsonify({'message': 'Profile pic not found'}), 404
+    # delete profile pic
+    db.session.delete(profile_pic)
+    db.session.commit()
+    return jsonify({'message': 'Profile pic deleted successfully'}), 200
+
+# get uploaded files
+@auth.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(os.getenv('UPLOAD_FOLDER'), filename)
 
 
 @auth.route('/login', methods=['POST'])
