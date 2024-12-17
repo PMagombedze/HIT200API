@@ -15,7 +15,7 @@
     })
         .then(response => response.json())
         .then(data => {
-            if (data.message === "Token is valid") {
+            if (data.message === "Token is valid" && data.is_admin === true) {
                 document.querySelector('.admin-section').style.display = 'block';
                 document.querySelector('#users').classList.add('has-text-link');
             } else {
@@ -27,7 +27,7 @@
         });
 </script>
 
-<div class="admin-section">
+<div class="admin-section" style="display: none;">
     <!--dashboard navbar-->
     {% include 'admin/navbar.html' %}
 

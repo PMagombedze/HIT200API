@@ -15,7 +15,7 @@
     })
         .then(response => response.json())
         .then(data => {
-            if (data.message === "Token is valid") {
+            if (data.message === "Token is valid" && data.is_admin === false) {
                 document.querySelector('.otp-section').style.display = 'block';
             } else {
                 window.location.href = '/e/404';
