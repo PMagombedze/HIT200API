@@ -63,12 +63,12 @@
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
                     <h3 class="is-size-6 has-text-weight-bold">Email</h3>
-                    <input id="email" type="text" class="input" style="width: 30%;">
+                    <input id="email" type="email" class="input" style="width: 30%;">
                 </div>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
                     <h3 class="is-size-6 has-text-weight-bold">Password</h3>
-                    <input id="password" type="text" class="input" style="width: 30%;">
+                    <input id="password" type="password" class="input" style="width: 30%;">
                 </div>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
@@ -101,6 +101,56 @@
 </div>
 
 <script>
+    
+    document.getElementById('email').addEventListener('input', function () {
+        const emailInput = this.value;
+        const loginButton = document.getElementById('login-button');
+
+        if (validator.isEmail(emailInput)) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (validator.isEmail(emailInput) && validatePassword(document.getElementById('password').value)) {
+            loginButton.disabled = false;
+        } else {
+            loginButton.disabled = true;
+        }
+    });
+
+    document.getElementById('password').addEventListener('input', function () {
+        const passwordInput = this.value;
+        const loginButton = document.getElementById('login-button');
+
+        if (validatePassword(passwordInput)) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (validatePassword(passwordInput) && validator.isEmail(document.getElementById('email').value)) {
+            loginButton.disabled = false;
+        } else {
+            loginButton.disabled = true;
+        }
+    });
+
+    const loginButton = document.createElement('button');
+    loginButton.id = 'login-button';
+    loginButton.style.display = 'none';
+    document.body.appendChild(loginButton);
+    loginButton.disabled = true;
+
+    function validatePassword(password) {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return regex.test(password);
+    }
+
     document.querySelector('.file-input').addEventListener('change', function () {
         const file = this.files[0];
         const formData = new FormData();
@@ -117,10 +167,6 @@
             .then(data => {
                 if (data.message === "Profile pic uploaded successfully") {
                     showNotification('Profile picture uploaded successfully!', 'success');
-                    // reload the page
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 4000);
                 } else {
                     showNotification(data.message, 'error');
                 }
@@ -141,9 +187,6 @@
             .then(data => {
                 if (data.message === "Profile pic deleted successfully") {
                     showNotification('Profile picture deleted successfully!', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 4000);
                     document.getElementById('pro-pic').src = '/static/images/user.svg';
                 } else {
                     showNotification(data.message, 'error');

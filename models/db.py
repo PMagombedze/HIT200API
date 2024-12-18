@@ -228,3 +228,26 @@ class UserProductVisit(db.Model):
             'product_id': self.product_id,
             'visit_timestamp': self.visit_timestamp
         }
+    
+# admin notifications
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.String(120), primary_key=True, default=str(uuid.uuid4()))
+    user_id = db.Column(db.String(120), db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    user = db.relationship('User', backref=db.backref('notifications', lazy=True))
+
+    def __init__(self, user_id, message):
+        self.user_id = user_id
+        self.message = message
+        self.id = str(uuid.uuid4())
+        self.created_at = db.func.now()
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'message': self.message,
+            'created_at': self.created_at
+        }

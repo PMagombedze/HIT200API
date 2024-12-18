@@ -1,10 +1,10 @@
 <script>
-     fetch('/api/user/profile', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
+    fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
         .then(response => response.json())
         .then(data => {
             if (data.message === "Profile pic found") {
@@ -18,8 +18,9 @@
         });
 </script>
 
-<nav class="navbar pt-3 pb-3" style="border-bottom: 1.5px solid #f1f1f1;box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;" role="navigation"
-    aria-label="main navigation">
+<nav class="navbar pt-3 pb-3"
+    style="border-bottom: 1.5px solid #f1f1f1;box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;"
+    role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
         <a class="navbar-item ml-4" href="/a/dashboard">
             PricePick
@@ -29,7 +30,7 @@
     <div class="navbar-menu is-active" style="box-shadow: none;">
         <div class="navbar-end">
             <div class="navbar-item">
-                <a class="navbar-item" id="logout">
+                <a class="navbar-item" onclick="logout()">
                     <span class="icon">
                         <img class="pro-pic" alt="">
                     </span>
@@ -41,7 +42,8 @@
 
 
 <script>
-    document.getElementById('logout').addEventListener('click', function () {
+    // logout 
+    const logout = () => {
         fetch('/api/logout', {
             method: 'DELETE',
             headers: {
@@ -57,7 +59,7 @@
                     showNotification('Logged out successfully', 'success');
                     setTimeout(() => {
                         window.location.href = '/login';
-                    }, 3000);
+                    }, 4000);
                 } else {
                     showNotification(data.message, 'error');
                 }
@@ -65,5 +67,5 @@
             .catch(error => {
                 showNotification('An error occurred. Please try again later.', 'error');
             });
-    });
+    }
 </script>

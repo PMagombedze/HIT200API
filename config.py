@@ -27,4 +27,4 @@ class Config(object):
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER')
-    MAX_CONTENT_LENGTH = 16 * 1000 * 1000
+    MAX_CONTENT_LENGTH = 5 * 1000 * 1000

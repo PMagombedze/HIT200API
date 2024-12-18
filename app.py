@@ -78,17 +78,13 @@ def forum_page():
 def users():
     return render_template('admin/users.html')
 
-@app.route('/a/support')
+@app.route('/a/notifications')
 def support():
-    return render_template('admin/support.html')
+    return render_template('admin/notifications.html')
 
 @app.route('/a/settings')
 def settings():
     return render_template('admin/settings.html')
-
-@app.route('/a/reports')
-def reports():
-    return render_template('admin/reports.html')
 
 @app.route('/e/404')
 def error_404():

@@ -140,7 +140,6 @@ def deleteProfilePic():
 def uploaded_file(filename):
     return send_from_directory(os.getenv('UPLOAD_FOLDER'), filename)
 
-
 @auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()

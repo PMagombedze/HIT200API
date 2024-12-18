@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity, JWTManager, create_access_token
-from models.db import db, User, Forum, Product, UserProfilePic
+from models.db import db, User, Forum, Product, UserProfilePic, Notification
 from datetime import timedelta
-import redis
 import json
 import os
 from auth.api import jwt_redis_blocklist
@@ -157,3 +156,25 @@ def getProducts():
     # product count
     num_products = len(products)
     return jsonify({'products': [product.to_dict() for product in products], 'message': 'Products retrieved successfully', 'num_products': num_products}), 200
+
+# notifications
+@admin.route('/notifications', methods=['POST'])
+@jwt_required()
+def createNotification():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user_id = get_jwt_identity()
+    if not user_id:
+        return jsonify({'message': 'User not found'}), 404
+    user = User.query.filter_by(id=user_id).first()
+    if not user.is_admin:
+        return jsonify({'message': 'Fobbiden'}), 403
+    data = request.get_json()
+    message = data.get('message')
+    if not message:
+        return jsonify({'message': 'Message is required'}), 400
+    notification = Notification(message=message, user_id=user_id)
+    db.session.add(notification)
+    db.session.commit()
+    return jsonify({'message': 'Notification created successfully'}), 201
