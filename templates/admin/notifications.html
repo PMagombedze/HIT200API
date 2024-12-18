@@ -82,17 +82,17 @@
                 notificationElement.innerHTML = `
                     <figure class="media-left">
                         <p class="image is-64x64">
-                            <img class="mt-3" style="width: 50px; height: 50px; border-radius: 50%;" src="/api/uploads/${notification.profile_pic.url}" alt="Profile Picture">
+                            <img class="mt-3" style="width: 50px; height: 50px; border-radius: 50%;" src="/api/uploads/${notification.profile_pic.profile_pic}" alt="Profile Picture">
                         </p>
                     </figure>
                     <div class="media-content">
                         <div class="content">
                             <p>
-                                <a style="color: #000;">${notification.user.email}</a>
+                                <a class="has-text-link">${notification.user.email}</a>
                                 <br>
                                 <a style="color: #000;">${notification.notification.message}</a>
                                 <br>
-                                <a style="color: #acacac;">${new Date(notification.notification.created_at).toDateString()}</a>
+                                <a style="color: #acacac;">${new Date(notification.notification.created_at).toLocaleString()}</a>
                             </p>
                         </div>
                     </div>

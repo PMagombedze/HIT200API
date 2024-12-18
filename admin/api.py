@@ -198,6 +198,6 @@ def getNotifications():
         notifications_data.append({
             'notification': notification.to_dict(),
             'user': user.to_dict(),
-            'profile_pic': user_pic.to_dict() if user_pic else {'url': 'user.svg'}
+            'profile_pic': user_pic.to_dict() if user_pic else {'profile_pic': 'user.svg'}
         })
     return jsonify({'notifications': notifications_data, 'message': 'Notifications retrieved successfully'}), 200
