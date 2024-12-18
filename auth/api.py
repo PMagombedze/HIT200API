@@ -114,7 +114,7 @@ def displayProfilePic():
     # get profile pic path
     profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
     if not profile_pic:
-        return jsonify({'message': 'Profile pic not found'}), 404
+        return jsonify({'img_url': '/api/uploads/user.svg', 'message': 'Profile pic not found'}), 200
     return jsonify({'img_url': profile_pic.profile_pic, 'message': 'Profile pic found'}), 200
 
 @auth.route('/user/profile', methods=['DELETE'])

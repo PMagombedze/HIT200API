@@ -178,3 +178,26 @@ def createNotification():
     db.session.add(notification)
     db.session.commit()
     return jsonify({'message': 'Notification created successfully'}), 201
+
+@admin.route('/notifications', methods=['GET'])
+@jwt_required()
+def getNotifications():
+    # check redis blocklist
+    if jwt_redis_blocklist.get(get_jwt()['jti']):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    if not user.is_admin:
+        return jsonify({'message': 'Fobbiden'}), 403
+    notifications = Notification.query.all()
+    notifications_data = []
+    for notification in notifications:
+        user = User.query.filter_by(id=notification.user_id).first()
+        user_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+        notifications_data.append({
+            'notification': notification.to_dict(),
+            'user': user.to_dict(),
+            'profile_pic': user_pic.to_dict() if user_pic else {'url': 'user.svg'}
+        })
+    return jsonify({'notifications': notifications_data, 'message': 'Notifications retrieved successfully'}), 200

@@ -52,18 +52,25 @@ class User(db.Model):
             'is_admin': self.is_admin,
             'subscribed': self.subscribed,
         }
-    
+
 class UserProfilePic(db.Model):
     __tablename__ = 'user_profile_pics'
     id = db.Column(db.String(120), primary_key=True, default=str(uuid.uuid4()))
     user_id = db.Column(db.String(120), db.ForeignKey('users.id'), nullable=False)
-    profile_pic = db.Column(db.String(255), nullable=False)
+    profile_pic = db.Column(db.String(255), nullable=False, default='user.svg')
     user = db.relationship('User', backref=db.backref('profile_pics', lazy=True))
 
     def __init__(self, user_id, profile_pic):
         self.user_id = user_id
         self.profile_pic = profile_pic
         self.id = str(uuid.uuid4())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'profile_pic': self.profile_pic
+        }
 
 class Forum(db.Model):
     """
