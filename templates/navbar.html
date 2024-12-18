@@ -39,18 +39,28 @@
 
         <div class="navbar-end">
             <div class="navbar-item">
-                <button>Login</button>
+                <button>About</button>
             </div>
             <div class="navbar-item">
-                <button>Register</button>
+                <button>Contact Us</button>
             </div>
             <div class="navbar-item">
                 <figure class="image is-32x32">
                     <img class="is-rounded profile-photo" src="{{ url_for('static', filename='images/user.svg') }}" alt="Profile Photo">
                 </figure>
             </div>
-            <div class="navbar-item">
-                <p>My Account</p>
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    My Account
+                </a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item">
+                        Login
+                    </a>
+                    <a class="navbar-item">
+                        Sign Up
+                    </a>
+                </div>
             </div>
             <div class="navbar-item">
                 <span class="icon wishlist-count">
