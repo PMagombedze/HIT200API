@@ -66,16 +66,25 @@ def deleteUser(id):
     user = User.query.filter_by(id=id).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404
+
+    # Delete user profile picture if exists
     user_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
     if user_pic:
         db.session.delete(user_pic)
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({'message': 'User deleted successfully'}), 200
-    else:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({'message': 'User deleted successfully'}), 200
+
+    # Delete user notifications
+    notifications = Notification.query.filter_by(user_id=user.id).all()
+    for notification in notifications:
+        db.session.delete(notification)
+
+    # Delete user
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'User deleted successfully'}), 200
+
+@admin.route('/hello')
+def hello():
+    return jsonify({'message': 'Hello World!'}), 200
 
 
 @admin.route('/forums')

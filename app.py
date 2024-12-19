@@ -9,11 +9,21 @@ from notifications.api import notifications
 from scraper.api import products
 from flask_migrate import Migrate
 from notifications.api import celery
+from flask_cors import CORS
 
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
 migrate = Migrate(app, db)
+
+# enable cors. don't allow api accesss from other domains
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:5000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 app.register_blueprint(auth, url_prefix='/api')
 app.register_blueprint(admin, url_prefix='/api')
