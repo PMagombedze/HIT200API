@@ -23,7 +23,7 @@ def adminLogin():
     user = User.query.filter_by(email=email).first()
 
     if not user.is_admin:
-        return jsonify({'message': 'Fobbiden'}), 403
+        return jsonify({'message': 'Email does not exist'}), 404
 
     if not user or not user.check_password(password):
         return jsonify({'message': 'Invalid email or password'}), 401

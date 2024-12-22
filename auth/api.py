@@ -216,7 +216,7 @@ def sendOtp():
                 server.sendmail(sender, recipients, msg.as_string())
             return {'message': 'OTP sent successfully'}, 200
         except Exception as e:
-            return {"message": str(e)}, 500
+            return {"message": "Check your internet connection"}, 500
     else:
         return {'message': 'User not found'}, 404
 
@@ -282,7 +282,7 @@ def forgotPassword():
             server.sendmail(sender, recipients, msg.as_string())
         return jsonify({'message': 'Password reset email sent successfully'}), 200
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
+        return jsonify({'message': "Check your internet connection"}), 500
     
 # update profile
 @auth.route('/updateProfile', methods=['PUT'])
