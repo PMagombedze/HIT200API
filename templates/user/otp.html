@@ -26,7 +26,7 @@
         });
 </script>
 
-<div class="otp-section" style="display: none;">
+<div class="otp-section">
     <section class="hero is-fullheight">
         <div class="hero-body">
             <div class="container has-text-centered">
@@ -34,10 +34,24 @@
                     <h2 class="title">OTP Code Verification </h2>
                     <p class="subtitle is-6 mt-2">Please enter the OTP code sent to your email.</p>
                     <form class="otp-form">
-                        <div class="field">
+                        <div class="field is-grouped is-grouped-centered">
                             <div class="control">
-                                <input class="input" id="OTP" type="text" placeholder="Enter your OTP"
-                                    style="width: 100%; height: 50px;">
+                                <input class="input" id="OTP1" type="text" maxlength="1" style="width: 50px;height: 50px; text-align: center;">
+                            </div>
+                            <div class="control">
+                                <input class="input" id="OTP2" type="text" maxlength="1" style="width: 50px;height: 50px; text-align: center;">
+                            </div>
+                            <div class="control">
+                                <input class="input" id="OTP3" type="text" maxlength="1" style="width: 50px;height: 50px; text-align: center;">
+                            </div>
+                            <div class="control">
+                                <input class="input" id="OTP4" type="text" maxlength="1" style="width: 50px;height: 50px; text-align: center;">
+                            </div>
+                            <div class="control">
+                                <input class="input" id="OTP5" type="text" maxlength="1" style="width: 50px;height: 50px; text-align: center;">
+                            </div>
+                            <div class="control">
+                                <input class="input" id="OTP6" type="text" maxlength="1" style="width: 50px;height: 50px; text-align: center;">
                             </div>
                         </div>
                         <div class="field">
@@ -56,43 +70,39 @@
 </div>
 
 <script>
-    document.getElementById('OTP').addEventListener('input', function () {
-        const otpInput = this.value;
-        let messageElement = document.getElementById('otp-message');
+    const otpInputs = document.querySelectorAll('.otp-form .input');
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', function () {
+            if (this.value.length === 1) {
+                if (index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            }
+            validateOtp();
+        });
+    });
+
+    function validateOtp() {
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
         const verifyButton = document.getElementById('verify-otp');
-
-        if (!messageElement) {
-            messageElement = document.createElement('p');
-            messageElement.id = 'otp-message';
-            messageElement.classList.add('has-text-danger', 'mt-2');
-            this.parentNode.appendChild(messageElement);
-        }
-
-        if (otpInput.length === 6 && /^\d+$/.test(otpInput)) {
-            this.setCustomValidity('');
-            this.classList.remove('is-danger');
-            messageElement.textContent = '';
+        if (otp.length === 6 && /^\d+$/.test(otp)) {
             verifyButton.disabled = false;
         } else {
-            this.classList.add('is-danger');
             verifyButton.disabled = true;
         }
-    });
+    }
 
     document.getElementById('verify-otp').disabled = true;
 
-    /*
-    * post to /api/verifyOtp using jwt only
-    */
     document.getElementById('verify-otp').addEventListener('click', function (event) {
         event.preventDefault();
-        const otpInput = document.getElementById('OTP').value;
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
         const token_ = cookie.get('access_token');
         if (!token_) {
             window.location.href = '/login';
         }
         const data = {
-            otp: otpInput
+            otp: otp
         };
         fetch('/api/verifyOtp', {
             method: 'POST',
