@@ -151,16 +151,7 @@ def createProduct():
     return jsonify({'message': 'Products created successfully'}), 201
 
 @admin.route('/products', methods=['GET'])
-@jwt_required()
 def getProducts():
-    # check redis blocklist
-    if jwt_redis_blocklist.get(get_jwt()['jti']):
-        return jsonify({'message': 'Token revoked'}), 401
-    user = User.query.filter_by(id=get_jwt_identity()).first()
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-    # if not user.is_admin:
-    #     return jsonify({'message': 'Fobbiden'}), 403
     products = Product.query.all()
     # product count
     num_products = len(products)

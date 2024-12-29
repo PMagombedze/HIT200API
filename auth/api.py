@@ -44,9 +44,9 @@ def checkPassword(password):
 totp = pyotp.TOTP(os.environ.get('OTP_SECRET'))
 otp_ = totp.now()
 
-# @auth.route('/get-cookie')
-# def getCookie():
-#     return jsonify(cookie=cookie_name)
+@auth.route('/get-cookie')
+def getCookie():
+    return jsonify(cookie=cookie_name)
 
 @auth.route('/register', methods=['POST'])
 def register():
