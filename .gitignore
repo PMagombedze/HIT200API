@@ -7,3 +7,4 @@ celerybeat-schedule
 selfsigned.key
 selfsigned.crt
 instance
+uploads

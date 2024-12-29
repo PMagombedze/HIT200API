@@ -52,6 +52,10 @@ def admin_dashboard():
 def user_dashboard():
     return render_template('user/dashboard.html')
 
+@app.route('/u/profile')
+def user_profile():
+    return render_template('user/profile.html')
+
 @app.route('/admin/login')
 def admin_login():
     return render_template('admin/login.html')

@@ -28,5 +28,166 @@
 
 <!-- Initially hidden section -->
 <div class="dash-section" style="display: none;">
-    welcome to dash
+    <nav class="navbar has-background-white" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <h1 class="title has-text-black">PricePick</h1>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+            </div>
+
+            <div style="flex-grow: 1; display: flex; justify-content: center;">
+                <div class="navbar-item" style="width: 50%;">
+                    <div class="field" style="width: 100%;">
+                        <p class="control has-icons-right">
+                            <input class="input has-background-white has-text-black" type="text"
+                                style="border: 2px solid #3273dc; height: 50px;" placeholder="Search...">
+                            <span class="icon is-right has-background-link"
+                                style="border-top-right-radius: 10px;border-bottom-right-radius: 10px;color: #fff; height: 50px;">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar-end">
+                <a class="navbar-item has-text-black" href="/u/profile">
+                    <span class="icon">
+                        <img src="{{ url_for('static', filename='/images/user.svg')}}" alt="" srcset="">
+                    </span>
+                </a>
+            </div>
+        </div>
+    </nav>
 </div>
+
+{% include 'hero.html' %}
+
+<div class="container mt-6">
+    <h1 class="is-4 subtitle has-text-black-ter has-text-weight-bold">Featured Products</h1>
+</div>
+
+<div class="container mt-6">
+    <div class="columns is-multiline" id="products-container">
+
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+<script>
+    const fetchProducts = async () => {
+        try {
+            const response = await fetch('/api/products', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            const products = data.products;
+            const productsContainer = document.querySelector('#products-container');
+            let currentPage = 1;
+            const itemsPerPage = 8; // 2 rows x 4 columns
+            const totalPages = Math.ceil(products.length / itemsPerPage);
+
+            function displayProducts(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const paginatedProducts = products.slice(start, end);
+                
+                productsContainer.innerHTML = '';
+                
+                paginatedProducts.forEach(product => {
+                    const productElement = document.createElement('div');
+                    productElement.className = 'column is-one-quarter';
+                    productElement.innerHTML = `
+                    <div class="card" style="max-width: 300px;box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px">
+                        <div class="card-image" style="max-width: 300px;">
+                            <figure class="image is-4by3" style="max-width: 300px;">
+                                <img src="${product.url}" alt="${product.name}" style="max-width: 300px;">
+                            </figure>
+                        </div>
+                        <div class="card-content" style="max-width: 300px;">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${product.name}</p>
+                                    <p class="subtitle is-6">$${product.price}.00</p> 
+                                    <p class="subtitle is-6">${product.store}</p> 
+                                </div>
+                            </div>
+                            <div class="buttons">
+                                <button class="button is-link">Track</button>
+                                <button class="button">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    productsContainer.appendChild(productElement);
+                });
+
+                // Add pagination
+                const paginationContainer = document.createElement('nav');
+                paginationContainer.className = 'pagination is-centered mt-6';
+                paginationContainer.setAttribute('role', 'navigation');
+                paginationContainer.setAttribute('aria-label', 'pagination');
+                
+                paginationContainer.innerHTML = `
+                    <a class="pagination-previous" ${page === 1 ? 'disabled' : ''}>Previous</a>
+                    <a class="pagination-next" ${page === totalPages ? 'disabled' : ''}>Next</a>
+                    <ul class="pagination-list">
+                        ${Array.from({length: totalPages}, (_, i) => i + 1).map(pageNum => `
+                            <li>
+                                <a class="pagination-link ${pageNum === page ? 'is-current' : ''}" 
+                                   aria-label="Page ${pageNum}" 
+                                   aria-current="${pageNum === page ? 'page' : 'false'}">${pageNum}</a>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+
+                const existingPagination = document.querySelector('.pagination');
+                if (existingPagination) {
+                    existingPagination.remove();
+                }
+                productsContainer.after(paginationContainer);
+
+                // Add event listeners for pagination
+                const prevButton = paginationContainer.querySelector('.pagination-previous');
+                const nextButton = paginationContainer.querySelector('.pagination-next');
+                const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
+
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        displayProducts(currentPage);
+                    }
+                });
+
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        displayProducts(currentPage);
+                    }
+                });
+
+                pageLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        currentPage = parseInt(e.target.textContent);
+                        displayProducts(currentPage);
+                    });
+                });
+            }
+
+            displayProducts(currentPage);        } catch (error) {
+            showNotification('Error fetching products', 'error');
+        }
+    };
+
+    fetchProducts();
+</script>

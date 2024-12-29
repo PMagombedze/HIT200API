@@ -1,0 +1,152 @@
+{% include 'imports.html' %}
+
+<script>
+    const token = cookie.get('dash_token');
+    if (!token) {
+        window.location.href = '/e/404';
+    }
+
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Token is valid" && data.is_admin === false) {
+                document.querySelector('.profile-section').style.display = 'block';
+            } else {
+                window.location.href = '/e/404';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/e/404';
+        });
+</script>
+<!-- Initially hidden section -->
+<div class="profile-section" style="display: none;">
+    <nav class="navbar has-background-white" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <h1 class="title has-text-black mb-2">PricePick</h1>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<section class="hero is-fullheight">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
+                <h2 class="title">Update Profile</h2>
+                <p class="subtitle is-6 mt-2">Please update your profile information below.</p>
+                <form class="update-profile-form">
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="email" type="email" placeholder="Enter your email"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="password" type="password" placeholder="Enter your new password"
+                                style="width: 100%; height: 50px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button style="width: 100%; height: 50px;" id="update-button" class="button is-link"
+                                type="submit">Update Profile</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('email').addEventListener('input', function () {
+        const emailInput = this.value;
+        const updateButton = document.getElementById('update-button');
+
+        if (validator.isEmail(emailInput)) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (validator.isEmail(emailInput) && validatePassword(document.getElementById('password').value)) {
+            updateButton.disabled = false;
+        } else {
+            updateButton.disabled = true;
+        }
+    });
+
+    document.getElementById('password').addEventListener('input', function () {
+        const passwordInput = this.value;
+        const updateButton = document.getElementById('update-button');
+
+        if (validatePassword(passwordInput)) {
+            this.classList.remove('is-danger');
+            this.classList.add('is-success');
+        } else {
+            this.classList.remove('is-success');
+            this.classList.add('is-danger');
+        }
+
+        if (validatePassword(passwordInput) && validator.isEmail(document.getElementById('email').value)) {
+            updateButton.disabled = false;
+        } else {
+            updateButton.disabled = true;
+        }
+    });
+
+    document.getElementById('update-button').disabled = true;
+
+    function validatePassword(password) {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return regex.test(password);
+    }
+
+    document.getElementById('update-button').addEventListener('click', function (event) {
+        event.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const updateButton = document.getElementById('update-button');
+        updateButton.disabled = true;
+        updateButton.innerHTML = '<span class="icon is-loading is-small"><i class="fas fa-spinner fa-spin"></i></span>';
+        setTimeout(function () {
+            updateButton.innerHTML = 'Update Profile';
+            updateButton.disabled = false;
+        }, 4000);
+        fetch('/api/updateProfile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: password
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Profile updated successfully") {
+                    showNotification('Profile updated successfully', 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred, please try again', 'error');
+            });
+    });
+</script>

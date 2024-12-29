@@ -159,8 +159,8 @@ def getProducts():
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'User not found'}), 404
-    if not user.is_admin:
-        return jsonify({'message': 'Fobbiden'}), 403
+    # if not user.is_admin:
+    #     return jsonify({'message': 'Fobbiden'}), 403
     products = Product.query.all()
     # product count
     num_products = len(products)

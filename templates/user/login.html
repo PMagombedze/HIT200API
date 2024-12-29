@@ -3,7 +3,8 @@
 <section class="hero is-fullheight">
     <div class="hero-body">
         <div class="container has-text-centered">
-            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; border: 1px solid #f1f1f1;">
+            <div class="box"
+                style="max-width: 400px; margin: 0 auto; box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
                 <h2 class="title">Login</h2>
                 <p class="subtitle is-6 mt-2">Please enter your email and password to login.</p>
                 <form class="login-form">
@@ -26,7 +27,7 @@
                         <div class="control">
                             <button style="width: 100%; height: 50px;" id="login-button" class="button is-link"
                                 type="submit">Login</button>
-                                
+
                         </div>
                     </div>
                     <p class="subtitle is-6 mt-2">New to PricePick? <a href="/register"
@@ -124,7 +125,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.message === "login successfull") {
-                    cookie.set('access_token', data.access_token, { expires: 0.0104 });
+                    cookie.set('access_token', data.access_token, { expires: 1 / 24 });
                     fetch('/api/sendOtp', {
                         method: 'POST',
                         headers: {
@@ -132,20 +133,20 @@
                             'Authorization': `Bearer ${data.access_token}`
                         }
                     })
-                    .then(response => response.json())
-                    .then(otpData => {
-                        if (otpData.message === "OTP sent successfully") {
-                            showNotification('OTP sent successfully', 'success');
-                            setTimeout(function () {
-                                window.location.href = '/otp';
-                            }, 4000);
-                        } else {
-                            showNotification(otpData.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        showNotification('An error occurred while sending OTP, please try again', 'error');
-                    });
+                        .then(response => response.json())
+                        .then(otpData => {
+                            if (otpData.message === "OTP sent successfully") {
+                                showNotification('OTP sent successfully', 'success');
+                                setTimeout(function () {
+                                    window.location.href = '/otp';
+                                }, 4000);
+                            } else {
+                                showNotification(otpData.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showNotification('An error occurred while sending OTP, please try again', 'error');
+                        });
                 } else {
                     showNotification(data.message, 'error');
                 }
