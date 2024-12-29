@@ -1,6 +1,9 @@
 <!--bulma css-->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
 
+<!--custom font ttf-->
+<link rel="stylesheet" href="{{ url_for('static', filename='fonts/Ubuntu-C.ttf') }}">
+
 <!--simple-notify css-->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notify.css') }}">
 
@@ -26,9 +29,16 @@
 <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 
 <style>
+    @font-face {
+        font-family: webFont;
+        src: url("{{ url_for('static', filename='fonts/Ubuntu-C.ttf') }}");
+    }
+
     body {
         background-color: #fff;
         margin: 0;
+        font-family: webFont;
+        font-size: 16px;
     }
 
     /* Make scrollbar thin */

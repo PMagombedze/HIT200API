@@ -3,52 +3,203 @@
     {% include 'imports.html' %}
 </head>
 
+
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        /*put fixed height*/
+        height: 350px;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    }
+
+    .card-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .card-image img {
+        max-width: 100%;
+        max-height: 80%;
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .category-title {
+        font-size: 1.2rem;
+        padding: 1rem;
+    }
+
+    .has-background-pink-light {
+        background-color: #ffebee !important;
+    }
+
+    .has-background-blue-light {
+        background-color: #e3f2fd !important;
+    }
+</style>
+
+
 {% include 'navbar.html' %}
+<div class="container">
+    <div class="columns is-centered ml-6 mr-6 mt-6 is-multiline">
+        <div class="column is-one-quarter is-flex is-justify-content-center">
+            <div class="box" style="box-shadow: none; margin-bottom: 0.5rem;">
+                <h4 class="title is-1 has-text-centered has-text-link">
+                    <i class="fas fa-headphones"></i>
+                </h4>
+                <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
+                    Headphones
+                </h5>
+            </div>
+        </div>
 
-<div class="columns is-centered ml-6 mr-6 mt-6 is-multiline">
-    <div class="column is-one-quarter">
-        <div class="box" style="box-shadow: none;">
-            <h4 class="title is-1 has-text-centered has-text-link">
-                <i class="fas fa-headphones"></i>
-            </h4>
-            <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
-                Headphones
-            </h5>
+        <div class="column is-one-quarter is-flex is-justify-content-center">
+            <div class="box" style="box-shadow: none; margin-bottom: 0.5rem;">
+                <h4 class="title is-1 has-text-centered has-text-link">
+                    <i class="fas fa-laptop"></i>
+                </h4>
+                <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
+                    Laptops
+                </h5>
+            </div>
+        </div>
+
+        <div class="column is-one-quarter is-flex is-justify-content-center">
+            <div class="box" style="box-shadow: none; margin-bottom: 0.5rem;">
+                <h4 class="title is-1 has-text-centered has-text-link">
+                    <i class="fas fa-mobile-alt"></i>
+                </h4>
+                <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
+                    Mobile Phones
+                </h5>
+            </div>
+        </div>
+
+        <div class="column is-one-quarter is-flex is-justify-content-center">
+            <div class="box" style="box-shadow: none; margin-bottom: 0.5rem;">
+                <h4 class="title is-1 has-text-centered has-text-link">
+                    <i class="fas fa-tv"></i>
+                </h4>
+                <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
+                    Televisions
+                </h5>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="column is-one-quarter">
-        <div class="box" style="box-shadow: none;">
-            <h4 class="title is-1 has-text-centered has-text-link">
-                <i class="fas fa-headphones"></i>
-            </h4>
-            <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
-                Headphones
-            </h5>
+<section class="section">
+    <div class="container">
+        <div class="columns is-multiline">
+            <div class="column is-3">
+                <div class="card has-background-pink-light">
+                    <div class="card-content">
+                        <div class="category-title has-text-danger">
+                            Smartphones
+                        </div>
+                        <div class="card-image">
+                            <img src="{{ url_for('static', filename='images/mansory/iphone.png') }}" alt="Kitchenware">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-3">
+                <div class="card has-background-blue-light">
+                    <div class="card-content">
+                        <div class="category-title has-text-info">
+                            Gaming
+                        </div>
+                        <div class="card-image">
+                            <img src="/api/placeholder/300/200" alt="Tablets">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto Parts -->
+            <div class="column is-6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="category-title">
+                            Auto Parts
+                        </div>
+                        <div class="card-image">
+                            <img src="/api/placeholder/600/300" alt="Auto parts">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-3">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="category-title">
+                            Home Appliances
+                        </div>
+                        <div class="card-image">
+                            <img src="/api/placeholder/300/200" alt="Gaming">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-3">
+                <div class="card has-background-pink-light">
+                    <div class="card-content">
+                        <div class="category-title has-text-danger">
+                            Generators
+                        </div>
+                        <div class="card-image">
+                            <img src="/api/placeholder/300/200" alt="Smartphones">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phone Accessories -->
+            <div class="column is-3">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="category-title">
+                            Аксессуары для телефонов
+                        </div>
+                        <div class="card-image">
+                            <img src="/api/placeholder/300/200" alt="Phone accessories">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Appliances -->
+            <div class="column is-3">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="category-title">
+                            Техника для дома
+                        </div>
+                        <div class="card-image">
+                            <img src="/api/placeholder/300/200" alt="Home appliances">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
 
-    <div class="column is-one-quarter">
-        <div class="box" style="box-shadow: none;">
-            <h4 class="title is-1 has-text-centered has-text-link">
-                <i class="fas fa-headphones"></i>
-            </h4>
-            <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
-                Headphones
-            </h5>
-        </div>
-    </div>
-
-    <div class="column is-one-quarter">
-        <div class="box" style="box-shadow: none;">
-            <h4 class="title is-1 has-text-centered has-text-link">
-                <i class="fas fa-headphones"></i>
-            </h4>
-            <h5 class="title is-6 has-text-black-ter has-text-weight-medium has-text-centered">
-                Headphones
-            </h5>
-        </div>
-    </div>
+<div class="container">
+    <h1 class="is-1 has-text-black-ter has-text-weight-bold">Products</h1>
 </div>
 
 <!--footer-->
