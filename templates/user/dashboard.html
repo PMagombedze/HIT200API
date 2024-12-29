@@ -11,6 +11,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.message === "Token is valid" && data.is_admin === false) {
+                sessionStorage.setItem('is_subscribed', data.is_subscribed);
                 document.querySelector('.dash-section').style.display = 'block';
             } else {
                 window.location.href = '/e/404';
@@ -117,12 +118,34 @@
                                 </div>
                             </div>
                             <div class="buttons">
-                                <button class="button is-link">Track</button>
+                                <button class="button is-link track-button" data-product-id="${product.id}">Track</button>
                                 <button class="button">Buy Now</button>
                             </div>
                         </div>
                     </div>
                     `;
+
+                    productElement.querySelector('.track-button').addEventListener('click', async (e) => {
+                        const productId = e.target.getAttribute('data-product-id');
+                        try {
+                            const response = await fetch('/api/track_price', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${cookie.get('dash_token')}`
+                                },
+                                body: JSON.stringify({ product_id: productId })
+                            });
+                            const result = await response.json();
+                            if (result.message === "Product is now being tracked. Check your email") {
+                                showNotification('Product tracked successfully', 'success');
+                            } else {
+                                showNotification(result.message, 'warning');
+                            }
+                        } catch (error) {
+                            showNotification('Error tracking product', 'error');
+                        }
+                    });
                     productsContainer.appendChild(productElement);
                 });
 

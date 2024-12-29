@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, redirect, send_from_directory
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
-from models.db import db, User, UserProfilePic
+from models.db import db, User, UserProfilePic, Product
 from oauthlib.oauth2 import WebApplicationClient
 import re
 import pyotp
@@ -178,7 +178,7 @@ def verifyToken():
         return jsonify({'message': 'Invalid token'}), 401
     user = User.query.filter_by(id=str(current_user)).first()
     expires_at = arrow.utcnow().shift(minutes=60, hours=2).isoformat()
-    return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email, 'is_admin': user.is_admin, 'cookie': cookie_name}), 200
+    return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email, 'is_admin': user.is_admin, 'is_subscribed': user.subscribed}), 200
 
 @auth.route('/sendOtp', methods=['POST'])
 @jwt_required()
@@ -429,3 +429,57 @@ def google_callback():
         return jsonify({'access_token': access_token, 'message': 'login successful'}), 200
     else:
         return "User email not available or not verified by Google.", 400
+
+@auth.route('/track_price', methods=['POST'])
+@jwt_required()
+def track_price():
+    # check if not in redis blocklist
+    jti = get_jwt()["jti"]
+    if jwt_redis_blocklist.get(jti):
+        return jsonify({'message': 'Token revoked'}), 401
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    if not user.subscribed:
+        return jsonify(message='User is not subscribed')
+
+    # get the product id from the request body
+    data = request.get_json()
+    product_id = data.get('product_id')
+    if not product_id:
+        return jsonify({'message': 'Product ID is required'}), 400
+    
+    # get product name using id
+    product = Product.query.filter_by(id=product_id).first()
+    
+    subject = "Product Price Tracking"
+    sender = os.getenv('MAIL_USERNAME')
+    recipients = [user.email]
+    body = f"""
+        <html>
+            <body>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #333;border: none; border-bottom:2px solid #000; padding-bottom: 4px;">Product Price Tracking</h2>
+                    <p style="font-size: 10pt;">Hello,</p>
+                    <p style="font-size: 10pt;">We are now tracking the price of the product {product.name}.</p>
+                    <p style="font-size: 10pt;">You will be notified when there is a price change.</p>
+                    <p style="font-size: 10pt;">Best regards,<br>The Support Team</p>
+                </div>
+            </body>
+        </html>
+        """
+    msg = MIMEText(body, 'html')
+    msg['Subject'] = subject
+    msg['From'] = 'PricePick Team'
+    msg['To'] = ', '.join(recipients)
+
+    try:
+        # Set up the SMTP server
+        with smtplib.SMTP(os.getenv('MAIL_SERVER'), os.getenv('MAIL_PORT')) as server:
+            server.starttls()
+            server.login(sender, os.getenv('MAIL_APP_PASSWORD'))
+            server.sendmail(sender, recipients, msg.as_string())
+        return jsonify({'message': 'Product is now being tracked. Check your email'}), 200
+    except Exception as e:
+        return jsonify({'message': "Check your internet connection"}), 500
+    
