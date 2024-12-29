@@ -1,35 +1,20 @@
-<!-- filepath: HIT200API/templates/navbar.html -->
-<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+<nav class="navbar has-background-white" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
         <a class="navbar-item" href="/">
-            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Site Logo" width="112" height="28">
+            <h1 class="title has-text-black">PricePick</h1>
         </a>
     </div>
 
     <div class="navbar-menu">
         <div class="navbar-start">
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">
-                    Catalogue
-                </a>
-                <div class="navbar-dropdown">
-                    <a class="navbar-item">
-                        Option 1
-                    </a>
-                    <a class="navbar-item">
-                        Option 2
-                    </a>
-                    <a class="navbar-item">
-                        Option 3
-                    </a>
-                </div>
-            </div>
-            <div class="navbar-item">
-                <div class="field">
-                    <p class="control has-icons-left">
-                        <input class="input" type="text" placeholder="Search for products..."
-                        style="width: 600px;">
-                        <span class="icon is-left">
+        </div>
+
+        <div style="flex-grow: 1; display: flex; justify-content: center;">
+            <div class="navbar-item" style="width: 50%;">
+                <div class="field" style="width: 100%;">
+                    <p class="control has-icons-right">
+                        <input class="input has-background-white has-text-black" type="text" style="border: 2px solid #3273dc; height: 50px;" placeholder="Search...">
+                        <span class="icon is-right has-background-link" style="border-top-right-radius: 10px;border-bottom-right-radius: 10px;color: #fff; height: 50px;">
                             <i class="fas fa-search"></i>
                         </span>
                     </p>
@@ -38,36 +23,18 @@
         </div>
 
         <div class="navbar-end">
-            <div class="navbar-item">
-                <button>About</button>
-            </div>
-            <div class="navbar-item">
-                <button>Contact Us</button>
-            </div>
-            <div class="navbar-item">
-                <figure class="image is-32x32">
-                    <img class="is-rounded profile-photo" src="{{ url_for('static', filename='images/user.svg') }}" alt="Profile Photo">
-                </figure>
-            </div>
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">
-                    My Account
-                </a>
-                <div class="navbar-dropdown">
-                    <a class="navbar-item" href="/login">
-                        Login
-                    </a>
-                    <a class="navbar-item" href="/register">
-                        Sign Up
-                    </a>
-                </div>
-            </div>
-            <div class="navbar-item">
-                <span class="icon wishlist-count">
-                    <i class="fas fa-heart"></i>
-                    <span class="count" id="wishlist-count"></span>
+            <a class="navbar-item has-text-black" href="/register">
+                <span class="icon">
+                    <i class="fas fa-plus"></i>
                 </span>
-            </div>
+                Post a deal
+            </a>
+            <a class="navbar-item has-text-black" href="/register">
+                <span class="icon">
+                    <img src="{{ url_for('static', filename='/images/user.svg')}}" alt="" srcset="">
+                </span>
+                Sign up
+            </a>
         </div>
     </div>
 </nav>

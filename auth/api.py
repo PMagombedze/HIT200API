@@ -14,17 +14,22 @@ from email.mime.text import MIMEText
 from flask_bcrypt import generate_password_hash
 import redis
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from secrets import token_urlsafe
+
+cookie_name = token_urlsafe(32)
+
+load_dotenv()
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
-
 
 jwt = JWTManager()
 
@@ -36,11 +41,12 @@ def checkEmail(email):
 def checkPassword(password):
     return re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", password)
 
-# use pyotp for otp generation
-from dotenv import load_dotenv
-load_dotenv()
 totp = pyotp.TOTP(os.environ.get('OTP_SECRET'))
 otp_ = totp.now()
+
+# @auth.route('/get-cookie')
+# def getCookie():
+#     return jsonify(cookie=cookie_name)
 
 @auth.route('/register', methods=['POST'])
 def register():
@@ -154,7 +160,7 @@ def login():
         return jsonify({'message': 'Invalid email or password'}), 401
 
     if user.is_admin:
-        return jsonify({'message': 'Please use admin panel'}), 417
+        return jsonify({'message': 'Invalid email or password'}), 400
 
     access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=60))
     return jsonify({'access_token': access_token, 'message': 'login successfull'}), 200
@@ -172,7 +178,7 @@ def verifyToken():
         return jsonify({'message': 'Invalid token'}), 401
     user = User.query.filter_by(id=str(current_user)).first()
     expires_at = arrow.utcnow().shift(minutes=60, hours=2).isoformat()
-    return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email, 'is_admin': user.is_admin}), 200
+    return jsonify({'message': 'Token is valid', 'user_id': current_user, 'expires_at': expires_at, 'email': user.email, 'is_admin': user.is_admin, 'cookie': cookie_name}), 200
 
 @auth.route('/sendOtp', methods=['POST'])
 @jwt_required()
@@ -236,7 +242,7 @@ def verifyOtp():
     if otp != otp_:
         return jsonify({'message': 'Invalid OTP'}), 401
     dash_access_token = create_access_token(identity=userId, expires_delta=timedelta(minutes=60))
-    return jsonify({'message': 'OTP verified successfully', 'dash_token': dash_access_token}), 200
+    return jsonify({'message': 'OTP verified successfully', 'dash_token': dash_access_token, 'cookie': cookie_name}), 200
 
 @auth.route('/forgotPassword', methods=['POST'])
 def forgotPassword():

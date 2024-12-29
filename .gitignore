@@ -6,3 +6,4 @@ instance
 celerybeat-schedule
 selfsigned.key
 selfsigned.crt
+instance
