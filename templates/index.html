@@ -24,6 +24,7 @@
     .card-image img {
         max-width: 100%;
         max-height: 80%;
+        border-radius: 10px;
     }
 
     .card-content {
@@ -184,12 +185,12 @@
             <!-- Home Appliances -->
             <div class="column is-3">
                 <div class="card">
-                    <div class="card-content">
+                    <div class="card-content has-background-blue-light">
                         <div class="category-title">
-                            Техника для дома
+                            Cameras and Accessories
                         </div>
                         <div class="card-image">
-                            <img src="/api/placeholder/300/200" alt="Home appliances">
+                            <img src="{{ url_for('static', filename='images/image5.jpg') }}" alt="Home appliances">
                         </div>
                     </div>
                 </div>
@@ -199,7 +200,7 @@
 </section>
 
 <div class="container">
-    <h1 class="is-1 has-text-black-ter has-text-weight-bold">Products</h1>
+    <h1 class="is-1 has-text-black-ter has-text-weight-bold">Featured Products</h1>
 </div>
 
 <!--footer-->
