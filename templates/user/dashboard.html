@@ -1,32 +1,20 @@
 {% include 'imports.html' %}
 
 <script>
-    fetch('/api/get-cookie', {
-        method: 'GET'
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${cookie.get('dash_token')}`
+        }
     })
-        .then(resp => resp.json())
+        .then(response => response.json())
         .then(data => {
-            const cookie = data.cookie;
-            const token = cookies.get(cookie);
-
-            fetch('/api/verifyToken', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message === "Token is valid" && data.is_admin === false) {
-                        document.querySelector('.dash-section').style.display = 'block';
-                    } else {
-                        window.location.href = '/e/404';
-                    }
-                })
-                .catch(error => {
-                    window.location.href = '/e/404';
-                });
+            if (data.message === "Token is valid" && data.is_admin === false) {
+                document.querySelector('.dash-section').style.display = 'block';
+            } else {
+                window.location.href = '/e/404';
+            }
         })
         .catch(error => {
             window.location.href = '/e/404';
