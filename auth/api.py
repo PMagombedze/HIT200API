@@ -130,8 +130,8 @@ def displayProfilePic():
     # get profile pic path
     profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
     if not profile_pic:
-        return jsonify({'img_url': '/api/uploads/user.svg', 'message': 'Profile pic not found', 'first_name': user.first_name, 'last_name': user.last_name, 'city': user.city, 'joined_at': user.joined_at}), 200
-    return jsonify({'img_url': '/api/uploads/' + profile_pic.profile_pic, 'message': 'Profile pic found', 'first_name': user.first_name, 'last_name': user.last_name, 'city': user.city, 'joined_at': user.joined_at}), 200
+        return jsonify({'img_url': '/api/uploads/user.svg', 'message': 'Profile pic not found', 'first_name': user.first_name, 'last_name': user.last_name, 'city': user.city, 'joined_at': user.joined_at, 'subscribed': user.subscribed}), 200
+    return jsonify({'img_url': '/api/uploads/' + profile_pic.profile_pic, 'message': 'Profile pic found', 'first_name': user.first_name, 'last_name': user.last_name, 'city': user.city, 'joined_at': user.joined_at, 'subscribed': user.subscribed}), 200
 
 @auth.route('/user/profile', methods=['DELETE'])
 @jwt_required()
