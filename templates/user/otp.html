@@ -116,7 +116,7 @@
             .then(data => {
                 if (data.message === "OTP verified successfully") {
                     showNotification(data.message, 'success');
-                    cookie.set(data.cookie, data.dash_token, { expires: 1/24 });
+                    cookie.set('dash_token', data.dash_token, { expires: 1/24 });
                     setTimeout(() => {
                         window.location.href = '/u/dashboard';
                     }, 4000);
