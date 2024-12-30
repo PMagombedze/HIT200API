@@ -53,10 +53,31 @@
             <div class="navbar-end">
                 <a class="navbar-item has-text-black" href="/u/profile">
                     <span class="icon">
-                        <img src="{{ url_for('static', filename='/images/user.svg')}}" alt="" srcset="">
+                        <img id="user-profile-img" src="" alt="User Profile" srcset="">
                     </span>
                 </a>
             </div>
+
+            <script>
+                fetch('/api/user/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${cookie.get('dash_token')}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.img_url) {
+                        document.getElementById('user-profile-img').src = data.img_url;
+                    } else {
+                        showNotification('Error fetching profile image', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error fetching profile image', 'error');
+                });
+            </script>
         </div>
     </nav>
 

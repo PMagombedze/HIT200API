@@ -64,6 +64,18 @@
         height: 150px;
         display: inline-block;
         background: #fff;
+        object-fit: cover;
+        object-position: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .profile-image img {
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
     }
 
     .member-info {
@@ -104,10 +116,33 @@
             <div class="navbar-end">
                 <a class="navbar-item has-text-black" href="/u/profile">
                     <span class="icon">
-                        <img src="{{ url_for('static', filename='/images/user.svg')}}" alt="" srcset="">
+                        <img src="" id="user-profile-img" alt="" srcset="">
                     </span>
                 </a>
             </div>
+
+            <script>
+                fetch('/api/user/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${cookie.get('dash_token')}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.img_url) {
+                        document.getElementById('user-profile-img').src = data.img_url;
+                        document.getElementById('pro-pic').src = data.img_url;                        
+                        document.getElementById('user-pic').src = data.img_url;                        
+                    } else {
+                        showNotification('Error fetching profile image', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error fetching profile image', 'error');
+                });
+            </script>
         </div>
     </nav>
 
@@ -123,7 +158,7 @@
         <div class="header-background" style="border-top-left-radius: 10px;border-top-right-radius: 10px;"></div>
         <div class="profile-wrapper">
             <figure class="image profile-image">
-                <img src="profile-image.jpg" alt="Profile" class="is-rounded">
+                <img src="" id="user-pic" alt="Profile" class="is-rounded">
             </figure>
             <div class="content has-text-centered">
                 <h2 class="title is-4 mb-2">Alexandre Naud</h2>
@@ -156,7 +191,7 @@
                 <button style="background-color: transparent;">
                     <div class="file">
                         <label class="file-label">
-                            <input class="file-input" type="file" name="resume" />
+                            <input class="file-input" type="file" name="resume" id="profile-pic-input" />
                             <span class="file-cta">
                                 <span class="file-icon">
                                     <i class="fas fa-upload"></i>
@@ -166,6 +201,60 @@
                         </label>
                     </div>
                 </button>
+                <script>
+                    document.getElementById('profile-pic-input').addEventListener('change', function(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const formData = new FormData();
+                            formData.append('file', file);
+
+                            fetch('/api/user/profile', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${cookie.get('dash_token')}`
+                                },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message === 'Profile pic uploaded successfully') {
+                                    showNotification(data.message, 'success');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 4000);
+                                } else {
+                                    showNotification(data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                showNotification('Error updating profile picture', 'error');
+                            });
+                        }
+                    });
+
+                    document.getElementById('delete-pic').addEventListener('click', function() {
+                        fetch('/api/user/profile', {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${cookie.get('dash_token')}`
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message === 'Profile pic deleted successfully') {
+                                showNotification(data.message, 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 4000);
+                            } else {
+                                showNotification(data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showNotification('Error deleting profile picture', 'error');
+                        });
+                    });
+                </script>
             </div>
         </div>
 
@@ -175,3 +264,39 @@
         </div>
     </div>
 </div>
+
+<script>
+    /*post to /api/updateProfile*/
+    document.getElementById('save-changes').addEventListener('click', function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        const data = {
+            email: email,
+            password: password
+        };
+
+        fetch('/api/updateProfile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cookie.get('dash_token')}`
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === 'Profile updated successfully') {
+                showNotification(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                    }, 4000);
+                } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error updating profile', 'error');
+                });
+            });
+</script>
