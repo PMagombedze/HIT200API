@@ -9,33 +9,43 @@
                 <form class="signup-form">
                     <div class="field">
                         <div class="control">
-                            <input class="input" id="email" type="email" placeholder="Enter your email"
-                                style="width: 100%; height: 45px;">
+                            <input class="input" id="first-name" type="text" placeholder="Enter your first name" style="width: 100%; height: 45px;">
                         </div>
                     </div>
                     <div class="field">
                         <div class="control">
-                            <input class="input" id="password" type="password" placeholder="Enter your password"
-                                style="width: 100%; height: 45px;">
+                            <input class="input" id="last-name" type="text" placeholder="Enter your last name" style="width: 100%; height: 45px;">
                         </div>
                     </div>
                     <div class="field">
                         <div class="control">
-                            <input class="input" id="confirm-password" type="password" placeholder="Confirm your password"
-                                style="width: 100%; height: 45px;">
+                            <input class="input" id="city" type="text" placeholder="Enter your city" style="width: 100%; height: 45px;">
                         </div>
                     </div>
                     <div class="field">
                         <div class="control">
-                            <button style="width: 100%; height: 45px;" id="signup-button" class="button is-link"
-                                type="submit">Sign Up</button>
+                            <input class="input" id="email" type="email" placeholder="Enter your email" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="password" type="password" placeholder="Enter your password" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" id="confirm-password" type="password" placeholder="Confirm your password" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button style="width: 100%; height: 45px;" id="signup-button" class="button is-link" type="submit">Sign Up</button>
                         </div>
                     </div>
                     <p class="subtitle is-6 mt-2">Already have an account? <a href="/login" class="has-text-weight-bold">Login</a></p>
                     <div class="field">
                         <div class="control">
-                            <button style="width: 100%; height: 45px;" id="google-signup-button" class="button"
-                                type="button">
+                            <button style="width: 100%; height: 45px;" id="google-signup-button" class="button" type="button">
                                 <span class="icon">
                                     <img src="{{ url_for('static', filename='images/google.ico')}}" alt="Google icon">
                                 </span>
@@ -126,8 +136,11 @@
      * post to /api/signup
      */
     document.getElementById('signup-button').addEventListener('click', function () {
+        const firstName = document.getElementById('first-name').value;
+        const lastName = document.getElementById('last-name').value;
+        const city = document.getElementById('city').value;
         const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value
+        const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
         const signupButton = document.getElementById('signup-button');
         signupButton.disabled = true;
@@ -142,6 +155,9 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                first_name: firstName,
+                last_name: lastName,
+                city: city,
                 email: email,
                 password: password,
                 confirmPassword: confirmPassword

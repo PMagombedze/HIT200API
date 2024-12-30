@@ -24,6 +24,22 @@
         .catch(error => {
             window.location.href = '/e/404';
         });
+
+    fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('#user-fname').textContent = data.first_name + ' ' + data.last_name;
+            document.querySelector('#city').textContent = data.city;
+            const joinedDate = new Date(data.joined_at);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.querySelector('#joined_at').textContent = joinedDate.toLocaleDateString(undefined, options);
+        })
 </script>
 
 <style>
@@ -31,7 +47,7 @@
         height: 200px;
         position: relative;
         /* background img */
-        background-image: url({{ url_for('static', filename='/images/hero.png') }});
+        /* background-image: url({{ url_for('static', filename='/images/hero.png') }}); */
         background-size: cover;
         background-position: center;
     }
@@ -79,8 +95,6 @@
     }
 
     .member-info {
-        color: #4a4a4a;
-        font-size: 0.9rem;
         margin-top: 0.5rem;
     }
 </style>
@@ -129,25 +143,25 @@
                         'Authorization': `Bearer ${cookie.get('dash_token')}`
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.img_url) {
-                        document.getElementById('user-profile-img').src = data.img_url;
-                        document.getElementById('pro-pic').src = data.img_url;                        
-                        document.getElementById('user-pic').src = data.img_url;                        
-                    } else {
-                        showNotification('Error fetching profile image', 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('Error fetching profile image', 'error');
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.img_url) {
+                            document.getElementById('user-profile-img').src = data.img_url;
+                            document.getElementById('pro-pic').src = data.img_url;
+                            document.getElementById('user-pic').src = data.img_url;
+                        } else {
+                            /**/
+                        }
+                    })
+                    .catch(error => {
+                        /**/
+                    });
             </script>
         </div>
     </nav>
 
     <div class="container mt-6">
-        <button class="button">
+        <button class="button" onclick="window.location.href = '/u/dashboard';">
             <i class="fas fa-arrow-left"></i>&nbsp; &nbsp;
             <span>Back</span>
         </button>
@@ -161,8 +175,9 @@
                 <img src="" id="user-pic" alt="Profile" class="is-rounded">
             </figure>
             <div class="content has-text-centered">
-                <h2 class="title is-4 mb-2">Alexandre Naud</h2>
-                <p class="member-info">Member since Aug 23, 2023 • New York, USA</p>
+                <h2 class="title is-4 mb-2" id="user-fname"></h2>
+                <p class="member-info has-text-grey">Member since <a class="has-text-grey" id="joined_at"></a> • <a
+                        class="has-text-grey" id="city"></a>,&nbsp;ZW</p>
             </div>
         </div>
     </div>
@@ -202,7 +217,7 @@
                     </div>
                 </button>
                 <script>
-                    document.getElementById('profile-pic-input').addEventListener('change', function(event) {
+                    document.getElementById('profile-pic-input').addEventListener('change', function (event) {
                         const file = event.target.files[0];
                         if (file) {
                             const formData = new FormData();
@@ -215,9 +230,33 @@
                                 },
                                 body: formData
                             })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.message === 'Profile pic uploaded successfully') {
+                                        showNotification(data.message, 'success');
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 4000);
+                                    } else {
+                                        showNotification(data.message, 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    showNotification('Error updating profile picture', 'error');
+                                });
+                        }
+                    });
+
+                    document.getElementById('delete-pic').addEventListener('click', function () {
+                        fetch('/api/user/profile', {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${cookie.get('dash_token')}`
+                            }
+                        })
                             .then(response => response.json())
                             .then(data => {
-                                if (data.message === 'Profile pic uploaded successfully') {
+                                if (data.message === 'Profile pic deleted successfully') {
                                     showNotification(data.message, 'success');
                                     setTimeout(() => {
                                         window.location.reload();
@@ -227,32 +266,8 @@
                                 }
                             })
                             .catch(error => {
-                                showNotification('Error updating profile picture', 'error');
+                                showNotification('Error deleting profile picture', 'error');
                             });
-                        }
-                    });
-
-                    document.getElementById('delete-pic').addEventListener('click', function() {
-                        fetch('/api/user/profile', {
-                            method: 'DELETE',
-                            headers: {
-                                'Authorization': `Bearer ${cookie.get('dash_token')}`
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.message === 'Profile pic deleted successfully') {
-                                showNotification(data.message, 'success');
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 4000);
-                            } else {
-                                showNotification(data.message, 'error');
-                            }
-                        })
-                        .catch(error => {
-                            showNotification('Error deleting profile picture', 'error');
-                        });
                     });
                 </script>
             </div>
@@ -263,14 +278,100 @@
             <button id="save-changes" class="button is-link" style="width: 10%;">Save Changes</button>
         </div>
     </div>
+
+    <div class="container mt-6 mb-6"
+        style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px; padding: 2rem;">
+        <h1 class="title is-4">Subscriptions</h1>
+
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
+            <h3 class="is-size-6 has-text-weight-bold">Billing cycle</h3>
+            <div class="dropdown" id="billing-cycle-dropdown">
+                <div class="dropdown-trigger">
+                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                        <span>Select billing cycle</span>
+                        <span class="icon is-small">
+                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                    <div class="dropdown-content">
+                        <a href="#" class="dropdown-item">Monthly</a>
+                        <a href="#" class="dropdown-item">Quarterly</a>
+                        <a href="#" class="dropdown-item">Yearly</a>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.querySelector('#billing-cycle-dropdown .dropdown-trigger button').addEventListener('click', function () {
+                    document.getElementById('billing-cycle-dropdown').classList.toggle('is-active');
+                });
+            </script>
+        </div>
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
+            <h3 class="is-size-6 has-text-weight-bold">Payment Method</h3>
+            <div class="dropdown" id="payment-method-dropdown">
+                <div class="dropdown-trigger">
+                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                        <span>Select payment method</span>
+                        <span class="icon is-small">
+                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                    <div class="dropdown-content">
+                        <a href="#" class="dropdown-item">
+                            <span class="icon">
+                                <i class="fas fa-credit-card"></i>
+                            </span>
+                            <span>Credit Card</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <span class="icon">
+                                <i class="fab fa-paypal"></i>
+                            </span>
+                            <span>PayPal</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <span class="icon">
+                                <i class="fas fa-university"></i>
+                            </span>
+                            <span>Bank Transfer</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.querySelector('#payment-method-dropdown .dropdown-trigger button').addEventListener('click', function () {
+                    document.getElementById('payment-method-dropdown').classList.toggle('is-active');
+                });
+            </script>
+        </div>
+
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
+            <h3 class="is-size-6 has-text-weight-bold">Renewal date</h3>
+            <input type="text" class="input" style="width: 30%;" disabled>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; align-items: center; padding: 15px 0;">
+            <button class="button" style="margin-right: 10px;">Update</button>
+            <button class="button is-danger">Cancel Subscription</button>
+        </div>
+    </div>
 </div>
 
 <script>
     /*post to /api/updateProfile*/
-    document.getElementById('save-changes').addEventListener('click', function() {
+    document.getElementById('save-changes').addEventListener('click', function () {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        
+
         const data = {
             email: email,
             password: password
@@ -284,19 +385,19 @@
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === 'Profile updated successfully') {
-                showNotification(data.message, 'success');
-                setTimeout(() => {
-                    window.location.reload();
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Profile updated successfully') {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
                     }, 4000);
                 } else {
-                        showNotification(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('Error updating profile', 'error');
-                });
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error updating profile', 'error');
             });
+    });
 </script>

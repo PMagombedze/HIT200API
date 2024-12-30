@@ -53,6 +53,9 @@ def register():
     data = request.get_json()
     password = data.get('password')
     email = data.get('email')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    city = data.get('city')
 
     if not password and not email:
         return jsonify({'message': 'Password and email are required'}), 400
@@ -63,8 +66,17 @@ def register():
     if not email:
         return jsonify({'message': 'Email is required'}), 400
 
+    if not first_name:
+        return jsonify({'message': 'First name is required'}), 400
+
+    if not last_name:
+        return jsonify({'message': 'Last name is required'}), 400
+
+    if not city:
+        return jsonify({'message': 'City is required'}), 400
+
     if not checkPassword(password):
-            return jsonify({'message': 'Password not secure'}), 400
+        return jsonify({'message': 'Password not secure'}), 400
 
     if not checkEmail(email):
         return jsonify({'message': 'Invalid email format'}), 400
@@ -73,12 +85,10 @@ def register():
     if user:
         return jsonify({'message': 'Email already exists'}), 409
 
-    user = User(email=email, password=password)
+    user = User(email=email, password=password, first_name=first_name, last_name=last_name, city=city)
     db.session.add(user)
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
-
-
 
 @auth.route('/user/profile', methods=['POST'])
 @jwt_required()
@@ -120,8 +130,8 @@ def displayProfilePic():
     # get profile pic path
     profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
     if not profile_pic:
-        return jsonify({'img_url': '/api/uploads/user.svg', 'message': 'Profile pic not found'}), 200
-    return jsonify({'img_url': '/api/uploads/' + profile_pic.profile_pic, 'message': 'Profile pic found'}), 200
+        return jsonify({'img_url': '/api/uploads/user.svg', 'message': 'Profile pic not found', 'first_name': user.first_name, 'last_name': user.last_name, 'city': user.city, 'joined_at': user.joined_at}), 200
+    return jsonify({'img_url': '/api/uploads/' + profile_pic.profile_pic, 'message': 'Profile pic found', 'first_name': user.first_name, 'last_name': user.last_name, 'city': user.city, 'joined_at': user.joined_at}), 200
 
 @auth.route('/user/profile', methods=['DELETE'])
 @jwt_required()

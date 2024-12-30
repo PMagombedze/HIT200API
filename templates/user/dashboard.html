@@ -22,6 +22,71 @@
         });
 </script>
 
+
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        height: 350px;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    }
+
+    .card-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 1rem;
+    }
+
+    .card-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 1rem;
+        height: 100%;
+    }
+
+    .category-title {
+        font-size: 1.2rem;
+        padding: 1rem;
+    }
+
+    .has-background-pink-light {
+        background-color: #ffebee !important;
+    }
+
+    .has-background-blue-light {
+        background-color: #e3f2fd !important;
+    }
+
+    .product-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card .card-image {
+        height: 200px;
+    }
+
+    .product-card .card-content {
+        flex: 1;
+    }
+
+    .media-content {
+        overflow: hidden;
+    }
+</style>
+
 <!-- Initially hidden section -->
 <div class="dash-section" style="display: none;">
     <nav class="navbar has-background-white" role="navigation" aria-label="main navigation">
@@ -124,10 +189,10 @@
                     const productElement = document.createElement('div');
                     productElement.className = 'column is-one-quarter';
                     productElement.innerHTML = `
-                    <div class="card" style="max-width: 300px;box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px">
+                    <div class="card product-card">
                         <div class="card-image" style="max-width: 300px;">
-                            <figure class="image is-4by3" style="max-width: 300px;">
-                                <img src="${product.url}" alt="${product.name}" style="max-width: 300px;">
+                            <figure class="image">
+                                <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">
                             </figure>
                         </div>
                         <div class="card-content" style="max-width: 300px;">
@@ -159,7 +224,7 @@
                             });
                             const result = await response.json();
                             if (result.message === "Product is now being tracked. Check your email") {
-                                showNotification('Product tracked successfully', 'success');
+                                showNotification(result.message, 'success');
                             } else {
                                 showNotification(result.message, 'warning');
                             }

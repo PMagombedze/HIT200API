@@ -33,10 +33,17 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     subscribed = db.Column(db.Boolean, default=False)
+    first_name = db.Column(db.String(120), nullable=True)
+    last_name = db.Column(db.String(120), nullable=True)
+    joined_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    city = db.Column(db.String(120), nullable=False)
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, first_name, last_name, city):
         self.email = email
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.first_name = first_name
+        self.last_name = last_name
+        self.city = city
         self.id = str(uuid.uuid4())
 
     def __repr__(self):
@@ -51,6 +58,10 @@ class User(db.Model):
             'email': self.email,
             'is_admin': self.is_admin,
             'subscribed': self.subscribed,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'joined_at': self.joined_at,
+            'city': self.city
         }
 
 class UserProfilePic(db.Model):
