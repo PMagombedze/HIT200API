@@ -3,49 +3,59 @@
 <section class="hero is-fullheight">
     <div class="hero-body">
         <div class="container has-text-centered">
-            <div class="box" style="max-width: 400px; margin: 0 auto; box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border: 1px solid #f1f1f1;">
-                <h2 class="title">Sign Up</h2>
-                <p class="subtitle is-6 mt-2">Please fill in the form to create an account.</p>
+            <div class="box px-6 py-6"
+                style="max-width: 600px; margin: 0 auto; box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
+                <h2 class="title has-text-grey-darker has-text-weight-bold">Create your PricePick account</h2>
                 <form class="signup-form">
                     <div class="field">
+                        <label class="label has-text-left" for="first-name">First Name</label>
                         <div class="control">
-                            <input class="input" id="first-name" type="text" placeholder="Enter your first name" style="width: 100%; height: 45px;">
+                            <input class="input" id="first-name" type="text" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-left" for="last-name">Last Name</label>
+                        <div class="control">
+                            <input class="input" id="last-name" type="text" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-left" for="city">City</label>
+                        <div class="control">
+                            <input class="input" id="city" type="text" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-left" for="email">Email</label>
+                        <div class="control">
+                            <input class="input" id="email" type="email" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-left" for="password">Password</label>
+                        <div class="control">
+                            <input class="input" id="password" type="password" style="width: 100%; height: 45px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-left" for="confirm-password">Confirm Password</label>
+                        <div class="control">
+                            <input class="input" id="confirm-password" type="password"
+                                style="width: 100%; height: 45px;">
                         </div>
                     </div>
                     <div class="field">
                         <div class="control">
-                            <input class="input" id="last-name" type="text" placeholder="Enter your last name" style="width: 100%; height: 45px;">
+                            <button style="width: 100%; height: 45px;" id="signup-button" class="button is-link"
+                                type="submit">Sign Up</button>
                         </div>
                     </div>
+                    <p class="subtitle is-6 mt-2">Already have an account? <a href="/login"
+                            class="has-text-weight-bold">Login</a></p>
                     <div class="field">
                         <div class="control">
-                            <input class="input" id="city" type="text" placeholder="Enter your city" style="width: 100%; height: 45px;">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="email" type="email" placeholder="Enter your email" style="width: 100%; height: 45px;">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="password" type="password" placeholder="Enter your password" style="width: 100%; height: 45px;">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="confirm-password" type="password" placeholder="Confirm your password" style="width: 100%; height: 45px;">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <button style="width: 100%; height: 45px;" id="signup-button" class="button is-link" type="submit">Sign Up</button>
-                        </div>
-                    </div>
-                    <p class="subtitle is-6 mt-2">Already have an account? <a href="/login" class="has-text-weight-bold">Login</a></p>
-                    <div class="field">
-                        <div class="control">
-                            <button style="width: 100%; height: 45px;" id="google-signup-button" class="button" type="button">
+                            <button style="width: 100%; height: 45px;" id="google-signup-button" class="button"
+                                type="button">
                                 <span class="icon">
                                     <img src="{{ url_for('static', filename='images/google.ico')}}" alt="Google icon">
                                 </span>
@@ -72,7 +82,7 @@
             this.classList.add('is-danger');
         }
 
-        if (validator.isEmail(emailInput) && validatePassword(document.getElementById('password').value) && 
+        if (validator.isEmail(emailInput) && validatePassword(document.getElementById('password').value) &&
             document.getElementById('password').value === document.getElementById('confirm-password').value) {
             signupButton.disabled = false;
         } else {
@@ -92,7 +102,7 @@
             this.classList.add('is-danger');
         }
 
-        if (validatePassword(passwordInput) && validator.isEmail(document.getElementById('email').value) && 
+        if (validatePassword(passwordInput) && validator.isEmail(document.getElementById('email').value) &&
             passwordInput === document.getElementById('confirm-password').value) {
             signupButton.disabled = false;
         } else {
@@ -112,8 +122,8 @@
             this.classList.add('is-danger');
         }
 
-        if (confirmPasswordInput === document.getElementById('password').value && 
-            validatePassword(document.getElementById('password').value) && 
+        if (confirmPasswordInput === document.getElementById('password').value &&
+            validatePassword(document.getElementById('password').value) &&
             validator.isEmail(document.getElementById('email').value)) {
             signupButton.disabled = false;
         } else {

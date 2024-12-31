@@ -1,6 +1,17 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from auth.api import jwt_redis_blocklist
+import stripe
+import os
+
+
+stripe_keys = {
+    "secret_key": os.environ["STRIPE_SECRET_KEY"],
+    "publishable_key": os.environ["STRIPE_PUBLISHABLE_KEY"],
+}
+
+stripe.api_key = stripe_keys["secret_key"]
+
 
 payments = Blueprint('payments', __name__)
 

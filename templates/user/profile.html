@@ -51,7 +51,7 @@
         height: 200px;
         position: relative;
         /* background img */
-        /* background-image: url({{ url_for('static', filename='/images/hero.png') }}); */
+        background-image: url({{ url_for('static', filename='/images/hero.png') }});
         background-size: cover;
         background-position: center;
     }
@@ -469,3 +469,5 @@
             });
     });
 </script>
+
+{% include 'footer.html' %}
