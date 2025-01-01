@@ -37,6 +37,7 @@
             document.querySelector('#user-fname').textContent = data.first_name + ' ' + data.last_name;
             document.querySelector('#city').textContent = data.city;
             cookie.set('status', data.subscribed, { expires: 1/24 });
+            cookie.set('email', data.email, { expires: 1/24 });
             const joinedDate = new Date(data.joined_at);
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.querySelector('#joined_at').textContent = joinedDate.toLocaleDateString(undefined, options);
@@ -286,153 +287,77 @@
     <div class="container mt-6 mb-6"
         style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px; padding: 2rem;">
         <h1 class="title is-4">Subscriptions</h1>
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
-            <h3 class="is-size-6 has-text-weight-bold">Billing cycle</h3>
-            <div class="dropdown" id="billing-cycle-dropdown">
-            <div class="dropdown-trigger">
-                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-                <span>Select billing cycle</span>
-                <span class="icon is-small">
-                    <i class="fas fa-angle-down" aria-hidden="true"></i>
-                </span>
-                </button>
-            </div>
-            <div class="dropdown-menu" id="billing-dropdown-menu" role="menu">
-                <div class="dropdown-content">
-                <a class="dropdown-item" onclick="updateRenewalDate('monthly')">Monthly</a>
-                <a class="dropdown-item" onclick="updateRenewalDate('quarterly')">Quarterly</a>
-                <a class="dropdown-item" onclick="updateRenewalDate('yearly')">Yearly</a>
-            </div>
-            </div>
-        </div>
-        <script>
-            function updateRenewalDate(cycle) {
-            const today = new Date();
-            let renewalDate = new Date(today);
-            
-            switch(cycle) {
-                case 'monthly':
-                renewalDate.setMonth(today.getMonth() + 1);
-                break;
-                case 'quarterly':
-                renewalDate.setMonth(today.getMonth() + 3);
-                break;
-                case 'yearly':
-                renewalDate.setFullYear(today.getFullYear() + 1);
-                break;
-            }
-            
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            document.getElementById('renewal_date').value = renewalDate.toLocaleDateString(undefined, options);
-            }
-            </script>
-            <script>
-                document.querySelector('#billing-cycle-dropdown .dropdown-trigger button').addEventListener('click', function () {
-                    document.getElementById('billing-cycle-dropdown').classList.toggle('is-active');
-                });
-            </script>
-        </div>
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
-            <h3 class="is-size-6 has-text-weight-bold">Payment Method</h3>
-            <div class="dropdown" id="payment-method-dropdown">
-                <div class="dropdown-trigger">
-                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-                        <span>Select payment method</span>
-                        <span class="icon is-small">
-                            <i class="fas fa-angle-down" aria-hidden="true"></i>
-                        </span>
-                    </button>
-                </div>
-                <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                    <div class="dropdown-content">
-                        <a class="dropdown-item">
-                            <span class="icon">
-                                <i class="fas fa-credit-card"></i>
-                            </span>
-                            <span>Credit Card</span>
-                        </a>
-                        <a class="dropdown-item">
-                            <span class="icon">
-                                <i class="fab fa-paypal"></i>
-                            </span>
-                            <span>PayPal</span>
-                        </a>
-                        <a class="dropdown-item">
-                            <span class="icon">
-                                <i class="fas fa-university"></i>
-                            </span>
-                            <span>Bank Transfer</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <script>
-                document.querySelector('#payment-method-dropdown .dropdown-trigger button').addEventListener('click', function () {
-                    document.getElementById('payment-method-dropdown').classList.toggle('is-active');
-                });
-            </script>
-        </div>
 
         <div
             style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
-            <h3 class="is-size-6 has-text-weight-bold">Renewal date</h3>
-            <input id="renewal_date" type="text" class="input" style="width: 30%;" disabled>
+            <h3 class="is-size-6 has-text-weight-bold">Ecocash Reference Number <a style="cursor: auto;" class="has-text-grey-darker is-6 subtitle">(Enter reference after subscribing then click verify)</a>
+            </h3>
+            <input id="reference_number" type="text" class="input" style="width: 30%;">
         </div>
+
 
         <div style="display: flex; justify-content: flex-end; align-items: center; padding: 15px 0;">
-            <button class="button" style="margin-right: 10px;" id="update-subscription">Subscribe</button>
-            <button class="button is-danger" id="cancel-subscription" disabled>Cancel Subscription</button>
+            <button class="button mr-3" onclick="window.open('https://www.paynow.co.zw/Payment/Link/?q=c2VhcmNoPXBlcmN5bWFnb3JhcyU0MGdtYWlsLmNvbSZhbW91bnQ9MjAuMDAmcmVmZXJlbmNlPWQ4ZDEwZmVmLTg1ZDEtNDc2Yy1iMmI5LTY4ZDk4OWQ1OTI0ZSZsPTE%3d', '_blank');">Subscribe</button>
+            <button class="button is-link mr-3" id="verify_reference">Verify Reference</button>
+            <button class="button is-danger" id="cancel_subscription">Cancel Subscription</button>
         </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-            const status = cookie.get('status');
-            const updateButton = document.getElementById('update-subscription');
-            const cancelButton = document.getElementById('cancel-subscription');
-
-            if (status === 'false') {
-                updateButton.textContent = 'Subscribe';
-                cancelButton.disabled = true;
-            } else {
-                updateButton.textContent = 'Update';
-                cancelButton.disabled = false;
-            }
-
-            updateButton.addEventListener('click', function () {
-                if (status === 'false') {
-                // Logic to subscribe the user
-                fetch('/api/subscribe', {
-                    method: 'POST',
-                    headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${cookie.get('dash_token')}`
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                    if (data.message === 'Subscribed successfully') {
-                        showNotification(data.message, 'success');
-                        setTimeout(() => {
-                        window.location.reload();
-                        }, 4000);
-                    } else {
-                        showNotification(data.message, 'error');
-                    }
-                    })
-                    .catch(error => {
-                    showNotification('Error subscribing', 'error');
-                    });
-                } else {
-                // Logic to update subscription
-                }
-            });
-            });
-        </script>
     </div>
-</div>
+
+<script>
+    document.getElementById('verify_reference').addEventListener('click', function () {
+        const referenceNumber = document.getElementById('reference_number').value;
+        if (referenceNumber === '') {
+            showNotification('Please enter a reference number', 'error');
+            return;
+        }
+
+        fetch('/api/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cookie.get('dash_token')}`
+            },
+            body: JSON.stringify({ reference: referenceNumber })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Payment successful') {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 4000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error verifying reference', 'error');
+            });
+    });
+
+    document.getElementById('cancel_subscription').addEventListener('click', function () {
+        fetch('/api/payments/cancel', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${cookie.get('dash_token')}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Subscription cancelled') {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 4000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error cancelling subscription', 'error');
+            });
+    });
+</script>
 
 <script>
     /*post to /api/updateProfile*/
@@ -471,3 +396,4 @@
 </script>
 
 {% include 'footer.html' %}
+</div>

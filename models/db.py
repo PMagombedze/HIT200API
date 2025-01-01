@@ -33,6 +33,7 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     subscribed = db.Column(db.Boolean, default=False)
+    subscription_end_date = db.Column(db.DateTime, nullable=True)
     first_name = db.Column(db.String(120), nullable=True)
     last_name = db.Column(db.String(120), nullable=True)
     joined_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -165,7 +166,6 @@ class Subscription(db.Model):
 
     def __repr__(self):
         return '<Subscription %r>' % self.id
-
 
 class Product(db.Model):
     """
