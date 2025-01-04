@@ -1,7 +1,5 @@
-<head>
-    <title>PricePick</title>
-    {% include 'imports.html' %}
-</head>
+{% include 'imports.html' %}
+
 
 
 <style>
@@ -36,7 +34,7 @@
         height: 100%;
     }
 
-    .category-title {
+    .category-title{
         font-size: 1.2rem;
         padding: 1rem;
     }
@@ -70,110 +68,50 @@
 
 
 {% include 'navbar.html' %}
-{% include 'hero.html' %}
 
-<section class="section">
-    <div class="container">
-        <div class="columns is-multiline">
-            <div class="column is-3">
-                <div class="card has-background-pink-light">
-                    <div class="card-content">
-                        <div class="category-title has-text-danger">
-                            Smartphones
-                        </div>
-                        <div class="card-image">
-                            <img style="height: 70%;" src="{{ url_for('static', filename='images/mansory/iphone.png') }}" alt="Kitchenware">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="column is-3">
-                <div class="card has-background-blue-light">
-                    <div class="card-content">
-                        <div class="category-title has-text-info">
-                            Gaming
-                        </div>
-                        <div class="card-image">
-                            <img src="/api/placeholder/300/200" alt="Tablets">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Auto Parts -->
-            <div class="column is-6">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="category-title">
-                            Auto Parts
-                        </div>
-                        <div class="card-image">
-                            <img src="/api/placeholder/600/300" alt="Auto parts">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="column is-3">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="category-title">
-                            Home Appliances
-                        </div>
-                        <div class="card-image">
-                            <img src="/api/placeholder/300/200" alt="Gaming">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="column is-3">
-                <div class="card has-background-pink-light">
-                    <div class="card-content">
-                        <div class="category-title has-text-danger">
-                            Generators
-                        </div>
-                        <div class="card-image">
-                            <img src="/api/placeholder/300/200" alt="Smartphones">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Phone Accessories -->
-            <div class="column is-3">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="category-title">
-                            Аксессуары для телефонов
-                        </div>
-                        <div class="card-image">
-                            <img src="/api/placeholder/300/200" alt="Phone accessories">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Home Appliances -->
-            <div class="column is-3">
-                <div class="card">
-                    <div class="card-content has-background-blue-light">
-                        <div class="category-title">
-                            Cameras and Accessories
-                        </div>
-                        <div class="card-image">
-                            <img src="{{ url_for('static', filename='images/image5.jpg') }}" alt="Home appliances">
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="container">
+    <div class="columns is-multiline is-centered">
+        <div class="column is-2 has-text-centered">
+            <span class="icon">
+                <i class="fas fa-laptop"></i>
+            </span>
+            <h2 class="is-5 is-inline-block ml-2">Laptops</h2>
+        </div>
+        <div class="column is-2 has-text-centered">
+            <span class="icon">
+                <i class="fas fa-mobile-alt"></i>
+            </span>
+            <h2 class="is-5 is-inline-block ml-2">Smartphones</h2>
+        </div>
+        <div class="column is-2 has-text-centered">
+            <span class="icon">
+                <i class="fas fa-tv"></i>
+            </span>
+            <h2 class="is-5 is-inline-block ml-2">Televisions</h2>
+        </div>
+        <div class="column is-2 has-text-centered">
+            <span class="icon">
+                <i class="fas fa-headphones"></i>
+            </span>
+            <h2 class="is-5 is-inline-block ml-2">Headphones</h2>
+        </div>
+        <div class="column is-2 has-text-centered">
+            <span class="icon">
+                <i class="fas fa-camera"></i>
+            </span>
+            <h2 class="is-5 is-inline-block ml-2">Cameras</h2>
+        </div>
+        <div class="column is-2 has-text-centered">
+            <span class="icon">
+                <i class="fas fa-gamepad"></i>
+            </span>
+            <h2 class="is-5 is-inline-block ml-2">Gaming</h2>
         </div>
     </div>
-</section>
+</div>
 
 <div class="container mt-6">
-    <h1 class="is-4 subtitle has-text-black-ter has-text-weight-bold">Featured Products</h1>
+    <h1 class="is-4 title subhas-text-black-ter has-text-weight-bold">Featured Products</h1>
 </div>
 
 
@@ -186,32 +124,32 @@
 {% include 'footer.html' %}
 
 <script>
-const fetchProducts = async () => {
-    try {
-        const response = await fetch('/api/products', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const data = await response.json();
-        const products = data.products;
-        const productsContainer = document.querySelector('#products-container');
-        let currentPage = 1;
-        const itemsPerPage = 8;
-        const totalPages = Math.ceil(products.length / itemsPerPage);
+    const fetchProducts = async () => {
+        try {
+            const response = await fetch('/api/products', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            const products = data.products;
+            const productsContainer = document.querySelector('#products-container');
+            let currentPage = 1;
+            const itemsPerPage = 8;
+            const totalPages = Math.ceil(products.length / itemsPerPage);
 
-        function displayProducts(page) {
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const paginatedProducts = products.slice(start, end);
+            function displayProducts(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const paginatedProducts = products.slice(start, end);
 
-            productsContainer.innerHTML = '';
+                productsContainer.innerHTML = '';
 
-            paginatedProducts.forEach(product => {
-                const productElement = document.createElement('div');
-                productElement.className = 'column is-3';
-                productElement.innerHTML = `
+                paginatedProducts.forEach(product => {
+                    const productElement = document.createElement('div');
+                    productElement.className = 'column is-3';
+                    productElement.innerHTML = `
                 <div class="card product-card">
                     <div class="card-image">
                         <figure class="image">
@@ -221,9 +159,9 @@ const fetchProducts = async () => {
                     <div class="card-content">
                         <div class="media">
                             <div class="media-content">
-                                <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
-                                <p class="subtitle is-6">$${product.price}.00</p> 
-                                <p class="subtitle is-6">${product.store}</p> 
+                                <p class="subhas-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
+                                <p class="subis-6">$${product.price}.00</p> 
+                                <p class="subis-6">${product.store}</p> 
                             </div>
                         </div>
                         <div class="buttons">
@@ -232,15 +170,15 @@ const fetchProducts = async () => {
                     </div>
                 </div>
                 `;
-                productsContainer.appendChild(productElement);
-            });
+                    productsContainer.appendChild(productElement);
+                });
 
-            const paginationContainer = document.createElement('nav');
-            paginationContainer.className = 'pagination is-centered mt-6';
-            paginationContainer.setAttribute('role', 'navigation');
-            paginationContainer.setAttribute('aria-label', 'pagination');
+                const paginationContainer = document.createElement('nav');
+                paginationContainer.className = 'pagination is-centered mt-6';
+                paginationContainer.setAttribute('role', 'navigation');
+                paginationContainer.setAttribute('aria-label', 'pagination');
 
-            paginationContainer.innerHTML = `
+                paginationContainer.innerHTML = `
                 <a class="pagination-previous" ${page === 1 ? 'disabled' : ''}>Previous</a>
                 <a class="pagination-next" ${page === totalPages ? 'disabled' : ''}>Next</a>
                 <ul class="pagination-list">
@@ -254,44 +192,44 @@ const fetchProducts = async () => {
                 </ul>
             `;
 
-            const existingPagination = document.querySelector('.pagination');
-            if (existingPagination) {
-                existingPagination.remove();
-            }
-            productsContainer.after(paginationContainer);
-
-            const prevButton = paginationContainer.querySelector('.pagination-previous');
-            const nextButton = paginationContainer.querySelector('.pagination-next');
-            const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
-
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    displayProducts(currentPage);
+                const existingPagination = document.querySelector('.pagination');
+                if (existingPagination) {
+                    existingPagination.remove();
                 }
-            });
+                productsContainer.after(paginationContainer);
 
-            nextButton.addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    displayProducts(currentPage);
-                }
-            });
+                const prevButton = paginationContainer.querySelector('.pagination-previous');
+                const nextButton = paginationContainer.querySelector('.pagination-next');
+                const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
 
-            pageLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    currentPage = parseInt(e.target.textContent);
-                    displayProducts(currentPage);
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        displayProducts(currentPage);
+                    }
                 });
-            });
+
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        displayProducts(currentPage);
+                    }
+                });
+
+                pageLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        currentPage = parseInt(e.target.textContent);
+                        displayProducts(currentPage);
+                    });
+                });
+            }
+
+            displayProducts(currentPage);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            showNotification('Error fetching products', 'error');
         }
+    };
 
-        displayProducts(currentPage);
-    } catch (error) {
-        console.error('Error fetching products:', error);
-        showNotification('Error fetching products', 'error');
-    }
-};
-
-fetchProducts();
+    fetchProducts();
 </script>

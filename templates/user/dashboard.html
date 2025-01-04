@@ -89,64 +89,110 @@
 
 <!-- Initially hidden section -->
 <div class="dash-section" style="display: none;">
-    <nav class="navbar has-background-white" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="/">
-                <h1 class="title has-text-black">PricePick</h1>
-            </a>
+    <script>
+        fetch('/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cookie.get('dash_token')}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.img_url) {
+                    document.getElementById('user-profile-img').src = data.img_url;
+                } else {
+                    showNotification('Error fetching profile image', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error fetching profile image', 'error');
+            });
+    </script>
+
+    <div class="navbar is-light">
+        <div class="container">
+            <nav class="navbar">
+                <div class="navbar-brand has-background-light">
+                    <a class="navbar-item">
+                        <i class="fas fa-qrcode" style="font-size: 14px; margin-left: 8px;"></i>
+                        <h1 class="is-6 has-text-weight-bold" style="font-size: 14px;">Download PricePick app</h1>
+                    </a>
+                </div>
+            </nav>
         </div>
+    </div>
 
-        <div class="navbar-menu">
+    <div class="container py-3">
+        <div class="navbar">
             <div class="navbar-start">
+                <h1 class="is-3 has-text-link subtitle has-text-weight-bold">PricePick</h1>
             </div>
-
-            <div style="flex-grow: 1; display: flex; justify-content: center;">
-                <div class="navbar-item" style="width: 50%;">
-                    <div class="field" style="width: 100%;">
-                        <p class="control has-icons-right">
-                            <input class="input has-background-white has-text-black" type="text"
-                                style="border: 2px solid #3273dc; height: 45px;" placeholder="Search...">
-                            <span class="icon is-right has-background-link"
-                                style="border-top-right-radius: 10px;border-bottom-right-radius: 10px;color: #fff; height: 45px;">
-                                <i class="fas fa-search"></i>
-                            </span>
-                        </p>
+            <div class="navbar-center">
+                <div class="field has-addons">
+                    <div class="control has-icons-right" style="position: relative; width: 400px;">
+                        <input class="input px-5"
+                            style="border-radius: 25px; border: 2px solid #3273dc; width: 100%; max-width: 600px; height: 45px;"
+                            type="text" placeholder="Search for products">
+                        <span class="icon is-right"
+                            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%);">
+                            <button class="button has-background-link"
+                                style="border-radius: 50%; height: 35px; width: 35px;">
+                                <i class="fas fa-search" style="color: #fff;"></i>
+                            </button>
+                        </span>
                     </div>
                 </div>
             </div>
-
             <div class="navbar-end">
-                <a class="navbar-item has-text-black" href="/u/profile">
-                    <span class="icon">
-                        <img id="user-profile-img" src="" alt="User Profile" srcset="">
-                    </span>
-                </a>
+                <button onclick="window.location.href='/u/profile';" class="button px-4 py-2 has-text-weight-bold"
+                    style="display: flex; align-items: center;border-radius: 50%;">
+                    <img src="" id="user-profile-img" alt="" style="height: 25px;width: 20px; border-radius: 50%;">
+                </button>
             </div>
-
-            <script>
-                fetch('/api/user/profile', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${cookie.get('dash_token')}`
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.img_url) {
-                        document.getElementById('user-profile-img').src = data.img_url;
-                    } else {
-                        showNotification('Error fetching profile image', 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('Error fetching profile image', 'error');
-                });
-            </script>
         </div>
-    </nav>
+    </div>
 
-    {% include 'hero.html' %}
+    <div class="container">
+        <div class="columns is-multiline is-centered">
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-laptop"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Laptops</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Smartphones</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-tv"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Televisions</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-headphones"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Headphones</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-camera"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Cameras</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-gamepad"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Gaming</h2>
+            </div>
+        </div>
+    </div>
 
     <div class="container mt-6">
         <h1 class="is-4 subtitle has-text-black-ter has-text-weight-bold">Featured Products</h1>
