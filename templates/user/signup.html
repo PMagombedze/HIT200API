@@ -1,11 +1,22 @@
 {% include 'imports.html' %}
 
-<section class="hero is-fullheight" style="background-color: #f2f4f9;">
+<nav class="navbar" style="background-color: #f1f1f1;border-bottom: 1px solid #dddddd;" role="navigation"
+    aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item">
+            <span class="icon is-large">
+                <i class="fas fa-th has-text-link"></i>
+            </span>
+            <h3 class="title py-2">PricePick</h3>
+        </a>
+    </div>
+</nav>
+
+<section class="hero">
     <div class="hero-body">
         <div class="container has-text-centered">
-            <div class="box px-6 py-6"
-                style="max-width: 600px; margin: 0 auto; box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
-                <h2 class="title has-text-grey-darker has-text-weight-bold">Create your PricePick account</h2>
+            <div class="box px-6 py-6" style="max-width: 600px; margin: 0 auto; box-shadow:none;">
+                <h2 class="title has-text-grey-darker has-text-weight-light">Create your PricePick account</h2>
                 <form class="signup-form">
                     <div class="field">
                         <label class="label has-text-left" for="first-name">First Name</label>
@@ -52,6 +63,11 @@
                     </div>
                     <p class="subtitle is-6 mt-2">Already have an account? <a href="/login"
                             class="has-text-weight-bold">Login</a></p>
+                    <div class="is-flex is-align-items-center my-4">
+                        <hr class="is-flex-grow-1 has-background-grey-light">
+                        <p class="subtitle is-6 mx-2 mb-0">or continue with</p>
+                        <hr class="is-flex-grow-1 has-background-grey-light">
+                    </div>
                     <div class="field">
                         <div class="control">
                             <button style="width: 100%; height: 45px;" id="google-signup-button" class="button"
@@ -59,7 +75,7 @@
                                 <span class="icon">
                                     <img src="{{ url_for('static', filename='images/google.ico')}}" alt="Google icon">
                                 </span>
-                                <span>Continue with Google</span>
+                                <span>Google</span>
                             </button>
                         </div>
                     </div>

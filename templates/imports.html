@@ -31,7 +31,12 @@
 <style>
     @font-face {
         font-family: webFont;
-        src: url("{{ url_for('static', filename='fonts/Inter.ttf') }}");
+        src: url("{{ url_for('static', filename='fonts/font.otf') }}");
+    }
+
+    @font-face {
+        font-family: Inter;
+        src: url("{{ url_for('static', filename='fonts/Inter.otf') }}");
     }
 
     input {
