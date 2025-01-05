@@ -1,0 +1,48 @@
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('cookieModal');
+        const lastVisit = localStorage.getItem('lastVisit');
+        const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+        if (!lastVisit || (new Date().getTime() - lastVisit) > oneHour) {
+            modal.classList.add('is-active');
+        }
+
+        const handleModalClose = () => {
+            modal.classList.remove('is-active');
+            localStorage.setItem('lastVisit', new Date().getTime());
+        };
+
+        // Handle accept button
+        document.getElementById('acceptCookies').addEventListener('click', handleModalClose);
+
+        // Handle reject button
+        document.getElementById('rejectCookies').addEventListener('click', handleModalClose);
+    });
+</script>
+<style>
+    .modal-content {
+        border-radius: 8px;
+        max-width: 400px !important;
+    }
+
+    .cookie-icon {
+        font-size: 2.5rem;
+    }
+</style>
+
+<div id="cookieModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
+            <div class="has-text-centered">
+                <p class="cookie-icon">🍪</p>
+                <p class="mb-4">This website uses cookies to ensure you the best experience on our website.</p>
+                <div class="buttons is-centered">
+                    <button id="acceptCookies" class="button is-link">Accept</button>
+                    <button id="rejectCookies" class="button is-danger">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

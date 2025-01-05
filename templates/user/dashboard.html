@@ -23,70 +23,6 @@
 </script>
 
 
-<style>
-    .card {
-        display: flex;
-        flex-direction: column;
-        border: none;
-        height: 350px;
-        box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-    }
-
-    .card-image {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        padding: 1rem;
-    }
-
-    .card-image img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        border-radius: 10px;
-    }
-
-    .card-content {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 1rem;
-        height: 100%;
-    }
-
-    .category-title {
-        font-size: 1.2rem;
-        padding: 1rem;
-    }
-
-    .has-background-pink-light {
-        background-color: #ffebee !important;
-    }
-
-    .has-background-blue-light {
-        background-color: #e3f2fd !important;
-    }
-
-    .product-card {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .product-card .card-image {
-        height: 200px;
-    }
-
-    .product-card .card-content {
-        flex: 1;
-    }
-
-    .media-content {
-        overflow: hidden;
-    }
-</style>
-
 <!-- Initially hidden section -->
 <div class="dash-section" style="display: none;">
     <script>
@@ -194,8 +130,38 @@
         </div>
     </div>
 
+    <div class="hero is-light is-small container mt-3" style="border-radius: 5px;">
+        <div class="hero-body py-2">
+            <div class="columns is-mobile is-gapless has-text-centered">
+                <div class="column is-4 has-background-white-ter">
+                    <p class="is-size-7">
+                        <span class="has-text-weight-bold">Latest Tech Deals</span><br>
+                        Daily Curated Electronics Offers
+                        <span class="tag is-success is-light ml-2">Updated Daily</span>
+                    </p>
+                </div>
+
+                <div class="column is-4 has-background-white-ter">
+                    <p class="is-size-7">
+                        <span class="has-text-weight-bold">Price Drop Alerts</span><br>
+                        Real-time Hardware Price Tracking
+                        <span class="tag is-info is-light ml-2">Live Updates</span>
+                    </p>
+                </div>
+
+                <div class="column is-4 has-background-white-ter">
+                    <p class="is-size-7">
+                        <span class="has-text-weight-bold">Community Deals</span><br>
+                        User-submitted Tech Bargains
+                        <span class="tag is-warning is-light ml-2">Verified Deals</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-6">
-        <h1 class="is-4 subtitle has-text-black-ter has-text-weight-bold">Featured Products</h1>
+        <h1 class="is-4 title has-text-black-ter has-text-weight-bold">Featured Products</h1>
     </div>
 
     <div class="container mt-6">
