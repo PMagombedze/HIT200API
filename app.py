@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template
 from models.db import db
 from auth.api import auth, jwt
 from admin.api import admin, adminJwt
-from forum.api import forum
+from reviews.api import reviews
 from recommendations.api import recommendations
 from payments.api import payments
 from notifications.api import notifications
@@ -27,7 +27,7 @@ CORS(app, resources={
 
 app.register_blueprint(auth, url_prefix='/api')
 app.register_blueprint(admin, url_prefix='/api')
-app.register_blueprint(forum, url_prefix='/api')
+app.register_blueprint(reviews, url_prefix='/api')
 app.register_blueprint(recommendations, url_prefix='/api')
 app.register_blueprint(payments, url_prefix='/api')
 app.register_blueprint(notifications, url_prefix='/api')
@@ -84,8 +84,8 @@ def forgot_password():
 def reset_password():
     return render_template('user/resetpass.html')
 
-@app.route('/u/reviews/<string:product_id>')
-def forum_page(product_id):
+@app.route('/u/reviews')
+def reviews_page():
     return render_template('user/reviews.html')
 
 @app.route('/a/users')

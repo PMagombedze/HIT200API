@@ -1,12 +1,10 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity, JWTManager, create_access_token
-from models.db import db, User, Forum, Product, UserProfilePic, Notification
+from models.db import db, User, Product, UserProfilePic, Notification
 from datetime import timedelta
 import json
 import os
 from auth.api import jwt_redis_blocklist
-
-# Initialize Redis client
 
 adminJwt = JWTManager()
 
@@ -81,44 +79,6 @@ def deleteUser(id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'User deleted successfully'}), 200
-
-@admin.route('/hello')
-def hello():
-    return jsonify({'message': 'Hello World!'}), 200
-
-
-@admin.route('/forums')
-@jwt_required()
-def forumProfiles():
-    # check redis blocklist
-    if jwt_redis_blocklist.get(get_jwt()['jti']):
-        return jsonify({'message': 'Token revoked'}), 401
-    user = User.query.filter_by(id=get_jwt_identity()).first()
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-    if not user.is_admin:
-        return jsonify({'message': 'Fobbiden'}), 403
-    forums = Forum.query.all()
-    return jsonify({'forums': [forum.to_dict() for forum in forums]}), 200
-
-
-@admin.route('/forums/<string:id>', methods=['DELETE'])
-@jwt_required()
-def deleteForum(id):
-    # check redis blocklist
-    if jwt_redis_blocklist.get(get_jwt()['jti']):
-        return jsonify({'message': 'Token revoked'}), 401
-    user = User.query.filter_by(id=get_jwt_identity()).first()
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-    if not user.is_admin:
-        return jsonify({'message': 'Fobbiden'}), 403
-    forum = Forum.query.filter_by(id=id).first()
-    if not forum:
-        return jsonify({'message': 'Forum not found'}), 404
-    db.session.delete(forum)
-    db.session.commit()
-    return jsonify({'message': 'Forum deleted successfully'}), 200
 
 @admin.route('/products', methods=['POST'])
 @jwt_required()

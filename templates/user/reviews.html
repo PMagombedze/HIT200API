@@ -166,43 +166,53 @@
     <div class="container mt-6">
         <h1 class="is-4 title has-text-black-ter has-text-weight-bold">Customer Reviews</h1>
         <!---write a review button-->
-        <button class="button is-link" onclick="showReviewModal()">Write a Review</button>
+        <button class="button is-link" style="height: 45px;" onclick="showReviewModal()">Write a Review</button>
 
         <!-- Review Modal -->
         <div class="modal" id="review-modal">
             <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
+            <div class="modal-card" style="border-radius: 10px;">
+                <header class="modal-card-head" style="box-shadow: none; margin-bottom: 0;">
                     <p class="modal-card-title">Write a Review</p>
-                    <button class="delete" aria-label="close" onclick="closeReviewModal()"></button>
+                    <button onclick="closeReviewModal()">
+                        <i class="fas fa-times has-text-danger" style="font-size: 20pt;"></i>
+                    </button>
                 </header>
-                <section class="modal-card-body">
+                <section class="modal-card-body" style="padding-top: 0;">
                     <div class="field">
                         <label class="label">Your Review</label>
                         <div class="control">
-                            <textarea class="textarea" id="review-message"
-                                placeholder="Write your review here"></textarea>
+                            <textarea class="textarea" id="review-message" placeholder="Write your review here" style="resize: none;"></textarea>
                         </div>
                     </div>
-                    <div class="field">
-                        <label class="label">Rating</label>
+                    <div class="field is-grouped">
                         <div class="control">
-                            <div class="select">
-                                <select id="review-stars">
-                                    <option value="5">5 Stars</option>
-                                    <option value="4">4 Stars</option>
-                                    <option value="3">3 Stars</option>
-                                    <option value="2">2 Stars</option>
-                                    <option value="1">1 Star</option>
-                                </select>
+                            <div class="dropdown is-active">
+                                <div class="dropdown-trigger">
+                                    <button class="button" style="height: 45px;" aria-haspopup="true" aria-controls="dropdown-menu">
+                                        <span>Select Rating</span>
+                                        <span class="icon is-small">
+                                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                    <div class="dropdown-content">
+                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 5">5 Stars</a>
+                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 4">4 Stars</a>
+                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 3">3 Stars</a>
+                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 2">2 Stars</a>
+                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 1">1 Star</a>
+                                    </div>
+                                </div>
                             </div>
+                            <input type="hidden" id="review-stars" value="5">
+                        </div>
+                        <div class="control" style="flex-grow: 1;">
+                            <button class="button is-link" style="width: 100%; height: 45px;" onclick="submitReview()">Submit</button>
                         </div>
                     </div>
                 </section>
-                <footer class="modal-card-foot">
-                    <button class="button is-success" onclick="submitReview()">Submit</button>
-                    <button class="button" onclick="closeReviewModal()">Cancel</button>
-                </footer>
             </div>
         </div>
 
@@ -229,7 +239,7 @@
         <!---filter by number of stars-->
         <div class="dropdown is-active ml-3">
             <div class="dropdown-trigger">
-                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                <button class="button" style="height: 45px;" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span>Filter by Stars</span>
                     <span class="icon is-small">
                         <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -238,12 +248,12 @@
             </div>
             <div class="dropdown-menu" id="dropdown-menu" role="menu">
                 <div class="dropdown-content">
-                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars('all')">All Stars</a>
-                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(5)">5 Stars</a>
-                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(4)">4 Stars</a>
-                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(3)">3 Stars</a>
-                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(2)">2 Stars</a>
-                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(1)">1 Star</a>
+                    <a class="dropdown-item" onclick="filterReviewsByStars('all')">All Stars</a>
+                    <a class="dropdown-item" onclick="filterReviewsByStars(5)">5 Stars</a>
+                    <a class="dropdown-item" onclick="filterReviewsByStars(4)">4 Stars</a>
+                    <a class="dropdown-item" onclick="filterReviewsByStars(3)">3 Stars</a>
+                    <a class="dropdown-item" onclick="filterReviewsByStars(2)">2 Stars</a>
+                    <a class="dropdown-item" onclick="filterReviewsByStars(1)">1 Star</a>
                 </div>
             </div>
         </div>
@@ -265,83 +275,59 @@
 
     <div class="container mt-6">
         <div class="columns is-multiline" id="reviews-container">
-            <div class="column is-4">
-                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
-                    class="box">
-                    <p class="has-text-weight-bold">John Doe</p>
-                    <p>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>
-                    </p>
-                    <p>Great product, highly recommend!</p>
-                </div>
-            </div>
-            <div class="column is-4">
-                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
-                    class="box">
-                    <p class="has-text-weight-bold">Jane Smith</p>
-                    <p>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                    </p>
-                    <p>Excellent quality and fast shipping.</p>
-                </div>
-            </div>
-            <div class="column is-4">
-                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
-                    class="box">
-                    <p class="has-text-weight-bold">Alice Johnson</p>
-                    <p>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>
-                    </p>
-                    <p>Very satisfied with my purchase.</p>
-                </div>
-            </div>
-            <div class="column is-4">
-                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
-                    class="box">
-                    <p class="has-text-weight-bold">Michael Brown</p>
-                    <p>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                    </p>
-                    <p>Will definitely buy again!</p>
-                </div>
-            </div>
-            <div class="column is-4">
-                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
-                    class="box">
-                    <p class="has-text-weight-bold">Emily Davis</p>
-                    <p>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
-                        <span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>
-                    </p>
-                    <p>Good value for the price.</p>
-                </div>
-            </div>
+            <!-- Reviews will be dynamically inserted here -->
         </div>
     </div>
 
+    <script>
+        const productId = new URLSearchParams(window.location.search).get('product_id');
+
+        function fetchReviews() {
+            fetch(`/api/reviews/${productId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cookie.get('dash_token')}`
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const reviewsContainer = document.getElementById('reviews-container');
+                    reviewsContainer.innerHTML = ''; // Clear existing reviews
+
+                    data.forEach(review => {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.classList.add('column', 'is-4');
+                        reviewElement.innerHTML = `
+                            <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; border-radius: 10px;" class="box">
+                                <p class="has-text-weight-bold">${review.user.client_name} <span style="font-size: 1.5em;">·</span> ${new Date(review.created_at).toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', year: 'numeric' })}</p>
+                                <p>${generateStars(review.rating)}</p>
+                                <p>${review.comment}</p>
+                            </div>
+                        `;
+                        reviewsContainer.appendChild(reviewElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching reviews:', error);
+                });
+        }
+
+        function generateStars(rating) {
+            let starsHtml = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < rating) {
+                    starsHtml += '<span class="icon has-text-warning"><i class="fas fa-star"></i></span>';
+                } else {
+                    starsHtml += '<span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>';
+                }
+            }
+            return starsHtml;
+        }
+
+        // Fetch reviews on page load
+        document.addEventListener('DOMContentLoaded', fetchReviews);
+    </script>
+
     {% include 'footer.html' %}
 </div>
-
-<script>
-    // take url param
-    const productId = window.location.pathname.split('/').pop();
-</script>
