@@ -84,9 +84,9 @@ def forgot_password():
 def reset_password():
     return render_template('user/resetpass.html')
 
-@app.route('/forum')
-def forum_page():
-    return render_template('user/forum.html')
+@app.route('/u/reviews/<string:product_id>')
+def forum_page(product_id):
+    return render_template('user/reviews.html')
 
 @app.route('/a/users')
 def users():

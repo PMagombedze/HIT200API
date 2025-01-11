@@ -36,7 +36,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.message === "Profile pic found") {
-                document.querySelector('#pro-pic').src = '/api/uploads/' + data.img_url;
+                document.querySelector('#pro-pic').src = data.img_url;
             } else {
                 document.querySelector('#pro-pic').src = '/static/images/user.svg';
             }

@@ -1,0 +1,347 @@
+{% include 'imports.html' %}
+
+<script>
+    const token = cookie.get('dash_token');
+    if (!token) {
+        window.location.href = '/e/404';
+    }
+
+    fetch('/api/verifyToken', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Token is valid" && data.is_admin === false) {
+                document.querySelector('.forum-section').style.display = 'block';
+            } else {
+                window.location.href = '/e/404';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/e/404';
+        });
+</script>
+
+<!-- Initially hidden section -->
+<div class="forum-section" style="display: none;">
+    <script>
+        fetch('/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cookie.get('dash_token')}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.img_url) {
+                    document.getElementById('user-profile-img').src = data.img_url;
+                } else {
+                    showNotification('Error fetching profile image', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error fetching profile image', 'error');
+            });
+    </script>
+    <div class="navbar is-light">
+        <div class="container">
+            <nav class="navbar">
+                <div class="navbar-brand has-background-light">
+                    <a class="navbar-item">
+                        <i class="fas fa-qrcode" style="font-size: 14px; margin-left: 8px;"></i>
+                        <h1 class="is-6 has-text-weight-bold" style="font-size: 14px;">Download PricePick app</h1>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container py-3">
+        <div class="navbar">
+            <div class="navbar-start">
+                <h1 class="is-3 has-text-link subtitle has-text-weight-bold">PricePick</h1>
+            </div>
+            <div class="navbar-center">
+                <div class="field has-addons">
+                    <div class="control has-icons-right" style="position: relative; width: 400px;">
+                        <input class="input px-5"
+                            style="border-radius: 25px; border: 2px solid #3273dc; width: 100%; max-width: 600px; height: 45px;"
+                            type="text" placeholder="Search for products">
+                        <span class="icon is-right"
+                            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%);">
+                            <button class="button has-background-link"
+                                style="border-radius: 50%; height: 35px; width: 35px;">
+                                <i class="fas fa-search" style="color: #fff;"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <button onclick="window.location.href='/u/profile';" class="button px-4 py-2 has-text-weight-bold"
+                    style="display: flex; align-items: center;border-radius: 50%;">
+                    <img src="" id="user-profile-img" alt="" style="height: 25px;width: 20px; border-radius: 50%;">
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="columns is-multiline is-centered">
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-laptop"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Laptops</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Smartphones</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-tv"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Televisions</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-headphones"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Headphones</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-camera"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Cameras</h2>
+            </div>
+            <div class="column is-2 has-text-centered">
+                <span class="icon">
+                    <i class="fas fa-gamepad"></i>
+                </span>
+                <h2 class="is-5 is-inline-block ml-2">Gaming</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero is-light is-small container mt-3" style="border-radius: 5px;">
+        <div class="hero-body py-2">
+            <div class="columns is-mobile is-gapless has-text-centered">
+                <div class="column is-4 has-background-white-ter" style="border-right: 1px solid #aaa;">
+                    <p class="is-size-7">
+                        <span class="has-text-weight-bold">Latest Tech Deals</span><br>
+                        Daily Curated Electronics Offers
+                        <span class="tag is-success is-light ml-2">Updated Daily</span>
+                    </p>
+                </div>
+
+                <div class="column is-4 has-background-white-ter" style="border-right: 1px solid #aaa;">
+                    <p class="is-size-7">
+                        <span class="has-text-weight-bold">Price Drop Alerts</span><br>
+                        Real-time Hardware Price Tracking
+                        <span class="tag is-info is-light ml-2">Live Updates</span>
+                    </p>
+                </div>
+
+                <div class="column is-4 has-background-white-ter">
+                    <p class="is-size-7">
+                        <span class="has-text-weight-bold">Community Deals</span><br>
+                        User-submitted Tech Bargains
+                        <span class="tag is-warning is-light ml-2">Verified Deals</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-6">
+        <h1 class="is-4 title has-text-black-ter has-text-weight-bold">Customer Reviews</h1>
+        <!---write a review button-->
+        <button class="button is-link" onclick="showReviewModal()">Write a Review</button>
+
+        <!-- Review Modal -->
+        <div class="modal" id="review-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Write a Review</p>
+                    <button class="delete" aria-label="close" onclick="closeReviewModal()"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Your Review</label>
+                        <div class="control">
+                            <textarea class="textarea" id="review-message"
+                                placeholder="Write your review here"></textarea>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Rating</label>
+                        <div class="control">
+                            <div class="select">
+                                <select id="review-stars">
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" onclick="submitReview()">Submit</button>
+                    <button class="button" onclick="closeReviewModal()">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <script>
+            function showReviewModal() {
+                document.getElementById('review-modal').classList.add('is-active');
+            }
+
+            function closeReviewModal() {
+                document.getElementById('review-modal').classList.remove('is-active');
+            }
+
+            function submitReview() {
+                const message = document.getElementById('review-message').value;
+                const stars = document.getElementById('review-stars').value;
+
+                // Submit the review (this is just a placeholder, you need to implement the actual submission logic)
+                console.log('Review submitted:', { message, stars });
+
+                // Close the modal
+                closeReviewModal();
+            }
+        </script>
+        <!---filter by number of stars-->
+        <div class="dropdown is-active ml-3">
+            <div class="dropdown-trigger">
+                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                    <span>Filter by Stars</span>
+                    <span class="icon is-small">
+                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                    </span>
+                </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars('all')">All Stars</a>
+                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(5)">5 Stars</a>
+                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(4)">4 Stars</a>
+                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(3)">3 Stars</a>
+                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(2)">2 Stars</a>
+                    <a href="#" class="dropdown-item" onclick="filterReviewsByStars(1)">1 Star</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterReviewsByStars(stars) {
+            const reviews = document.querySelectorAll('#reviews-container .box');
+            reviews.forEach(review => {
+                const reviewStars = review.querySelectorAll('.icon.has-text-warning').length;
+                if (stars === 'all' || reviewStars == stars) {
+                    review.style.display = 'block';
+                } else {
+                    review.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+    <div class="container mt-6">
+        <div class="columns is-multiline" id="reviews-container">
+            <div class="column is-4">
+                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
+                    class="box">
+                    <p class="has-text-weight-bold">John Doe</p>
+                    <p>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>
+                    </p>
+                    <p>Great product, highly recommend!</p>
+                </div>
+            </div>
+            <div class="column is-4">
+                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
+                    class="box">
+                    <p class="has-text-weight-bold">Jane Smith</p>
+                    <p>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                    </p>
+                    <p>Excellent quality and fast shipping.</p>
+                </div>
+            </div>
+            <div class="column is-4">
+                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
+                    class="box">
+                    <p class="has-text-weight-bold">Alice Johnson</p>
+                    <p>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>
+                    </p>
+                    <p>Very satisfied with my purchase.</p>
+                </div>
+            </div>
+            <div class="column is-4">
+                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
+                    class="box">
+                    <p class="has-text-weight-bold">Michael Brown</p>
+                    <p>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                    </p>
+                    <p>Will definitely buy again!</p>
+                </div>
+            </div>
+            <div class="column is-4">
+                <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;border-radius: 10px;"
+                    class="box">
+                    <p class="has-text-weight-bold">Emily Davis</p>
+                    <p>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star"></i></span>
+                        <span class="icon has-text-warning"><i class="fas fa-star-half-alt"></i></span>
+                    </p>
+                    <p>Good value for the price.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+</div>
+
+<script>
+    // take url param
+    const productId = window.location.pathname.split('/').pop();
+</script>
