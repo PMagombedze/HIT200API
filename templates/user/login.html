@@ -1,5 +1,28 @@
 {% include 'imports.html' %}
 
+<script>
+    const token = cookie.get('dash_token');
+    if (token) {
+        // post token to /api/verifyToken
+        fetch('/api/verifyToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Token is valid" && data.is_admin === false) {
+                    window.location.href = '/u/dashboard';
+                }
+            })
+            .catch(error => {
+                //;
+            });
+    }
+</script>
+
 <nav class="navbar" style="background-color: #f1f1f1;border-bottom: 1px solid #dddddd;" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
         <a class="navbar-item">

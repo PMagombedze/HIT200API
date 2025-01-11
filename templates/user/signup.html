@@ -1,5 +1,28 @@
 {% include 'imports.html' %}
 
+<script>
+    const token = cookie.get('dash_token');
+    if (token) {
+        // post token to /api/verifyToken
+        fetch('/api/verifyToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Token is valid" && data.is_admin === false) {
+                    window.location.href = '/u/dashboard';
+                }
+            })
+            .catch(error => {
+                //;
+            });
+    }
+</script>
+
 <nav class="navbar" style="background-color: #f1f1f1;border-bottom: 1px solid #dddddd;" role="navigation"
     aria-label="main navigation">
     <div class="navbar-brand">
@@ -86,65 +109,45 @@
 </section>
 
 <script>
-    document.getElementById('email').addEventListener('input', function () {
-        const emailInput = this.value;
+    function validateForm() {
+        const firstName = document.getElementById('first-name').value;
+        const lastName = document.getElementById('last-name').value;
+        const city = document.getElementById('city').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
         const signupButton = document.getElementById('signup-button');
 
-        if (validator.isEmail(emailInput)) {
-            this.classList.remove('is-danger');
-            this.classList.add('is-success');
-        } else {
-            this.classList.remove('is-success');
-            this.classList.add('is-danger');
-        }
+        const isValidEmail = validator.isEmail(email);
+        const isValidPassword = validatePassword(password);
+        const isPasswordMatch = password === confirmPassword;
+        const isValidFirstName = firstName.trim().length >= 2;
+        const isValidLastName = lastName.trim().length >= 2;
+        const isValidCity = city.trim().length >= 2;
 
-        if (validator.isEmail(emailInput) && validatePassword(document.getElementById('password').value) &&
-            document.getElementById('password').value === document.getElementById('confirm-password').value) {
-            signupButton.disabled = false;
-        } else {
-            signupButton.disabled = true;
-        }
-    });
+        document.getElementById('first-name').classList.toggle('is-success', isValidFirstName);
+        document.getElementById('first-name').classList.toggle('is-danger', !isValidFirstName);
 
-    document.getElementById('password').addEventListener('input', function () {
-        const passwordInput = this.value;
-        const signupButton = document.getElementById('signup-button');
+        document.getElementById('last-name').classList.toggle('is-success', isValidLastName);
+        document.getElementById('last-name').classList.toggle('is-danger', !isValidLastName);
 
-        if (validatePassword(passwordInput)) {
-            this.classList.remove('is-danger');
-            this.classList.add('is-success');
-        } else {
-            this.classList.remove('is-success');
-            this.classList.add('is-danger');
-        }
+        document.getElementById('city').classList.toggle('is-success', isValidCity);
+        document.getElementById('city').classList.toggle('is-danger', !isValidCity);
 
-        if (validatePassword(passwordInput) && validator.isEmail(document.getElementById('email').value) &&
-            passwordInput === document.getElementById('confirm-password').value) {
-            signupButton.disabled = false;
-        } else {
-            signupButton.disabled = true;
-        }
-    });
+        document.getElementById('email').classList.toggle('is-success', isValidEmail);
+        document.getElementById('email').classList.toggle('is-danger', !isValidEmail);
 
-    document.getElementById('confirm-password').addEventListener('input', function () {
-        const confirmPasswordInput = this.value;
-        const signupButton = document.getElementById('signup-button');
+        document.getElementById('password').classList.toggle('is-success', isValidPassword);
+        document.getElementById('password').classList.toggle('is-danger', !isValidPassword);
 
-        if (confirmPasswordInput === document.getElementById('password').value) {
-            this.classList.remove('is-danger');
-            this.classList.add('is-success');
-        } else {
-            this.classList.remove('is-success');
-            this.classList.add('is-danger');
-        }
+        document.getElementById('confirm-password').classList.toggle('is-success', isPasswordMatch);
+        document.getElementById('confirm-password').classList.toggle('is-danger', !isPasswordMatch);
 
-        if (confirmPasswordInput === document.getElementById('password').value &&
-            validatePassword(document.getElementById('password').value) &&
-            validator.isEmail(document.getElementById('email').value)) {
-            signupButton.disabled = false;
-        } else {
-            signupButton.disabled = true;
-        }
+        signupButton.disabled = !(isValidFirstName && isValidLastName && isValidCity && isValidEmail && isValidPassword && isPasswordMatch);
+    }
+
+    ['first-name', 'last-name', 'city', 'email', 'password', 'confirm-password'].forEach(id => {
+        document.getElementById(id).addEventListener('input', validateForm);
     });
 
     document.getElementById('signup-button').disabled = true;
@@ -158,9 +161,6 @@
         window.location.href = '/api/google/login';
     });
 
-    /** 
-     * post to /api/signup
-     */
     document.getElementById('signup-button').addEventListener('click', function () {
         const firstName = document.getElementById('first-name').value;
         const lastName = document.getElementById('last-name').value;

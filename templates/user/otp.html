@@ -1,6 +1,29 @@
 {% include 'imports.html' %}
 
 <script>
+    const dashtoken = cookie.get('dash_token');
+    if (dashtoken) {
+        // post token to /api/verifyToken
+        fetch('/api/verifyToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${dashtoken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Token is valid" && data.is_admin === false) {
+                    window.location.href = '/u/dashboard';
+                }
+            })
+            .catch(error => {
+                //;
+            });
+    }
+</script>
+
+<script>
     const token = cookie.get('access_token');
     if (!token) {
         window.location.href = '/e/404';
