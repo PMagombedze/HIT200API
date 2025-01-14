@@ -106,6 +106,8 @@
 </div>
 
 <script>
+    AOS.init();
+
     const fetchProducts = async () => {
         try {
             const response = await fetch('/api/products', {
@@ -130,9 +132,11 @@
 
                 paginatedProducts.forEach(product => {
                     const productElement = document.createElement('div');
-                    productElement.className = 'column is-one-quarter';
+                    productElement.className = 'column is-3';
+                    productElement.setAttribute('data-aos', 'fade-up');
+                    productElement.setAttribute('data-aos-duration', '1000');
                     productElement.innerHTML = `
-                    <div class="card product-card">
+                <div class="card product-card animate__animated animate__fadeInUp">
                         <div class="card-image" style="max-width: 300px;">
                             <figure class="image">
                                 <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">

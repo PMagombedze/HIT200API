@@ -1,5 +1,28 @@
 {% include 'imports.html' %}
 
+<script>
+    const token = cookie.get('dash_token');
+    if (token) {
+        // post token to /api/verifyToken
+        fetch('/api/verifyToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Token is valid" && data.is_admin === false) {
+                    window.location.href = '/u/dashboard';
+                }
+            })
+            .catch(error => {
+                //;
+            });
+    }
+</script>
+
 {% include 'cookie.html' %}
 
 {% include 'navbar.html' %}
@@ -19,6 +42,8 @@
 {% include 'footer.html' %}
 
 <script>
+    AOS.init();
+
     const fetchProducts = async () => {
         try {
             const response = await fetch('/api/products', {
@@ -44,8 +69,10 @@
                 paginatedProducts.forEach(product => {
                     const productElement = document.createElement('div');
                     productElement.className = 'column is-3';
+                    productElement.setAttribute('data-aos', 'fade-up');
+                    productElement.setAttribute('data-aos-duration', '1000');
                     productElement.innerHTML = `
-                <div class="card product-card">
+                <div class="card product-card animate__animated animate__fadeInUp">
                     <div class="card-image">
                         <figure class="image">
                             <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">
@@ -72,7 +99,6 @@
                 paginationContainer.className = 'pagination is-centered mt-6';
                 paginationContainer.setAttribute('role', 'navigation');
                 paginationContainer.setAttribute('aria-label', 'pagination');
-
                 paginationContainer.innerHTML = `
                 <a class="pagination-previous" ${page === 1 ? 'disabled' : ''}>Previous</a>
                 <a class="pagination-next" ${page === totalPages ? 'disabled' : ''}>Next</a>
@@ -121,7 +147,6 @@
 
             displayProducts(currentPage);
         } catch (error) {
-            console.error('Error fetching products:', error);
             showNotification('Error fetching products', 'error');
         }
     };

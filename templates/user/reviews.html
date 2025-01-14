@@ -112,34 +112,39 @@
                     <div class="field">
                         <label class="label">Your Review</label>
                         <div class="control">
-                            <textarea class="textarea" id="review-message" placeholder="Write your review here" style="resize: none;"></textarea>
+                            <textarea class="textarea" id="review-message" placeholder="Write your review here"
+                                style="resize: none;"></textarea>
                         </div>
                     </div>
-                    <div class="field is-grouped">
-                        <div class="control">
-                            <div class="dropdown is-active">
-                                <div class="dropdown-trigger">
-                                    <button class="button" style="height: 45px;" aria-haspopup="true" aria-controls="dropdown-menu">
-                                        <span>Select Rating</span>
-                                        <span class="icon is-small">
-                                            <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                                    <div class="dropdown-content">
-                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 5">5 Stars</a>
-                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 4">4 Stars</a>
-                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 3">3 Stars</a>
-                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 2">2 Stars</a>
-                                        <a class="dropdown-item" onclick="document.getElementById('review-stars').value = 1">1 Star</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" id="review-stars" value="5">
+                    <div class="field">
+                        <label class="label">Rating</label>
+                        <div class="control" style="display: flex; justify-content: center; gap: 20px;">
+                            <label class="radio" style="font-size: 13pt;">
+                                <input type="radio" name="rating" value="5" style="transform: scale(1.2);" checked>
+                                5 Stars
+                            </label>
+                            <label class="radio" style="font-size: 13pt;">
+                                <input type="radio" name="rating" value="4" style="transform: scale(1.2);">
+                                4 Stars
+                            </label>
+                            <label class="radio" style="font-size: 13pt;">
+                                <input type="radio" name="rating" value="3" style="transform: scale(1.2);">
+                                3 Stars
+                            </label>
+                            <label class="radio" style="font-size: 13pt;">
+                                <input type="radio" name="rating" value="2" style="transform: scale(1.2);">
+                                2 Stars
+                            </label>
+                            <label class="radio" style="font-size: 13pt;">
+                                <input type="radio" name="rating" value="1" style="transform: scale(1.2);">
+                                1 Star
+                            </label>
                         </div>
-                        <div class="control" style="flex-grow: 1;">
-                            <button class="button is-link" style="width: 100%; height: 45px;" onclick="submitReview()">Submit</button>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-link" style="width: 100%; height: 45px;"
+                                onclick="postReviews()">Submit</button>
                         </div>
                     </div>
                 </section>
@@ -157,7 +162,7 @@
 
             function submitReview() {
                 const message = document.getElementById('review-message').value;
-                const stars = document.getElementById('review-stars').value;
+                const stars = document.querySelector('input[name="rating"]:checked').value;
 
                 // Submit the review (this is just a placeholder, you need to implement the actual submission logic)
                 console.log('Review submitted:', { message, stars });
@@ -167,9 +172,10 @@
             }
         </script>
         <!---filter by number of stars-->
-        <div class="dropdown is-active ml-3">
+        <div class="dropdown ml-3" id="filter-dropdown">
             <div class="dropdown-trigger">
-                <button class="button" style="height: 45px;" aria-haspopup="true" aria-controls="dropdown-menu">
+                <button class="button" style="height: 45px;" aria-haspopup="true" aria-controls="dropdown-menu"
+                    onclick="toggleDropdown()">
                     <span>Filter by Stars</span>
                     <span class="icon is-small">
                         <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -178,23 +184,45 @@
             </div>
             <div class="dropdown-menu" id="dropdown-menu" role="menu">
                 <div class="dropdown-content">
-                    <a class="dropdown-item" onclick="filterReviewsByStars('all')">All Stars</a>
-                    <a class="dropdown-item" onclick="filterReviewsByStars(5)">5 Stars</a>
-                    <a class="dropdown-item" onclick="filterReviewsByStars(4)">4 Stars</a>
-                    <a class="dropdown-item" onclick="filterReviewsByStars(3)">3 Stars</a>
-                    <a class="dropdown-item" onclick="filterReviewsByStars(2)">2 Stars</a>
-                    <a class="dropdown-item" onclick="filterReviewsByStars(1)">1 Star</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars('all'); closeDropdown()">All Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(5); closeDropdown()">5 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(4); closeDropdown()">4 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(3); closeDropdown()">3 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(2); closeDropdown()">2 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(1); closeDropdown()">1 Star</a>
                 </div>
             </div>
         </div>
+
+        <script>
+            function toggleDropdown() {
+                document.getElementById('filter-dropdown').classList.toggle('is-active');
+            }
+
+            function closeDropdown() {
+                document.getElementById('filter-dropdown').classList.remove('is-active');
+            }
+
+            document.addEventListener('click', function (event) {
+                const dropdown = document.getElementById('filter-dropdown');
+                if (!dropdown.contains(event.target)) {
+                    closeDropdown();
+                }
+            });
+        </script>
     </div>
 
     <script>
         function filterReviewsByStars(stars) {
-            const reviews = document.querySelectorAll('#reviews-container .box');
+            const reviews = document.querySelectorAll('#reviews-container .column');
             reviews.forEach(review => {
-                const reviewStars = review.querySelectorAll('.icon.has-text-warning').length;
-                if (stars === 'all' || reviewStars == stars) {
+                review.style.transition = 'all 0.3s ease-in-out';
+
+                const reviewStars = review.querySelectorAll('.fa-star').length;
+                const reviewHalfStars = review.querySelectorAll('.fa-star-half-alt').length;
+                const totalStars = reviewStars + (reviewHalfStars > 0 ? 0.5 : 0);
+
+                if (stars === 'all' || Math.floor(totalStars) == stars) {
                     review.style.display = 'block';
                 } else {
                     review.style.display = 'none';
@@ -228,6 +256,8 @@
                     data.forEach(review => {
                         const reviewElement = document.createElement('div');
                         reviewElement.classList.add('column', 'is-4');
+                        reviewElement.setAttribute('data-aos', 'fade-up');
+                        reviewElement.setAttribute('data-aos-duration', '800');
                         reviewElement.innerHTML = `
                             <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; border-radius: 10px;" class="box">
                                 <p class="has-text-weight-bold">${review.user.client_name} <span style="font-size: 1.5em;">·</span> ${new Date(review.created_at).toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', year: 'numeric' })}</p>
@@ -255,8 +285,39 @@
             return starsHtml;
         }
 
-        // Fetch reviews on page load
-        document.addEventListener('DOMContentLoaded', fetchReviews);
+        function postReviews() {
+            fetch(`/api/reviews/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cookie.get('dash_token')}`
+                },
+                body: JSON.stringify({
+                    comment: document.getElementById('review-message').value,
+                    rating: parseInt(document.querySelector('input[name="rating"]:checked').value)
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'reviews created successfully') {
+                        showNotification('Review posted successfully', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 4000);
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error posting review', 'error');
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            AOS.init();
+            fetchReviews();
+        });
+
     </script>
 
     {% include 'footer.html' %}
