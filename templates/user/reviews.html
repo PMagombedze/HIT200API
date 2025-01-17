@@ -2,8 +2,7 @@
 
 <script>
     const token = cookie.get('dash_token');
-    const id = new URLSearchParams(window.location.search).get('product_id');
-    const productId = atob(id);
+    const productId = new URLSearchParams(window.location.search).get('product_id');
 
     if (!token) {
         window.location.href = '/e/404';
