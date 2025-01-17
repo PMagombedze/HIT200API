@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, jwt_required, get_jwt_identity
-from models.db import Reviews, db, User
+from models.db import Reviews, db, User, Product
 from auth.api import jwt_redis_blocklist
 
 # user post a comment
@@ -16,6 +16,11 @@ def createreviews(id):
     rating = data.get('rating')
     comment = data.get('comment')
     product_id = id
+
+    # check if product exists
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'message': 'Product not found'}), 404
 
     user_id = get_jwt_identity()
     if comment is None or comment == '':
@@ -58,4 +63,3 @@ def getreviews(id):
             }
         })
     return jsonify(reviews_list), 200
-

@@ -115,7 +115,8 @@ def getProducts():
     products = Product.query.all()
     # product count
     num_products = len(products)
-    return jsonify({'products': [product.to_dict() for product in products], 'message': 'Products retrieved successfully', 'num_products': num_products}), 200
+    product_ids = [product.id for product in products]
+    return jsonify({'products': [product.to_dict() for product in products], 'message': 'Products retrieved successfully', 'num_products': num_products, 'product_ids': product_ids}), 200
 
 # notifications
 @admin.route('/notifications', methods=['POST'])

@@ -2,6 +2,9 @@
 
 <script>
     const token = cookie.get('dash_token');
+    const id = new URLSearchParams(window.location.search).get('product_id');
+    const productId = atob(id);
+
     if (!token) {
         window.location.href = '/e/404';
     }
@@ -17,6 +20,30 @@
         .then(data => {
             if (data.message === "Token is valid" && data.is_admin === false) {
                 document.querySelector('.forum-section').style.display = 'block';
+            } else {
+                window.location.href = '/e/404';
+            }
+        })
+        .catch(error => {
+            window.location.href = '/e/404';
+        });
+
+    if (!window.location.href.includes('?product_id=')) {
+        window.location.href = '/e/404';
+    }
+
+    // verify if the product_id is valid
+    fetch('/api/products', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Products retrieved successfully" && data.product_ids.includes(productId)) {
+                // Product ID is valid
             } else {
                 window.location.href = '/e/404';
             }
@@ -184,12 +211,18 @@
             </div>
             <div class="dropdown-menu" id="dropdown-menu" role="menu">
                 <div class="dropdown-content">
-                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars('all'); closeDropdown()">All Stars</a>
-                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(5); closeDropdown()">5 Stars</a>
-                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(4); closeDropdown()">4 Stars</a>
-                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(3); closeDropdown()">3 Stars</a>
-                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(2); closeDropdown()">2 Stars</a>
-                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;" onclick="filterReviewsByStars(1); closeDropdown()">1 Star</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;"
+                        onclick="filterReviewsByStars('all'); closeDropdown()">All Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;"
+                        onclick="filterReviewsByStars(5); closeDropdown()">5 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;"
+                        onclick="filterReviewsByStars(4); closeDropdown()">4 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;"
+                        onclick="filterReviewsByStars(3); closeDropdown()">3 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;"
+                        onclick="filterReviewsByStars(2); closeDropdown()">2 Stars</a>
+                    <a class="dropdown-item" style="font-size: 12pt; font-weight: 500;"
+                        onclick="filterReviewsByStars(1); closeDropdown()">1 Star</a>
                 </div>
             </div>
         </div>
@@ -238,8 +271,6 @@
     </div>
 
     <script>
-        const productId = new URLSearchParams(window.location.search).get('product_id');
-
         function fetchReviews() {
             fetch(`/api/reviews/${productId}`, {
                 method: 'GET',
