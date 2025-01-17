@@ -23,6 +23,176 @@
     }
 </script>
 
+
+<style>
+    .email-suggestions {
+        position: relative;
+        width: 100%;
+    }
+
+    .suggestions-list {
+        position: absolute;
+        width: 100%;
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .suggestion-item {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover,
+    .suggestion-item.selected {
+        background-color: #f5f5f5;
+    }
+
+    .email-wrapper {
+        position: relative;
+    }
+</style>
+
+<script>
+    // Add this after your existing scripts
+    function initializeEmailSuggestions() {
+        const emailInput = document.getElementById('email');
+        const emailWrapper = emailInput.parentElement;
+        emailWrapper.classList.add('email-wrapper');
+
+        const emailDomains = [
+            'gmail.com',
+            'outlook.com',
+            'yahoo.com',
+            'hotmail.com',
+            'icloud.com',
+            'proton.me'
+        ];
+
+        let selectedIndex = -1;
+        let suggestionsList = null;
+
+        function createSuggestionsList(suggestions) {
+            if (suggestionsList) {
+                suggestionsList.remove();
+            }
+
+            if (suggestions.length === 0) {
+                selectedIndex = -1;
+                return;
+            }
+
+            suggestionsList = document.createElement('div');
+            suggestionsList.className = 'suggestions-list';
+
+            suggestions.forEach((suggestion, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = suggestion;
+
+                item.addEventListener('click', () => {
+                    emailInput.value = suggestion;
+                    suggestionsList.remove();
+                    suggestionsList = null;
+                    validateForm(); // Trigger the existing form validation
+                });
+
+                item.addEventListener('mouseenter', () => {
+                    selectedIndex = index;
+                    updateSelectedItem();
+                });
+
+                suggestionsList.appendChild(item);
+            });
+
+            emailWrapper.appendChild(suggestionsList);
+        }
+
+        function updateSelectedItem() {
+            const items = suggestionsList?.querySelectorAll('.suggestion-item') || [];
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+
+        function generateSuggestions(input) {
+            if (!input) {
+                createSuggestionsList([]);
+                return;
+            }
+
+            let suggestions = [];
+            if (input.includes('@')) {
+                const [username, domain] = input.split('@');
+                if (domain) {
+                    suggestions = emailDomains
+                        .filter(d => d.toLowerCase().startsWith(domain.toLowerCase()))
+                        .map(d => `${username}@${d}`);
+                }
+            } else {
+                suggestions = emailDomains.map(domain => `${input}@${domain}`);
+            }
+
+            createSuggestionsList(suggestions);
+        }
+
+        emailInput.addEventListener('input', (e) => {
+            generateSuggestions(e.target.value);
+        });
+
+        emailInput.addEventListener('keydown', (e) => {
+            if (!suggestionsList) return;
+
+            const items = suggestionsList.querySelectorAll('.suggestion-item');
+
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelectedItem();
+                    break;
+
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelectedItem();
+                    break;
+
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && items[selectedIndex]) {
+                        emailInput.value = items[selectedIndex].textContent;
+                        suggestionsList.remove();
+                        suggestionsList = null;
+                        validateForm(); // Trigger the existing form validation
+                    }
+                    break;
+
+                case 'Escape':
+                    suggestionsList.remove();
+                    suggestionsList = null;
+                    break;
+            }
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!emailWrapper.contains(e.target) && suggestionsList) {
+                suggestionsList.remove();
+                suggestionsList = null;
+            }
+        });
+    }
+
+    // Initialize email suggestions after DOM content is loaded
+    document.addEventListener('DOMContentLoaded', initializeEmailSuggestions);
+</script>
+
 <nav class="navbar" style="background-color: #f1f1f1;border-bottom: 1px solid #dddddd;" role="navigation"
     aria-label="main navigation">
     <div class="navbar-brand">
