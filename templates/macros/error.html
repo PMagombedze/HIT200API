@@ -1,0 +1,24 @@
+{% macro error_page(title, message) %}
+{% include 'imports.html' %}
+{% include 'macros/navbar.html' %}
+
+<section class="hero">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="box px-6 py-6" style="max-width: 500px; margin: 0 auto; box-shadow: none;">
+                <span class="icon is-large has-text-danger">
+                    <i class="fas fa-exclamation-triangle fa-4x"></i>
+                </span>
+                <h2 class="title mt-4 has-text-weight-light">{{ title }}</h2>
+                <p class="subtitle is-6 mt-2">{{ message }}</p>
+                <div class="field mt-4">
+                    <div class="control">
+                        <a href="/" class="button is-link" style="width: 100%; height: 45px;">Go to Homepage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endmacro %}
