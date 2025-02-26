@@ -413,7 +413,12 @@ def google_callback():
             users_name = userinfo_response.json()["given_name"]
             # Check if user already exists
             user = User.query.filter_by(email=users_email).first()
-            if not user:
+            if user:
+                access_token = create_access_token(identity=user.id, expires_delta=timedelta(minutes=60))
+                response = make_response(redirect(url_for('user_dashboard')))
+                response.set_cookie('dash_token', access_token)
+                return response
+            elif not user:
                 # Create a new user in the database
                 new_user = User(
                 email=users_email,
@@ -436,17 +441,15 @@ def google_callback():
                     user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=picture)
                     db.session.add(user_profile_pic)
                     db.session.commit()
-            # create access token
-            access_token = create_access_token(identity=new_user.id, expires_delta=timedelta(minutes=60))
 
             # create cookie called dash_token with access_token
             response = make_response(redirect(url_for('user_dashboard')))
-            response.set_cookie('dash_token', access_token)
+            response.set_cookie('dash_token', create_access_token(identity=new_user.id, expires_delta=timedelta(minutes=60)))
             return response
         else:
-            return "User email not available or not verified by Google.", 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+            return redirect('/e/404'), 404
+    except Exception:
+        return redirect('/e/500'), 500
     
 @auth.route('/track_price', methods=['POST'])
 @jwt_required()
