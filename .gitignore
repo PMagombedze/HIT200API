@@ -8,3 +8,4 @@ selfsigned.key
 selfsigned.crt
 instance
 uploads
+*.pem

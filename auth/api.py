@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, redirect, send_from_directory
+from flask import Blueprint, make_response, request, jsonify, redirect, send_from_directory, url_for
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, JWTManager
 from models.db import db, User, UserProfilePic, Product
 from oauthlib.oauth2 import WebApplicationClient
@@ -380,7 +380,7 @@ def google_login():
 
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri='https://localhost:5000/api/google/login/callback',
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -388,58 +388,66 @@ def google_login():
 
 @auth.route('/google/login/callback')
 def google_callback():
-    code = request.args.get("code")
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code,
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
-    client.parse_request_body_response(json.dumps(token_response.json()))
-    userinfo_response = requests.get(userinfo_endpoint, headers={"Authorization": f"Bearer {client.access_token}"})
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
-        # Check if user already exists
-        user = User.query.filter_by(email=users_email).first()
-        if not user:
-            # Create a new user in the database
-            new_user = User(
-            id=unique_id,
-            email=users_email,
-            name=users_name,
-            )
-            db.session.add(new_user)
-            db.session.commit()
-            # Add profile picture
-            user_profile_pic = UserProfilePic(user_id=new_user.id, profile_pic=picture)
-            db.session.add(user_profile_pic)
-            db.session.commit()
-        else:
-            user_profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
-            if user_profile_pic:
-                user_profile_pic.profile_pic = picture
-            else:
-                user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=picture)
+    try:
+        code = request.args.get("code")
+        google_provider_cfg = get_google_provider_cfg()
+        token_endpoint = google_provider_cfg["token_endpoint"]
+        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+        token_url, headers, body = client.prepare_token_request(
+            token_endpoint,
+            authorization_response=request.url,
+            redirect_url='https://localhost:5000/api/google/login/callback',  # Match the exact redirect URI used in google_login
+            code=code,
+        )
+        token_response = requests.post(
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+        )
+        client.parse_request_body_response(token_response.text)
+        userinfo_response = requests.get(userinfo_endpoint, headers={"Authorization": f"Bearer {client.access_token}"})
+        if userinfo_response.json().get("email_verified"):
+            users_email = userinfo_response.json()["email"]
+            picture = userinfo_response.json()["picture"]
+            users_name = userinfo_response.json()["given_name"]
+            # Check if user already exists
+            user = User.query.filter_by(email=users_email).first()
+            if not user:
+                # Create a new user in the database
+                new_user = User(
+                email=users_email,
+                first_name=users_name,
+                last_name='',
+                password=generate_password_hash('286755fad04869ca523320acce0dc6a4'),
+                city='',
+                )
+                db.session.add(new_user)
+                db.session.commit()
+                # Add profile picture
+                user_profile_pic = UserProfilePic(user_id=new_user.id, profile_pic=picture)
                 db.session.add(user_profile_pic)
                 db.session.commit()
-        # create access token
-        access_token = create_access_token(identity=unique_id, expires_delta=timedelta(minutes=60))
-        return jsonify({'access_token': access_token, 'message': 'login successful'}), 200
-    else:
-        return "User email not available or not verified by Google.", 400
+            else:
+                user_profile_pic = UserProfilePic.query.filter_by(user_id=user.id).first()
+                if user_profile_pic:
+                    user_profile_pic.profile_pic = picture
+                else:
+                    user_profile_pic = UserProfilePic(user_id=user.id, profile_pic=picture)
+                    db.session.add(user_profile_pic)
+                    db.session.commit()
+            # create access token
+            access_token = create_access_token(identity=new_user.id, expires_delta=timedelta(minutes=60))
 
+            # create cookie called dash_token with access_token
+            response = make_response(redirect(url_for('user_dashboard')))
+            response.set_cookie('dash_token', access_token)
+            return response
+        else:
+            return "User email not available or not verified by Google.", 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
 @auth.route('/track_price', methods=['POST'])
 @jwt_required()
 def track_price():
