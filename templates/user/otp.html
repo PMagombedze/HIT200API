@@ -150,7 +150,7 @@
                     cookie.set('dash_token', data.dash_token, { expires: 1 / 24 });
                     setTimeout(() => {
                         window.location.href = '/u/dashboard';
-                    }, 4000);
+                    }, 1500);
                 } else {
                     showNotification(data.message, 'error');
                 }
@@ -179,7 +179,7 @@
                     showNotification('OTP sent successfully', 'success');
                     setTimeout(function () {
                         window.location.href = '/otp';
-                    }, 4000);
+                    }, 1500);
                 } else {
                     showNotification(otpData.message, 'error');
                 }

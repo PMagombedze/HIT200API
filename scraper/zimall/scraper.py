@@ -1,63 +1,55 @@
-from scrapingbee import ScrapingBeeClient
-import json, os
+import os
+import json
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
+from scrapingbee import ScrapingBeeClient
 
-load_dotenv()
-
+# Initialize ScrapingBee client
 client = ScrapingBeeClient(api_key=os.environ.get('SCRAPINGBEE_API_KEY'))
-response = client.get('https://www.zimall.co.zw/shop/categories/4/electronics-appliances.html')
 
-soup = BeautifulSoup(response.content, 'html.parser')
-products = []
-
-for product in soup.find_all('li', {'class': 'ajax_block_product'}):
-    product_block = product.find('div', {'class': 'product-block'})
-    name = product_block.find('h4', {'class': 'name'}).text.strip()
-    price = product_block.find('span', {'itemprop': 'price'}).text.strip()
-    model = product_block.find('meta', {'itemprop': 'Model'})['content']
-    brand = product_block.find('meta', {'itemprop': 'Brand'})['content']
-    description = product_block.find('div', {'class': 'product-desc'}).text.strip()
-    image = product_block.find('img', {'class': 'replace-2x'})['src']
-
-    products.append({
-        'name': name,
-        'price': price,
-        'model': model,
-        'brand': brand,
-        'description': description,
-        'url': image,
-        'store': 'zimall'
-    })
-
-with open('electronics_zimall.json', 'w') as f:
-    json.dump(products, f, indent=4)
-
-
-client = ScrapingBeeClient(api_key=os.environ.get('SCRAPINGBEE_API_KEY'))
+# Fetch the page content
 response = client.get('https://www.dailysale.co.zw/categories/tv-audio-video/all')
-
 soup = BeautifulSoup(response.content, 'html.parser')
+
+# List to store product data
 products = []
 
-for product in soup.find_all('li', {'class': 'ajax_block_product'}):
-    product_block = product.find('div', {'class': 'product-block'})
-    name = product_block.find('h4', {'class': 'name'}).text.strip()
-    price = product_block.find('span', {'itemprop': 'price'}).text.strip()
-    model = product_block.find('meta', {'itemprop': 'Model'})['content']
-    brand = product_block.find('meta', {'itemprop': 'Brand'})['content']
-    description = product_block.find('div', {'class': 'product-desc'}).text.strip()
-    image = product_block.find('img', {'class': 'replace-2x'})['src']
+# Find all product containers
+product_containers = soup.find_all('div', {'class': 'w-full'})
 
+for container in product_containers:
+    # Extract product name
+    name = container.find('p', {'class': 'text-xs text-black line-clamp-2'}).text.strip()
+    
+    # Extract product price
+    price = container.find('p', {'class': 'text-xs text-center sm:text-sm font-semibold text-[#CD0F0F]'}).text.strip()
+    
+    # Extract product image URL
+    image = container.find('img')['src']
+    
+    # Extract product description (if available)
+    description = container.find('p', {'class': 'text-xs text-black line-clamp-2'}).text.strip()
+    
+    # Extract product rating (if available)
+    rating_element = container.find('span', {'class': 'text-[#707072]'})
+    rating = rating_element.text.strip() if rating_element else "No rating"
+    
+    # Extract product discount (if available)
+    discount_element = container.find('div', {'class': 'bg-primary'})
+    discount = discount_element.text.strip() if discount_element else "No discount"
+    
+    # Append the product data to the list
     products.append({
         'name': name,
         'price': price,
-        'model': model,
-        'brand': brand,
+        'image': image,
         'description': description,
-        'url': image,
-        'store': 'zimall'
+        'rating': rating,
+        'discount': discount,
+        'store': 'dailysale'
     })
 
-with open('tv_audio_video_json.json', 'w') as f:
+# Save the scraped data to a JSON file
+with open('tv_audio_video.json', 'w') as f:
     json.dump(products, f, indent=4)
+
+print(f"Scraped {len(products)} products.")

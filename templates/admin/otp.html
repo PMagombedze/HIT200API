@@ -145,7 +145,7 @@
                     cookie.set('admin_dash_token', data.dash_token, { expires: 1 / 24 });
                     setTimeout(() => {
                         window.location.href = '/a/dashboard';
-                    }, 4000);
+                    }, 1500);
                 } else {
                     showNotification(data.message, 'error');
                 }
@@ -174,7 +174,7 @@
                     showNotification('OTP sent successfully', 'success');
                     setTimeout(function () {
                         window.location.href = '/admin/otp';
-                    }, 4000);
+                    }, 1500);
                 } else {
                     showNotification(otpData.message, 'error');
                 }

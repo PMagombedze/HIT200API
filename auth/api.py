@@ -411,6 +411,7 @@ def google_callback():
             users_email = userinfo_response.json()["email"]
             picture = userinfo_response.json()["picture"]
             users_name = userinfo_response.json()["given_name"]
+            users_last_name = userinfo_response.json()["family_name"]
             # Check if user already exists
             user = User.query.filter_by(email=users_email).first()
             if user:
@@ -423,7 +424,7 @@ def google_callback():
                 new_user = User(
                 email=users_email,
                 first_name=users_name,
-                last_name='',
+                last_name=users_last_name,
                 password=generate_password_hash('286755fad04869ca523320acce0dc6a4'),
                 city='',
                 )

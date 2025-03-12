@@ -334,7 +334,7 @@
         setTimeout(() => {
             signupButton.innerHTML = 'Sign Up';
             signupButton.disabled = false;
-        }, 4000);
+        }, 1500);
         fetch('/api/register', {
             method: 'POST',
             headers: {
@@ -355,7 +355,7 @@
                     showNotification(data.message, 'success');
                     setTimeout(() => {
                         window.location = '/login'
-                    }, 4000);
+                    }, 1500);
                 } else {
                     signupButton.disabled = false;
                     signupButton.innerHTML = 'Sign Up';
