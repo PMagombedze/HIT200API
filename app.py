@@ -88,6 +88,10 @@ def reset_password():
 def reviews_page():
     return render_template('user/reviews.html')
 
+@app.route('/u/cart')
+def cart():
+    return render_template('user/cart.html')
+
 @app.route('/a/users')
 def users():
     return render_template('admin/users.html')

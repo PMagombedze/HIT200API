@@ -7,7 +7,6 @@ import pyotp
 import os
 from datetime import timedelta
 import requests
-import json
 import arrow
 import smtplib
 from email.mime.text import MIMEText
@@ -16,6 +15,8 @@ import redis
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from secrets import token_urlsafe
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 cookie_name = token_urlsafe(32)
 
@@ -452,6 +453,84 @@ def google_callback():
     except Exception:
         return redirect('/e/500'), 500
     
+@auth.route('/api/verify-google-token', methods=['POST'])
+def verify_google_token():
+    try:
+        # Get token from request
+        request_data = request.get_json()
+        token = request_data.get('token')
+        
+        if not token:
+            return jsonify({'error': 'Token is missing'}), 400
+        
+        # Verify the token
+        idinfo = id_token.verify_oauth2_token(
+            token, 
+            google_requests.Request(), 
+            GOOGLE_CLIENT_ID
+        )
+        
+        # Get user info from the token
+        users_email = idinfo['email']
+        picture = idinfo.get('picture', '')
+        users_name = idinfo.get('given_name', '')
+        users_last_name = idinfo.get('family_name', '')
+        
+        # Check if email is verified
+        if not idinfo.get('email_verified', False):
+            return jsonify({'error': 'Email not verified'}), 400
+            
+        # Check if user already exists - similar to your callback logic
+        user = User.query.filter_by(email=users_email).first()
+        
+        if user:
+            # User exists, create access token
+            access_token = create_access_token(
+                identity=user.id, 
+                expires_delta=timedelta(minutes=60)
+            )
+        else:
+            # Create a new user in the database
+            new_user = User(
+                email=users_email,
+                first_name=users_name,
+                last_name=users_last_name,
+                password=generate_password_hash('286755fad04869ca523320acce0dc6a4'),
+                city='',
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Add profile picture
+            user_profile_pic = UserProfilePic(user_id=new_user.id, profile_pic=picture)
+            db.session.add(user_profile_pic)
+            db.session.commit()
+            
+            access_token = create_access_token(
+                identity=new_user.id, 
+                expires_delta=timedelta(minutes=60)
+            )
+        
+        return jsonify({
+            'success': True,
+            'access_token': access_token,
+            'user': {
+                'email': users_email,
+                'first_name': users_name,
+                'last_name': users_last_name,
+                'picture': picture,
+                'id': user.id if user else new_user.id
+            }
+        }), 200
+        
+    except ValueError as e:
+        # Invalid token
+        return jsonify({'error': f'Invalid token: {str(e)}'}), 401
+    except Exception as e:
+        # Other errors
+        return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
+
+
 @auth.route('/track_price', methods=['POST'])
 @jwt_required()
 def track_price():
@@ -504,4 +583,3 @@ def track_price():
         return jsonify({'message': 'Product is now being tracked. Check your email'}), 200
     except Exception as e:
         return jsonify({'message': "Check your internet connection"}), 500
-    

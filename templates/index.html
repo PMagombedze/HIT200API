@@ -1,5 +1,4 @@
 {% include 'imports.html' %}
-
 <script>
     const token = cookie.get('dash_token');
     if (token) {
@@ -22,6 +21,39 @@
             });
     }
 </script>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        google.accounts.id.initialize({
+            client_id: '970235254457-itubfqh8om8g1h2uqe8kn7948ov7i0te.apps.googleusercontent.com',
+            callback: handleCredentialResponse,
+            auto_select: true,
+            cancel_on_tap_outside: false
+        });
+
+        google.accounts.id.prompt();
+
+        function handleCredentialResponse(response) {
+            fetch('/api/verify-google-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: response.credential
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    });</script>
 
 {% include 'cookie.html' %}
 
