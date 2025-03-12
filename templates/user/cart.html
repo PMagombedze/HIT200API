@@ -129,7 +129,95 @@
                 }
             </style>
             <div class="cart-container">
-                <table class="table is-fullwidth">
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+                        const cartItemsContainer = document.getElementById('cart-items');
+                        const cartTable = document.getElementById('cart-table');
+                        const emptyCartMessage = document.getElementById('empty-cart-message');
+                        let subtotal = 0;
+
+                        if (cartItems.length === 0) {
+                            cartTable.style.display = 'none';
+                            emptyCartMessage.style.display = 'block';
+                            document.getElementById('cart-summary').style.display = 'none'
+                        } else {
+                            cartTable.style.display = 'table';
+                            emptyCartMessage.style.display = 'none';
+
+                            cartItems.forEach(item => {
+                                const row = document.createElement('tr');
+                                subtotal += parseFloat(item.price);
+
+                                row.innerHTML = `
+                                    <td>
+                                        <div class="columns is-vcentered">
+                                            <div class="column is-narrow">
+                                                <img src="${item.image}" alt="${item.name}" class="product-image">
+                                            </div>
+                                            <div class="column">
+                                                <p class="has-text-weight-bold">${item.name}</p>
+                                                <a class="is-size-6 has-text-weight-bold" onclick="removeItem('${item.id}')">Remove</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="has-text-right">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="button has-text-right" value="${item.price}" style="width: 80px; border: none; background-color: transparent; box-shadow: none;" readonly>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="has-text-right">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="input has-text-right quantity-input" type="number" value="1" min="1" style="width: 80px;" onchange="updateTotal('${item.id}', this.value)">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="has-text-right">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="button has-text-right item-total" data-id="${item.id}" value="${item.price}" style="width: 80px; border: none; background-color: transparent; box-shadow: none;" readonly>
+                                            </div>
+                                        </div>
+                                    </td>
+                                `;
+
+                                cartItemsContainer.appendChild(row);
+                            });
+                            
+                            document.querySelector('.subtotal-amount').textContent = `${subtotal.toFixed(2)}`;
+                        }
+                    });
+
+                    function removeItem(id) {
+                        let cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+                        cartItems = cartItems.filter(item => item.id !== id);
+                        localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
+                        location.reload();
+                    }
+
+                    function updateTotal(id, quantity) {
+                        const cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+                        const item = cartItems.find(item => item.id === id);
+                        if (item) {
+                            const total = (parseFloat(item.price) * parseInt(quantity)).toFixed(2);
+                            document.querySelector(`input[data-id="${id}"].item-total`).value = total;
+                            
+                            // Update subtotal
+                            let subtotal = 0;
+                            document.querySelectorAll('.item-total').forEach(input => {
+                                subtotal += parseFloat(input.value);
+                            });
+                            document.querySelector('.subtotal-amount').textContent = `${subtotal.toFixed(2)}`;
+                        }
+                    }
+                </script>
+
+                <h1 id="empty-cart-message" class="title has-text-centered is-size-2" style="display: none;">Cart is Empty</h1>
+
+                <table id="cart-table" class="table is-fullwidth">
                     <thead>
                         <tr>
                             <th>PRODUCT</th>
@@ -138,46 +226,12 @@
                             <th class="has-text-right">TOTAL</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="columns is-vcentered">
-                                    <div class="column is-narrow">
-                                        <img src="https://cdn.pixabay.com/photo/2023/08/06/14/34/woman-8173091_960_720.jpg" alt="T-Shirt" class="product-image">
-                                    </div>
-                                    <div class="column">
-                                        <p class="has-text-weight-bold">Advent of Cyber Byte Unisex T-Shirt</p>
-                                        <a class="is-size-6 has-text-weight-bold">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="has-text-right">
-                                <div class="field">
-                                    <div class="control">
-                                        <input class="button has-text-right" value="$34.5" style="width: 80px; border: none; background-color: transparent; box-shadow: none;">
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="has-text-right">
-                                <div class="field">
-                                    <div class="control">
-                                        <input class="input has-text-right" type="number" value="1" min="1" style="width: 80px;">
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="has-text-right">
-                                <div class="field">
-                                    <div class="control">
-                                        <input class="button has-text-right" value="$34.5" style="width: 80px; border: none; background-color: transparent; box-shadow: none;">
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                    <tbody id="cart-items">
+                        <!-- Cart items will be dynamically inserted here -->
                     </tbody>
                 </table>
-                <hr class="has-background-grey-lighter">
 
-                <div class="columns is-multiline">
+                <div class="columns is-multiline" id="cart-summary">
                     <div class="column is-8"></div>
                     <div class="column is-4">
                         <div class="content">
@@ -186,10 +240,9 @@
                                     <p class="has-text-weight-bold">Subtotal</p>
                                 </div>
                                 <div class="column has-text-right">
-                                    <p class="has-text-weight-bold">$15.84</p>
+                                    <p class="has-text-weight-bold subtotal-amount">$0.00</p>
                                 </div>
                             </div>
-                            <p class="is-size-7">Tax included and shipping calculated at checkout</p>
 
                             <div class="field">
                                 <div class="control">

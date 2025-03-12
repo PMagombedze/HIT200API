@@ -128,6 +128,41 @@
 </div>
 
 <script>
+
+    function addToCart(productId, productName, productPrice, productImage) {
+        // Get existing cart items from localStorage or initialize empty array
+        let cartItems = [];
+        try {
+            const cartData = localStorage.getItem('pricepick.shop_cart') || '[]';
+            cartItems = JSON.parse(cartData);
+        } catch (e) {
+            cartItems = [];
+        }
+        
+        // Check if product already exists in cart
+        const existingProduct = cartItems.find(item => item.id === productId);
+        
+        if (!existingProduct) {
+            // Add new product to cart
+            cartItems.push({
+                id: productId,
+                name: productName,
+                price: productPrice,
+                image: productImage
+            });
+            
+            // Update cart in localStorage
+            localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
+            
+            // Update cart count display
+            const cartCount = document.getElementById('cart-count');
+            cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length;
+            showNotification('Product added to cart', 'success');
+        } else {
+            showNotification('This product is already in your cart', 'warning');
+        }
+    }
+    
     AOS.init();
 
     const fetchProducts = async () => {
@@ -144,7 +179,7 @@
             let currentPage = 1;
             const itemsPerPage = 8; // 2 rows x 4 columns
             const totalPages = Math.ceil(products.length / itemsPerPage);
-      
+
             function displayProducts(page) {
                 const start = (page - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
@@ -175,12 +210,12 @@
                                 
                             <div class="buttons">
                                 <button class="button is-link track-button" data-product-id="${product.id}">Track</button>
-                                <button class="button">Add to cart</button>
-                                <button class="has-text-link has-text-weight-bold" onclick="window.location.href='/u/reviews?product_id=${product.id}'" style="text-decoration: underline;">Reviews</button>
-                            </div>
+                                <button class="button" onclick="addToCart('${product.id}', '${product.name}', '${product.price}', '${product.url}')">Add to cart</button>
+                                <button class="has-text-link has-text-weight-bold" onclick="window.location.href='/u/reviews?product_id=${product.id}'" style="text-decoration: underline;">Reviews</button>                            </div>
                         </div>
                     </div>
                     `;
+
 
                     productElement.querySelector('.track-button').addEventListener('click', async (e) => {
                         const productId = e.target.getAttribute('data-product-id');
