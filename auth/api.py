@@ -452,7 +452,7 @@ def google_callback():
             return redirect('/e/404'), 404
     except Exception:
         return redirect('/e/500'), 500
-    
+
 @auth.route('/api/verify-google-token', methods=['POST'])
 def verify_google_token():
     try:
