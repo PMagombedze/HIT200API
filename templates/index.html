@@ -76,6 +76,15 @@
 <script>
     AOS.init();
 
+    // Add this code to your existing JavaScript
+
+    // Get the search box element
+    const searchBox = document.getElementById('searchbox');
+
+    // Store the original products for filtering
+    let allProducts = [];
+
+    // Modify your fetchProducts function to store all products globally
     const fetchProducts = async () => {
         try {
             const response = await fetch('/api/products', {
@@ -85,18 +94,41 @@
                 }
             });
             const data = await response.json();
-            const products = data.products;
+            allProducts = data.products; // Store all products globally
+
             const productsContainer = document.querySelector('#products-container');
             let currentPage = 1;
             const itemsPerPage = 8;
-            const totalPages = Math.ceil(products.length / itemsPerPage);
 
-            function displayProducts(page) {
+            // Function to filter products based on search query
+            function filterProducts(query) {
+                if (!query) return allProducts;
+
+                query = query.toLowerCase();
+                return allProducts.filter(product =>
+                    product.name.toLowerCase().includes(query) ||
+                    product.store.toLowerCase().includes(query)
+                );
+            }
+
+            // Modified to handle both pagination and search
+            function displayProducts(page, productsToDisplay = allProducts) {
+                const totalPages = Math.ceil(productsToDisplay.length / itemsPerPage);
                 const start = (page - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
-                const paginatedProducts = products.slice(start, end);
+                const paginatedProducts = productsToDisplay.slice(start, end);
 
                 productsContainer.innerHTML = '';
+
+                if (paginatedProducts.length === 0) {
+                    productsContainer.innerHTML = '<div class="column is-12"><p class="has-text-centered">No products found matching your search.</p></div>';
+                    // Hide pagination if no results
+                    const existingPagination = document.querySelector('.pagination');
+                    if (existingPagination) {
+                        existingPagination.remove();
+                    }
+                    return;
+                }
 
                 paginatedProducts.forEach(product => {
                     const productElement = document.createElement('div');
@@ -104,34 +136,36 @@
                     productElement.setAttribute('data-aos', 'fade-up');
                     productElement.setAttribute('data-aos-duration', '1000');
                     productElement.innerHTML = `
-                <div class="card product-card animate__animated animate__fadeInUp">
-                    <div class="card-image">
-                        <figure class="image">
-                            <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">
-                        </figure>
+            <div class="card product-card animate__animated animate__fadeInUp">
+                <div class="card-image">
+                    <figure class="image">
+                        <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">
+                    </figure>
+                </div>
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            <p class="subhas-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
+                            <p class="subis-6">$${product.price}.00</p> 
+                            <p class="subis-6">${product.store}</p> 
+                        </div>
                     </div>
-                    <div class="card-content">
-                        <div class="media">
-                            <div class="media-content">
-                                <p class="subhas-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
-                                <p class="subis-6">$${product.price}.00</p> 
-                                <p class="subis-6">${product.store}</p> 
-                            </div>
-                        </div>
-                        <div class="buttons">
-                            <button class="button is-link" onclick="showNotification('Please login to add items to cart', 'warning')"; }">Add to cart</button>
-                        </div>
+                    <div class="buttons">
+                        <button class="button is-link" onclick="showNotification('Please login to add items to cart', 'warning')"; }">Add to cart</button>
                     </div>
                 </div>
-                `;
+            </div>
+            `;
                     productsContainer.appendChild(productElement);
                 });
 
-                const paginationContainer = document.createElement('nav');
-                paginationContainer.className = 'pagination is-centered mt-6';
-                paginationContainer.setAttribute('role', 'navigation');
-                paginationContainer.setAttribute('aria-label', 'pagination');
-                paginationContainer.innerHTML = `
+                // Create pagination only if we have enough products
+                if (productsToDisplay.length > itemsPerPage) {
+                    const paginationContainer = document.createElement('nav');
+                    paginationContainer.className = 'pagination is-centered mt-6';
+                    paginationContainer.setAttribute('role', 'navigation');
+                    paginationContainer.setAttribute('aria-label', 'pagination');
+                    paginationContainer.innerHTML = `
                 <a class="pagination-previous" ${page === 1 ? 'disabled' : ''}>Previous</a>
                 <a class="pagination-next" ${page === totalPages ? 'disabled' : ''}>Next</a>
                 <ul class="pagination-list">
@@ -145,38 +179,48 @@
                 </ul>
             `;
 
-                const existingPagination = document.querySelector('.pagination');
-                if (existingPagination) {
-                    existingPagination.remove();
-                }
-                productsContainer.after(paginationContainer);
-
-                const prevButton = paginationContainer.querySelector('.pagination-previous');
-                const nextButton = paginationContainer.querySelector('.pagination-next');
-                const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
-
-                prevButton.addEventListener('click', () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        displayProducts(currentPage);
+                    const existingPagination = document.querySelector('.pagination');
+                    if (existingPagination) {
+                        existingPagination.remove();
                     }
-                });
+                    productsContainer.after(paginationContainer);
 
-                nextButton.addEventListener('click', () => {
-                    if (currentPage < totalPages) {
-                        currentPage++;
-                        displayProducts(currentPage);
-                    }
-                });
+                    const prevButton = paginationContainer.querySelector('.pagination-previous');
+                    const nextButton = paginationContainer.querySelector('.pagination-next');
+                    const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
 
-                pageLinks.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        currentPage = parseInt(e.target.textContent);
-                        displayProducts(currentPage);
+                    prevButton.addEventListener('click', () => {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            displayProducts(currentPage, productsToDisplay);
+                        }
                     });
-                });
+
+                    nextButton.addEventListener('click', () => {
+                        if (currentPage < totalPages) {
+                            currentPage++;
+                            displayProducts(currentPage, productsToDisplay);
+                        }
+                    });
+
+                    pageLinks.forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            currentPage = parseInt(e.target.textContent);
+                            displayProducts(currentPage, productsToDisplay);
+                        });
+                    });
+                }
             }
 
+            // Add event listener for the search box
+            searchBox.addEventListener('input', function () {
+                const searchQuery = this.value.trim();
+                const filteredProducts = filterProducts(searchQuery);
+                currentPage = 1; // Reset to first page on new search
+                displayProducts(currentPage, filteredProducts);
+            });
+
+            // Initial display
             displayProducts(currentPage);
         } catch (error) {
             showNotification('Error fetching products', 'error');
@@ -184,4 +228,165 @@
     };
 
     fetchProducts();
+
+</script>
+
+<script>
+    // Function to handle recent searches
+    function setupRecentSearches() {
+        // Max number of recent searches to store
+        const MAX_RECENT_SEARCHES = 5;
+
+        // Get or initialize recent searches from localStorage
+        let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+
+        // Get the search box element
+        const searchBox = document.getElementById('searchbox');
+
+        // Create container for recent searches if it doesn't exist
+        let recentSearchesContainer = document.getElementById('recent-searches-container');
+        if (!recentSearchesContainer) {
+            recentSearchesContainer = document.createElement('div');
+            recentSearchesContainer.id = 'recent-searches-container';
+            recentSearchesContainer.className = 'box mt-2 is-hidden';
+            recentSearchesContainer.style.position = 'absolute';
+            recentSearchesContainer.style.width = '100%';
+            recentSearchesContainer.style.zIndex = '100';
+
+            // Insert after search box
+            searchBox.parentNode.insertBefore(recentSearchesContainer, searchBox.nextSibling);
+        }
+
+        // Function to display recent searches
+        function displayRecentSearches() {
+            if (recentSearches.length === 0) {
+                recentSearchesContainer.classList.add('is-hidden');
+                return;
+            }
+
+            recentSearchesContainer.innerHTML = `
+            <p class="has-text-weight-bold mb-2">Recent Searches:</p>
+            <div class="tags">
+                ${recentSearches.map(search => `
+                    <span class="tag is-link is-light recent-search-tag">
+                        ${search}
+                        <button class="delete is-small ml-1 recent-search-delete" data-search="${search}"></button>
+                    </span>
+                `).join('')}
+            </div>
+            <button class="button is-small is-text clear-all-searches">Clear All</button>
+        `;
+
+            // Add click handlers for tags
+            const searchTags = recentSearchesContainer.querySelectorAll('.recent-search-tag');
+            searchTags.forEach(tag => {
+                tag.addEventListener('click', function (e) {
+                    if (!e.target.classList.contains('delete') && !e.target.classList.contains('clear-all-searches')) {
+                        const searchText = this.textContent.trim();
+                        searchBox.value = searchText;
+                        // Trigger the input event to perform the search
+                        searchBox.dispatchEvent(new Event('input'));
+                        recentSearchesContainer.classList.add('is-hidden');
+                    }
+                });
+            });
+
+            // Add click handlers for delete buttons
+            const deleteButtons = recentSearchesContainer.querySelectorAll('.recent-search-delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.stopPropagation(); // Prevent triggering the tag click
+                    const searchToRemove = this.getAttribute('data-search');
+                    removeRecentSearch(searchToRemove);
+                    displayRecentSearches();
+                });
+            });
+
+            // Add click handler for clear all button
+            const clearAllButton = recentSearchesContainer.querySelector('.clear-all-searches');
+            clearAllButton.addEventListener('click', function () {
+                clearAllRecentSearches();
+                displayRecentSearches();
+            });
+        }
+
+        // Function to add a search to recent searches
+        function addRecentSearch(search) {
+            // Don't add empty searches or duplicates
+            if (!search.trim() || recentSearches.includes(search)) return;
+
+            // Add to the beginning of the array
+            recentSearches.unshift(search);
+
+            // Limit to MAX_RECENT_SEARCHES
+            if (recentSearches.length > MAX_RECENT_SEARCHES) {
+                recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+
+            // Update the display
+            displayRecentSearches();
+        }
+
+        // Function to remove a search from recent searches
+        function removeRecentSearch(search) {
+            recentSearches = recentSearches.filter(item => item !== search);
+            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+        }
+
+        // Function to clear all recent searches
+        function clearAllRecentSearches() {
+            recentSearches = [];
+            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+            recentSearchesContainer.classList.add('is-hidden');
+        }
+
+        // Show recent searches when the search box is focused
+        searchBox.addEventListener('focus', function () {
+            if (recentSearches.length > 0) {
+                recentSearchesContainer.classList.remove('is-hidden');
+                displayRecentSearches();
+            }
+        });
+
+        // Hide recent searches when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!searchBox.contains(e.target) && !recentSearchesContainer.contains(e.target)) {
+                recentSearchesContainer.classList.add('is-hidden');
+            }
+        });
+
+        // Save search when user pauses typing (debounce)
+        let debounceTimer;
+        searchBox.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+
+            const searchQuery = this.value.trim();
+
+            // Save the search after typing stops (500ms delay)
+            if (searchQuery.length >= 3) {
+                debounceTimer = setTimeout(() => {
+                    addRecentSearch(searchQuery);
+                }, 500);
+            }
+        });
+
+        // Save search on Enter key
+        searchBox.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && this.value.trim().length >= 3) {
+                addRecentSearch(this.value.trim());
+                recentSearchesContainer.classList.add('is-hidden');
+            }
+        });
+
+        // Initial display of recent searches
+        displayRecentSearches();
+    }
+
+    // Call this function after your main code
+    document.addEventListener('DOMContentLoaded', function () {
+        setupRecentSearches();
+    });
 </script>
