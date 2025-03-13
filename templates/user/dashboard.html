@@ -157,7 +157,7 @@
             localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
 
             showNotification('Product added to cart', 'success');
-            
+
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
@@ -378,9 +378,9 @@
                     productElement.innerHTML = `
                 <div class="card product-card animate__animated animate__fadeInUp">
                         <div class="card-image" style="max-width: 300px;">
-                            <figure class="image">
-                                <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">
-                            </figure>
+                            <div class="card-image">
+                        <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
+                </div>
                         </div>
                         <div class="card-content" style="max-width: 300px;">
                             <div class="media">

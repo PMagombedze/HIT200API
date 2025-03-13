@@ -291,7 +291,7 @@
                         reviewElement.innerHTML = `
                             <div style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; border-radius: 10px;" class="box">
                                 <p class="has-text-weight-bold">${review.user.client_name} <span style="font-size: 1.5em;">·</span> ${new Date(review.created_at).toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', year: 'numeric' })}</p>
-                                <p>${generateStars(review.rating)}</p>
+                                <p style="display: flex;">${generateStars(review.rating)}</p>
                                 <p>${review.comment}</p>
                             </div>
                         `;
