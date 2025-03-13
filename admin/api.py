@@ -92,7 +92,7 @@ def createProduct():
     user = User.query.filter_by(id=user_id).first()
     if not user.is_admin:
         return jsonify({'message': 'Fobbiden'}), 403
-    json_file_path = os.path.join('electronics_zimall.json')
+    json_file_path = os.path.join('zimshops_computer_products.json')
     with open(json_file_path, 'r') as file:
         products = json.load(file)
         for product_data in products:
