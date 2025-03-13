@@ -196,17 +196,13 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     last_recorded_price = db.Column(db.Float, nullable=True)
     url = db.Column(db.String(255), nullable=False)
-    model = db.Column(db.String(80), nullable=False)
-    brand = db.Column(db.String(80), nullable=False)
     store = db.Column(db.String(80), nullable=False)
 
-    def __init__(self, name, description, price, url, model, brand, store, last_recorded_price):
+    def __init__(self, name, description, price, url, store, last_recorded_price):
         self.name = name
         self.description = description
         self.price = price
         self.url = url
-        self.model = model
-        self.brand = brand
         self.last_recorded_price = last_recorded_price
         self.store = store
         self.id = str(uuid.uuid4())
@@ -219,8 +215,6 @@ class Product(db.Model):
             'price': self.price,
             'url': self.url,
             'last_recorded_price': self.last_recorded_price,
-            'model': self.model,
-            'brand': self.brand,
             'store': self.store
         }
 

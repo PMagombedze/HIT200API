@@ -8,3 +8,4 @@ selfsigned.crt
 instance
 uploads
 *.pem
+api.http

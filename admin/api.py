@@ -99,9 +99,7 @@ def createProduct():
             product = Product(
                 name=product_data['name'],
                 price=float(product_data['price'].replace('$', '')),
-                model=product_data['model'],
-                brand=product_data['brand'],
-                description=product_data['description'],
+                description=product_data['description'] if 'description' in product_data else 'No description available',
                 url=product_data['url'],
                 last_recorded_price=float(product_data['price'].replace('$', '')),
                 store=product_data['store']

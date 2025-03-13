@@ -138,20 +138,20 @@
                     productElement.innerHTML = `
             <div class="card product-card animate__animated animate__fadeInUp">
                 <div class="card-image">
-                    <figure class="image">
-                        <img src="${product.url}" alt="${product.name}" style="object-fit: contain;">
+                    <figure class="image is-4by3">
+                        <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
                     </figure>
                 </div>
                 <div class="card-content">
                     <div class="media">
                         <div class="media-content">
-                            <p class="subhas-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
-                            <p class="subis-6">$${product.price}.00</p> 
-                            <p class="subis-6">${product.store}</p> 
+                            <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
+                            <p class="subtitle is-6">$${product.price}.00</p> 
+                            <p class="subtitle is-6">${product.store}</p> 
                         </div>
                     </div>
                     <div class="buttons">
-                        <button class="button is-link" onclick="showNotification('Please login to add items to cart', 'warning')"; }">Add to cart</button>
+                        <button class="button is-link" onclick="showNotification('Please login to add items to cart', 'warning')">Add to cart</button>
                     </div>
                 </div>
             </div>

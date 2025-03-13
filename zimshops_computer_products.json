@@ -1,0 +1,90 @@
+[
+    {
+        "name": "Electric bulb",
+        "price": "$1.00",
+        "url": "https://www.zim-shops.com/images/9W_bulb.jpeg",
+        "id": "1",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "Electric bulb",
+        "price": "$1.50",
+        "url": "https://www.zim-shops.com/images/12W_bulb.jpg",
+        "id": "2",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "Surge Protector",
+        "price": "$5.00",
+        "url": "https://www.zim-shops.com/images/surge.jpg",
+        "id": "3",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "Lamp holder",
+        "price": "$1.00",
+        "url": "https://www.zim-shops.com/images/brass_lampholder.jpg",
+        "id": "8",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "Electric bike motor",
+        "price": "$1550.00",
+        "url": "https://www.zim-shops.com/images/ebike.jpg",
+        "id": "19",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "100Watts LED flood lights",
+        "price": "$15.00",
+        "url": "https://www.zim-shops.com/images/flood-lights.jpeg",
+        "id": "64",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "100Watts LED flood lights",
+        "price": "$15.00",
+        "url": "https://www.zim-shops.com/images/flood-lights.jpeg",
+        "id": "65",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "200W solar flood light",
+        "price": "$20.00",
+        "url": "https://www.zim-shops.com/images/200w_solar_flood2_2.jpg",
+        "id": "71",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "RGB bulb 9W",
+        "price": "$5.00",
+        "url": "https://www.zim-shops.com/images/rgb_bulb9W.jpg",
+        "id": "83",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "Solar Sensor Light",
+        "price": "$6.00",
+        "url": "https://www.zim-shops.com/images/solar_sensor_light.jpg",
+        "id": "81",
+        "category": "Computers",
+        "store": "zimshops.com"
+    },
+    {
+        "name": "50M Cable reel",
+        "price": "$59.00",
+        "url": "https://www.zim-shops.com/images/50m cable reel.jpg",
+        "id": "82",
+        "category": "Computers",
+        "store": "zimshops.com"
+    }
+]
