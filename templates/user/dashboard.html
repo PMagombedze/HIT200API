@@ -129,7 +129,7 @@
 
 <script>
     const cartCount = document.getElementById('cart-count');
-    cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length;
+    cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart') || '[]').length;
 
     function addToCart(productId, productName, productPrice, productImage) {
         // Get existing cart items from localStorage or initialize empty array
@@ -326,15 +326,29 @@
             const response = await fetch('/api/products', {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cookie.get('dash_token')}`
                 }
             });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+            
             const data = await response.json();
+
+            if (!data.products || !Array.isArray(data.products)) {
+                throw new Error('Invalid products data received');
+            }
 
             // Store all products globally for filtering
             const allProducts = data.products;
 
             const productsContainer = document.querySelector('#products-container');
+            if (!productsContainer) {
+                throw new Error('Products container not found');
+            }
+
             const searchBox = document.getElementById('searchbox');
 
             let currentPage = 1;
@@ -386,7 +400,7 @@
                             <div class="media">
                                 <div class="media-content">
                                     <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${product.name}</p>
-                                    <p class="subtitle is-6">$${product.price}.00</p> 
+                                    <p class="subtitle is-6">${product.price}.00</p> 
                                     <p class="subtitle is-6">${product.store}</p> 
                                 </div>
                             </div>
@@ -398,7 +412,6 @@
                         </div>
                     </div>
                     `;
-
 
                     productElement.querySelector('.track-button').addEventListener('click', async (e) => {
                         const productId = e.target.getAttribute('data-product-id');
@@ -496,7 +509,8 @@
             // Initial display
             displayProducts(currentPage);
         } catch (error) {
-            showNotification('Error fetching products', 'error');
+            console.error('Error in fetchProducts:', error);
+            showNotification('Error fetching products: ' + error.message, 'error');
         }
     };
 
