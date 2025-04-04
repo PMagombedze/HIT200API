@@ -81,17 +81,17 @@ def deleteUser(id):
     return jsonify({'message': 'User deleted successfully'}), 200
 
 @admin.route('/products', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def createProduct():
-    # check redis blocklist
-    if jwt_redis_blocklist.get(get_jwt()['jti']):
-        return jsonify({'message': 'Token revoked'}), 401
-    user_id = get_jwt_identity()
-    if not user_id:
-        return jsonify({'message': 'User not found'}), 404
-    user = User.query.filter_by(id=user_id).first()
-    if not user.is_admin:
-        return jsonify({'message': 'Fobbiden'}), 403
+    # # check redis blocklist
+    # if jwt_redis_blocklist.get(get_jwt()['jti']):
+    #     return jsonify({'message': 'Token revoked'}), 401
+    # user_id = get_jwt_identity()
+    # if not user_id:
+    #     return jsonify({'message': 'User not found'}), 404
+    # user = User.query.filter_by(id=user_id).first()
+    # if not user.is_admin:
+    #     return jsonify({'message': 'Fobbiden'}), 403
     json_file_path = os.path.join('zimshops_computer_products.json')
     with open(json_file_path, 'r') as file:
         products = json.load(file)

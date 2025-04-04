@@ -8,24 +8,39 @@ load_dotenv()
 client = ScrapingBeeClient(api_key=os.environ.get('SCRAPINGBEE_API_KEY'))
 response = client.get('https://www.shumba.africa/store/?_sort=_regular_price_asc&_categories=electronics-computers')
 
-soup = BeautifulSoup(response.content, 'html.parser')
-products = []
+def get_products():
+    """Scrape products from Shumba Africa and return as list"""
+    try:
+        client = ScrapingBeeClient(api_key=os.environ.get('SCRAPINGBEE_API_KEY'))
+        response = client.get('https://www.shumba.africa/store/?_sort=_regular_price_asc&_categories=electronics-computers')
 
-for product in soup.find_all('article', {'class': 'wpgb-card'}):
-    name = product.find('h3', {'class': 'wpgb-block-7'}).text.strip()
-    price = product.find('div', {'class': 'wpgb-block-5'}).text.strip()
-    url = product.find('a', {'class': 'wpgb-card-layer-link'})['href']
-    image = product.find('div', {'class': 'wpgb-card-media-thumbnail'}).find('a')['href']
-    product_id = product.find('a', {'class': 'add_to_cart_button'})['data-product_id']
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch the webpage: {response.status_code}")
 
-    products.append({
-        'name': name,
-        'price': price,
-        'url': url,
-        'image': image,
-        'id': product_id,
-        'store': 'shumba.africa'
-    })
+        soup = BeautifulSoup(response.content, 'html.parser')
+        products = []
 
-with open('electronics_shumba_africa.json', 'w') as f:
-    json.dump(products, f, indent=4)
+        for product in soup.find_all('article', {'class': 'wpgb-card'}):
+            try:
+                name = product.find('h3', {'class': 'wpgb-block-7'}).text.strip()
+                price = product.find('div', {'class': 'wpgb-block-5'}).text.strip()
+                url = product.find('a', {'class': 'wpgb-card-layer-link'})['href']
+                image = product.find('div', {'class': 'wpgb-card-media-thumbnail'}).find('a')['href']
+                product_id = product.find('a', {'class': 'add_to_cart_button'})['data-product_id']
+
+                products.append({
+                    'name': name,
+                    'price': price,
+                    'url': url,
+                    'image': image,
+                    'id': product_id,
+                    'store': 'shumba.africa'
+                })
+            except Exception as e:
+                print(f"Error processing product: {e}")
+                continue
+
+        return products
+    except Exception as e:
+        print(f"Error in Shumba Africa scraper: {e}")
+        return []
