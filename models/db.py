@@ -193,7 +193,7 @@ class Product(db.Model):
     id = db.Column(db.String(120), primary_key=True, default=str(uuid.uuid4()))
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(255), nullable=False)
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.String(80), nullable=False)
     last_recorded_price = db.Column(db.Float, nullable=True)
     url = db.Column(db.String(255), nullable=False)
     store = db.Column(db.String(80), nullable=False)

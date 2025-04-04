@@ -1,68 +1,17 @@
 Starting product scraper scheduler...
-Will run every 15 minutes, next run at 2025-04-05 01:11:32.150869
+Will run every 15 minutes, next run at 2025-04-05 01:53:43.864518
 
-[2025-04-05 01:11:32.150891] Running scrapers...
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
-Error processing product: 'NoneType' object has no attribute 'text'
+[2025-04-05 01:53:43.864529] Running scrapers...
+Error in DailySale scraper: Scraping failed with status 401
+Error in Everything Zimbabwe scraper: Scraping failed with status 401
+Error in FirstPack scraper: Failed to fetch the webpage: 401
+Error in FuserTech scraper: Failed to fetch the webpage: 401
+Fetching content from https://innovative.co.zw/shop/?wpf=wpf_6683132d4a741&wpf_cols=5&wpf_cat=accessories%2Caudio%2Ccameras%2Ccontrol%2Cdesktop%2Cdisplay%2Celectric-accessories%2Cgaming%2Claptops%2Cmemory%2Cmonitors%2Cnetworking%2Cprinters%2Cprojectors%2Cram%2Cscanners%2Csmartphones%2Ctablets%2Ctvs&product-page=1...
+Error in Innovative Technologies scraper: Failed to fetch the webpage: 406
+Error in Raines Africa scraper: Failed to fetch the webpage: 401
+Error in Shumba Africa scraper: Failed to fetch the webpage: 401
+Error in TopDeals scraper: Failed to fetch the webpage: 401
+Error in Ubuy scraper: Failed to fetch the webpage: 401
+Error in Zimall scraper: Failed to fetch the webpage: 401
+Error in ZimexApp scraper: Failed to fetch the webpage: 401
+No products collected from any scraper

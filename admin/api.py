@@ -81,30 +81,26 @@ def deleteUser(id):
     return jsonify({'message': 'User deleted successfully'}), 200
 
 @admin.route('/products', methods=['POST'])
-# @jwt_required()
 def createProduct():
-    # # check redis blocklist
-    # if jwt_redis_blocklist.get(get_jwt()['jti']):
-    #     return jsonify({'message': 'Token revoked'}), 401
-    # user_id = get_jwt_identity()
-    # if not user_id:
-    #     return jsonify({'message': 'User not found'}), 404
-    # user = User.query.filter_by(id=user_id).first()
-    # if not user.is_admin:
-    #     return jsonify({'message': 'Fobbiden'}), 403
-    json_file_path = os.path.join('zimshops_computer_products.json')
-    with open(json_file_path, 'r') as file:
-        products = json.load(file)
-        for product_data in products:
+    data = request.get_json()
+    products = data.get('products')
+    if not products:
+        return jsonify({'message': 'No products provided'}), 400
+
+    for product_data in products:
+        try:
             product = Product(
                 name=product_data['name'],
-                price=float(product_data['price'].replace('$', '')),
-                description=product_data['description'] if 'description' in product_data else 'No description available',
+                price=product_data['price'].replace('$', ''),
+                description=product_data.get('description', 'No description available'),
                 url=product_data['url'],
                 last_recorded_price=float(product_data['price'].replace('$', '')),
                 store=product_data['store']
             )
             db.session.add(product)
+        except Exception as e:
+            return jsonify({'message': f"Error adding product: {str(e)}"}), 400
+
     db.session.commit()
     return jsonify({'message': 'Products created successfully'}), 201
 
