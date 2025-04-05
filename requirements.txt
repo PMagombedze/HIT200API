@@ -52,6 +52,7 @@ redis==5.2.0
 requests==2.32.3
 requests-oauthlib==1.1.0
 rsa==4.9
+schedule==1.2.2
 scrapingbee==2.0.1
 setuptools==75.6.0
 six==1.16.0
