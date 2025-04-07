@@ -546,12 +546,9 @@ def track_price():
 
     # get the product id from the request body
     data = request.get_json()
-    product_id = data.get('product_id')
-    if not product_id:
+    product_name = data.get('product_name')
+    if not product_name:
         return jsonify({'message': 'Product ID is required'}), 400
-    
-    # get product name using id
-    product = Product.query.filter_by(id=product_id).first()
     
     subject = "Product Price Tracking"
     sender = os.getenv('MAIL_USERNAME')
@@ -562,7 +559,7 @@ def track_price():
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                     <h2 style="color: #333;border: none; border-bottom:2px solid #000; padding-bottom: 4px;">Product Price Tracking</h2>
                     <p style="font-size: 10pt;">Hello,</p>
-                    <p style="font-size: 10pt;">We are now tracking the price of the product {product.name}.</p>
+                    <p style="font-size: 10pt;">We are now tracking the price of the product <strong>{product_name}</strong>.</p>
                     <p style="font-size: 10pt;">You will be notified when there is a price change.</p>
                     <p style="font-size: 10pt;">Best regards,<br>The Support Team</p>
                 </div>

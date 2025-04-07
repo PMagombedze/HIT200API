@@ -143,34 +143,11 @@
             <div class="navbar-end">
                 <button onclick="window.location.href='/u/profile';" class="button px-4 py-2 has-text-weight-bold"
                     style="display: flex; align-items: center;border-radius: 50%;">
-                    <img src="" id="user-profile-img" alt="" style="height: 25px;width: 20px; border-radius: 50%;">
+                    <img src="/api/uploads/user.svg" alt="" style="height: 25px;width: 20px; border-radius: 50%;">
                 </button>
             </div>
         </div>
     </div>
-
-            <script>
-                fetch('/api/user/profile', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${cookie.get('dash_token')}`
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.img_url) {
-                            document.getElementById('user-profile-img').src = data.img_url;
-                            document.getElementById('pro-pic').src = data.img_url;
-                            document.getElementById('user-pic').src = data.img_url;
-                        } else {
-                            /**/
-                        }
-                    })
-                    .catch(error => {
-                        /**/
-                    });
-            </script>
         </div>
     </nav>
 
@@ -186,7 +163,7 @@
         <div class="header-background" style="border-top-left-radius: 10px;border-top-right-radius: 10px;"></div>
         <div class="profile-wrapper">
             <figure class="image profile-image">
-                <img src="" id="user-pic" alt="Profile" class="is-rounded">
+                <img src="/api/uploads/user.svg" alt="Profile" class="is-rounded">
             </figure>
             <div class="content has-text-centered">
                 <h2 class="title is-4 mb-2" id="user-fname"></h2>
@@ -211,83 +188,6 @@
             <h3 class="is-size-6 has-text-weight-bold">Password</h3>
             <input id="password" type="password" class="input" style="width: 30%;">
         </div>
-
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f1f1;">
-            <h3 class="is-size-6 has-text-weight-bold">Profile Picture</h3>
-            <div style="display: flex; align-items: center; width: 30%;">
-                <img id="pro-pic" style="width: 50px; height: 45px; border-radius: 50%; margin-right: 10px;">
-                <button id="delete-pic" class="button is-danger" style="margin-right: 10px;">Delete</button>
-                <button style="background-color: transparent;">
-                    <div class="file">
-                        <label class="file-label">
-                            <input class="file-input" type="file" name="resume" id="profile-pic-input" />
-                            <span class="file-cta">
-                                <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
-                                </span>
-                                <span class="file-label"> Update </span>
-                            </span>
-                        </label>
-                    </div>
-                </button>
-                <script>
-                    document.getElementById('profile-pic-input').addEventListener('change', function (event) {
-                        const file = event.target.files[0];
-                        if (file) {
-                            const formData = new FormData();
-                            formData.append('file', file);
-
-                            fetch('/api/user/profile', {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${cookie.get('dash_token')}`
-                                },
-                                body: formData
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.message === 'Profile pic uploaded successfully') {
-                                        showNotification(data.message, 'success');
-                                        setTimeout(() => {
-                                            window.location.reload();
-                                        }, 2000);
-                                    } else {
-                                        showNotification(data.message, 'error');
-                                    }
-                                })
-                                .catch(error => {
-                                    showNotification('Error updating profile picture', 'error');
-                                });
-                        }
-                    });
-
-                    document.getElementById('delete-pic').addEventListener('click', function () {
-                        fetch('/api/user/profile', {
-                            method: 'DELETE',
-                            headers: {
-                                'Authorization': `Bearer ${cookie.get('dash_token')}`
-                            }
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.message === 'Profile pic deleted successfully') {
-                                    showNotification(data.message, 'success');
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 2000);
-                                } else {
-                                    showNotification(data.message, 'error');
-                                }
-                            })
-                            .catch(error => {
-                                showNotification('Error deleting profile picture', 'error');
-                            });
-                    });
-                </script>
-            </div>
-        </div>
-
 
         <div style="display: flex; justify-content: flex-end; align-items: center; padding: 15px 0;">
             <button id="save-changes" class="button is-link" style="width: 10%;">Save Changes</button>

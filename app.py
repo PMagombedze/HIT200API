@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, send_file
 from models.db import db
 from auth.api import auth, jwt
 from admin.api import admin, adminJwt
@@ -103,6 +103,10 @@ def support():
 @app.route('/a/settings')
 def settings():
     return render_template('admin/settings.html')
+
+@app.route('/api/uploads/user.svg')
+def user_svg():
+    return send_file('static/images/user.svg', mimetype='image/svg+xml')
 
 @app.route('/e/404')
 def error_404():

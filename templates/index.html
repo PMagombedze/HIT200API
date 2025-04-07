@@ -92,15 +92,16 @@
                     <div class="select is-fullwidth">
                         <select id="shop-filter">
                             <option value="">All Shops</option>
-                            <option value="">FuserTech</option>
-                            <option value="">ZimexApp</option>
-                            <option value="">Ubuy</option>
-                            <option value="">Topdeals</option>
-                            <option value="">ShumbaAfrica</option>
-                            <option value="">RainesAfrica</option>
-                            <option value="">FirstPack</option>
-                            <option value="">EverythingZim</option>
-                            <option value="">Dailysale</option>
+                            <option value="FuserTech">FuserTech</option>
+                            <option value="ZimexApp">ZimexApp</option>
+                            <option value="Ubuy">Ubuy</option>
+                            <option value="Topdeals">Topdeals</option>
+                            <option value="ShumbaAfrica">ShumbaAfrica</option>
+                            <option value="RainesAfrica">RainesAfrica</option>
+                            <option value="FirstPack">FirstPack</option>
+                            <option value="EverythingZim">EverythingZim</option>
+                            <option value="Dailysale">Dailysale</option>
+                            <option value="Zimall">Zimall</option>
                         </select>
                     </div>
                 </div>
@@ -343,7 +344,72 @@
         }
     };
 
-    // Removed duplicate fetchProducts call
+    // Filter state
+    let currentFilters = {
+        category: '',
+        shop: '',
+        minPrice: null,
+        maxPrice: null
+    };
+
+    // Function to apply all filters
+    function applyFilters(products) {
+        return products.filter(product => {
+            // Category filter
+            if (currentFilters.category && product.category !== currentFilters.category) {
+                return false;
+            }
+            
+            // Shop filter
+            if (currentFilters.shop && product.store !== currentFilters.shop) {
+                return false;
+            }
+            
+            // Price range filter
+            const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
+            if (currentFilters.minPrice && price < currentFilters.minPrice) {
+                return false;
+            }
+            if (currentFilters.maxPrice && price > currentFilters.maxPrice) {
+                return false;
+            }
+            
+            return true;
+        });
+    }
+
+    // Setup filter event listeners
+    function setupFilters() {
+        const productFilter = document.getElementById('product-filter');
+        const shopFilter = document.getElementById('shop-filter');
+        const minPriceInput = document.getElementById('min-price');
+        const maxPriceInput = document.getElementById('max-price');
+        const applyButton = document.getElementById('apply-filters');
+
+        productFilter.addEventListener('change', function() {
+            currentFilters.category = this.value;
+        });
+
+        shopFilter.addEventListener('change', function() {
+            currentFilters.shop = this.value;
+        });
+
+        applyButton.addEventListener('click', function() {
+            currentFilters.minPrice = minPriceInput.value ? parseFloat(minPriceInput.value) : null;
+            currentFilters.maxPrice = maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
+            
+            // Get current search query
+            const searchQuery = searchBox.value.trim();
+            const searchFiltered = filterProducts(searchQuery);
+            const filteredProducts = applyFilters(searchFiltered);
+            
+            currentPage = 1;
+            displayProducts(currentPage, filteredProducts);
+        });
+    }
+
+    // Initialize filters
+    setupFilters();
     fetchProducts();
 </script>
 

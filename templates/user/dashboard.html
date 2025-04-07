@@ -113,6 +113,81 @@
 
     {% include 'hero.html' %}
 
+    <!-- Filter Section -->
+    <div class="container mt-4">
+        <div class="columns">
+            <!-- Product Filter -->
+            <div class="column is-3">
+                <div class="field">
+                    <label class="label">Product Category</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select id="product-filter">
+                                <option value="">All Categories</option>
+                                <option value="electronics">Smartphones</option>
+                                <option value="clothing">Headphones</option>
+                                <option value="home">Laptops</option>
+                                <option value="sports">Tablets</option>
+                                <option value="beauty">Smartwatches</option>
+                                <option value="toys">UPS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Filter -->
+            <div class="column is-3">
+                <div class="field">
+                    <label class="label">Shop</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select id="shop-filter">
+                                <option value="">All Shops</option>
+                                <option value="FuserTech">FuserTech</option>
+                                <option value="ZimexApp">ZimexApp</option>
+                                <option value="Ubuy">Ubuy</option>
+                                <option value="Topdeals">Topdeals</option>
+                                <option value="ShumbaAfrica">ShumbaAfrica</option>
+                                <option value="RainesAfrica">RainesAfrica</option>
+                                <option value="FirstPack">FirstPack</option>
+                                <option value="EverythingZim">EverythingZim</option>
+                                <option value="Dailysale">Dailysale</option>
+                                <option value="Zimall">Zimall</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="column is-6">
+                <div class="field">
+                    <label class="label">Price Range</label>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="control">
+                                <input class="input" type="number" id="min-price" placeholder="Min Price">
+                            </div>
+                        </div>
+                        <div class="column is-narrow">
+                            <p class="has-text-centered mt-2">to</p>
+                        </div>
+                        <div class="column">
+                            <div class="control">
+                                <input class="input" type="number" id="max-price" placeholder="Max Price">
+                            </div>
+                        </div>
+                        <div class="column is-narrow">
+                            <button class="button is-link" id="apply-filters">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container mt-6">
         <h1 class="is-4 title has-text-black-ter has-text-weight-bold">Featured Products</h1>
     </div>
@@ -128,231 +203,33 @@
 </div>
 
 <script>
-    const cartCount = document.getElementById('cart-count');
-    cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart') || '[]').length;
-
-    function addToCart(productId, productName, productPrice, productImage) {
-        // Get existing cart items from localStorage or initialize empty array
-        let cartItems = [];
-        try {
-            const cartData = localStorage.getItem('pricepick.shop_cart') || '[]';
-            cartItems = JSON.parse(cartData);
-        } catch (e) {
-            cartItems = [];
-        }
-
-        // Check if product already exists in cart
-        const existingProduct = cartItems.find(item => item.id === productId);
-
-        if (!existingProduct) {
-            // Add new product to cart
-            cartItems.push({
-                id: productId,
-                name: productName,
-                price: productPrice,
-                image: productImage
-            });
-
-            // Update cart in localStorage
-            localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
-
-            showNotification('Product added to cart', 'success');
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        } else {
-            showNotification('This product is already in your cart', 'warning');
-        }
-    }
-
     AOS.init();
+    // Get the search box element
+    const searchBox = document.getElementById('searchbox');
 
-    // Function to handle recent searches
-    function setupRecentSearches() {
-        // Max number of recent searches to store
-        const MAX_RECENT_SEARCHES = 5;
+    // Store the original products for filtering
+    let allProducts = [];
 
-        // Get or initialize recent searches from localStorage
-        let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
-
-        // Get the search box element
-        const searchBox = document.getElementById('searchbox');
-
-        // Create container for recent searches if it doesn't exist
-        let recentSearchesContainer = document.getElementById('recent-searches-container');
-        if (!recentSearchesContainer) {
-            recentSearchesContainer = document.createElement('div');
-            recentSearchesContainer.id = 'recent-searches-container';
-            recentSearchesContainer.className = 'box mt-2 is-hidden';
-            recentSearchesContainer.style.position = 'absolute';
-            recentSearchesContainer.style.width = '100%';
-            recentSearchesContainer.style.zIndex = '100';
-
-            // Insert after search box
-            searchBox.parentNode.insertBefore(recentSearchesContainer, searchBox.nextSibling);
-        }
-
-        // Function to display recent searches
-        function displayRecentSearches() {
-            if (recentSearches.length === 0) {
-                recentSearchesContainer.classList.add('is-hidden');
-                return;
-            }
-
-            recentSearchesContainer.innerHTML = `
-                <p class="has-text-weight-bold mb-2">Recent Searches:</p>
-                <div class="tags">
-                    ${recentSearches.map(search => `
-                        <span class="tag is-link is-light recent-search-tag">
-                            ${search}
-                            <button class="delete is-small ml-1 recent-search-delete" data-search="${search}"></button>
-                        </span>
-                    `).join('')}
-                </div>
-                <button class="button is-small is-text clear-all-searches">Clear All</button>
-            `;
-
-            // Add click handlers for tags
-            const searchTags = recentSearchesContainer.querySelectorAll('.recent-search-tag');
-            searchTags.forEach(tag => {
-                tag.addEventListener('click', function (e) {
-                    if (!e.target.classList.contains('delete') && !e.target.classList.contains('clear-all-searches')) {
-                        const searchText = this.textContent.trim();
-                        searchBox.value = searchText;
-                        // Trigger the input event to perform the search
-                        searchBox.dispatchEvent(new Event('input'));
-                        recentSearchesContainer.classList.add('is-hidden');
-                    }
-                });
-            });
-
-            // Add click handlers for delete buttons
-            const deleteButtons = recentSearchesContainer.querySelectorAll('.recent-search-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function (e) {
-                    e.stopPropagation(); // Prevent triggering the tag click
-                    const searchToRemove = this.getAttribute('data-search');
-                    removeRecentSearch(searchToRemove);
-                    displayRecentSearches();
-                });
-            });
-
-            // Add click handler for clear all button
-            const clearAllButton = recentSearchesContainer.querySelector('.clear-all-searches');
-            clearAllButton.addEventListener('click', function () {
-                clearAllRecentSearches();
-                displayRecentSearches();
-            });
-        }
-
-        // Function to add a search to recent searches
-        function addRecentSearch(search) {
-            // Don't add empty searches or duplicates
-            if (!search.trim() || recentSearches.includes(search)) return;
-
-            // Add to the beginning of the array
-            recentSearches.unshift(search);
-
-            // Limit to MAX_RECENT_SEARCHES
-            if (recentSearches.length > MAX_RECENT_SEARCHES) {
-                recentSearches = recentSearches.slice(0, MAX_RECENT_SEARCHES);
-            }
-
-            // Save to localStorage
-            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-
-            // Update the display
-            displayRecentSearches();
-        }
-
-        // Function to remove a search from recent searches
-        function removeRecentSearch(search) {
-            recentSearches = recentSearches.filter(item => item !== search);
-            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-        }
-
-        // Function to clear all recent searches
-        function clearAllRecentSearches() {
-            recentSearches = [];
-            localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-            recentSearchesContainer.classList.add('is-hidden');
-        }
-
-        // Show recent searches when the search box is focused
-        searchBox.addEventListener('focus', function () {
-            if (recentSearches.length > 0) {
-                recentSearchesContainer.classList.remove('is-hidden');
-                displayRecentSearches();
-            }
-        });
-
-        // Hide recent searches when clicking outside
-        document.addEventListener('click', function (e) {
-            if (!searchBox.contains(e.target) && !recentSearchesContainer.contains(e.target)) {
-                recentSearchesContainer.classList.add('is-hidden');
-            }
-        });
-
-        // Save search when user pauses typing (debounce)
-        let debounceTimer;
-        searchBox.addEventListener('input', function () {
-            clearTimeout(debounceTimer);
-
-            const searchQuery = this.value.trim();
-
-            // Save the search after typing stops (500ms delay)
-            if (searchQuery.length >= 3) {
-                debounceTimer = setTimeout(() => {
-                    addRecentSearch(searchQuery);
-                }, 500);
-            }
-        });
-
-        // Save search on Enter key
-        searchBox.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && this.value.trim().length >= 3) {
-                addRecentSearch(this.value.trim());
-                recentSearchesContainer.classList.add('is-hidden');
-            }
-        });
-
-        // Initial display of recent searches
-        displayRecentSearches();
-    }
-
+    // Fetch products function with modified pagination
     const fetchProducts = async () => {
         try {
             const response = await fetch('/api/products', {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${cookie.get('dash_token')}`
+                    'Content-Type': 'application/json'
                 }
             });
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch products');
-            }
-            
             const data = await response.json();
+            console.log('API Response:', data); // Debug API response structure
 
-            if (!data.products || !Array.isArray(data.products)) {
-                throw new Error('Invalid products data received');
-            }
+            // Flatten the array of arrays into a single array
+            allProducts = data.flat();
 
-            // Store all products globally for filtering
-            const allProducts = data.products;
+            console.log('All Products:', allProducts); // Debug combined products
 
             const productsContainer = document.querySelector('#products-container');
-            if (!productsContainer) {
-                throw new Error('Products container not found');
-            }
-
-            const searchBox = document.getElementById('searchbox');
-
             let currentPage = 1;
-            const itemsPerPage = 8; // 2 rows x 4 columns
+            const itemsPerPage = 8;
 
             // Function to filter products based on search query
             function filterProducts(query) {
@@ -365,7 +242,7 @@
                 );
             }
 
-            // Modified to handle both pagination and search
+            // Function to display products with pagination
             function displayProducts(page, productsToDisplay = allProducts) {
                 const totalPages = Math.ceil(productsToDisplay.length / itemsPerPage);
                 const start = (page - 1) * itemsPerPage;
@@ -376,7 +253,6 @@
 
                 if (paginatedProducts.length === 0) {
                     productsContainer.innerHTML = '<div class="column is-12"><p class="has-text-centered">No products found matching your search.</p></div>';
-                    // Hide pagination if no results
                     const existingPagination = document.querySelector('.pagination');
                     if (existingPagination) {
                         existingPagination.remove();
@@ -389,32 +265,59 @@
                     productElement.className = 'column is-3';
                     productElement.setAttribute('data-aos', 'fade-up');
                     productElement.setAttribute('data-aos-duration', '1000');
+                    
+                    // Create a function to handle adding to cart
+                    const handleAddToCart = (productName, productPrice, productImage) => {
+                        const cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+                        const existingProduct = cartItems.find(item => item.name === productName);
+
+                        if (!existingProduct) {
+                            cartItems.push({
+                                name: productName,
+                                price: productPrice,
+                                image: productImage
+                            });
+
+                            localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
+
+                            const cartCount = document.getElementById('cart-count');
+                            cartCount.textContent = cartItems.length;
+                            showNotification('Product added to cart', 'success');
+                        } else {
+                            showNotification('This product is already in your cart', 'warning');
+                        }
+                    };
+
                     productElement.innerHTML = `
-                <div class="card product-card animate__animated animate__fadeInUp">
-                        <div class="card-image" style="max-width: 300px;">
+                        <div class="card product-card animate__animated animate__fadeInUp">
                             <div class="card-image">
-                        <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
-                </div>
-                        </div>
-                        <div class="card-content" style="max-width: 300px;">
-                            <div class="media">
-                                <div class="media-content">
-                                    <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${product.name}</p>
-                                    <p class="subtitle is-6">${product.price}.00</p> 
-                                    <p class="subtitle is-6">${product.store}</p> 
+                                <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
+                            </div>
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
+                                        <p class="subtitle is-6">${product.price}</p>
+                                        <p class="subtitle is-6">${product.store || 'Unknown store'}</p>
+                                    </div>
+                                </div>
+                                <div class="buttons">
+                                    <button class="button is-link track-button" data-product-id="${product.name}">Track</button>
+                                    <button class="button add-to-cart-button">Add to cart</button>
+                                    <button class="has-text-link has-text-weight-bold" onclick="window.location.href='/u/reviews?product_name=${product.name}'" style="text-decoration: underline;">Reviews</button>
                                 </div>
                             </div>
-                                
-                            <div class="buttons">
-                                <button class="button is-link track-button" data-product-id="${product.id}">Track</button>
-                                <button class="button" onclick="addToCart('${product.id}', '${product.name}', '${product.price}', '${product.url}')">Add to cart</button>
-                                <button class="has-text-link has-text-weight-bold" onclick="window.location.href='/u/reviews?product_id=${product.id}'" style="text-decoration: underline;">Reviews</button>                            </div>
                         </div>
-                    </div>
                     `;
 
+                    // Add event listener for add to cart button
+                    const addToCartButton = productElement.querySelector('.add-to-cart-button');
+                    addToCartButton.addEventListener('click', () => {
+                        handleAddToCart(product.name, product.price, product.url);
+                    });
+
                     productElement.querySelector('.track-button').addEventListener('click', async (e) => {
-                        const productId = e.target.getAttribute('data-product-id');
+                        const productName = e.target.getAttribute('data-product-id');
                         try {
                             const response = await fetch('/api/track_price', {
                                 method: 'POST',
@@ -422,7 +325,7 @@
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${cookie.get('dash_token')}`
                                 },
-                                body: JSON.stringify({ product_id: productId })
+                                body: JSON.stringify({ product_name: productName })
                             });
                             const result = await response.json();
                             if (result.message === "Product is now being tracked. Check your email") {
@@ -437,39 +340,77 @@
                     productsContainer.appendChild(productElement);
                 });
 
-                // Only show pagination if we have enough products
                 if (productsToDisplay.length > itemsPerPage) {
-                    // Add pagination
                     const paginationContainer = document.createElement('nav');
                     paginationContainer.className = 'pagination is-centered mt-6';
                     paginationContainer.setAttribute('role', 'navigation');
                     paginationContainer.setAttribute('aria-label', 'pagination');
 
-                    paginationContainer.innerHTML = `
-                        <a class="pagination-previous" ${page === 1 ? 'disabled' : ''}>Previous</a>
-                        <a class="pagination-next" ${page === totalPages ? 'disabled' : ''}>Next</a>
-                        <ul class="pagination-list">
-                            ${Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => `
-                                <li>
-                                    <a class="pagination-link ${pageNum === page ? 'is-current' : ''}" 
-                                    aria-label="Page ${pageNum}" 
-                                    aria-current="${pageNum === page ? 'page' : 'false'}">${pageNum}</a>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    `;
+                    // Create Previous button
+                    const prevButton = document.createElement('a');
+                    prevButton.className = 'pagination-previous';
+                    prevButton.textContent = 'Previous';
+                    if (page === 1) prevButton.setAttribute('disabled', '');
+                    paginationContainer.appendChild(prevButton);
 
+                    // Create Next button
+                    const nextButton = document.createElement('a');
+                    nextButton.className = 'pagination-next';
+                    nextButton.textContent = 'Next';
+                    if (page === totalPages) nextButton.setAttribute('disabled', '');
+                    paginationContainer.appendChild(nextButton);
+
+                    // Create pagination list with limited buttons
+                    const paginationList = document.createElement('ul');
+                    paginationList.className = 'pagination-list';
+
+                    // Logic for showing only a max of 10 page buttons
+                    const maxButtons = 10;
+                    let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
+                    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+                    // Adjust if we're near the end
+                    if (endPage - startPage + 1 < maxButtons && startPage > 1) {
+                        startPage = Math.max(1, endPage - maxButtons + 1);
+                    }
+
+                    // First page and ellipsis if needed
+                    if (startPage > 1) {
+                        paginationList.innerHTML += `
+                            <li><a class="pagination-link" aria-label="Page 1">1</a></li>
+                            ${startPage > 2 ? '<li><span class="pagination-ellipsis">…</span></li>' : ''}
+                        `;
+                    }
+
+                    // Main page buttons
+                    for (let i = startPage; i <= endPage; i++) {
+                        paginationList.innerHTML += `
+                            <li>
+                                <a class="pagination-link ${i === page ? 'is-current' : ''}"
+                                    aria-label="Page ${i}"
+                                    aria-current="${i === page ? 'page' : 'false'}">${i}</a>
+                            </li>
+                        `;
+                    }
+
+                    // Last page and ellipsis if needed
+                    if (endPage < totalPages) {
+                        paginationList.innerHTML += `
+                            ${endPage < totalPages - 1 ? '<li><span class="pagination-ellipsis">…</span></li>' : ''}
+                            <li><a class="pagination-link" aria-label="Page ${totalPages}">${totalPages}</a></li>
+                        `;
+                    }
+
+                    paginationContainer.appendChild(paginationList);
+
+                    // Replace existing pagination if present
                     const existingPagination = document.querySelector('.pagination');
                     if (existingPagination) {
                         existingPagination.remove();
                     }
                     productsContainer.after(paginationContainer);
 
-                    // Add event listeners for pagination
-                    const prevButton = paginationContainer.querySelector('.pagination-previous');
-                    const nextButton = paginationContainer.querySelector('.pagination-next');
-                    const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
-
+                    // Add event listeners
                     prevButton.addEventListener('click', () => {
                         if (currentPage > 1) {
                             currentPage--;
@@ -484,6 +425,7 @@
                         }
                     });
 
+                    const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
                     pageLinks.forEach(link => {
                         link.addEventListener('click', (e) => {
                             currentPage = parseInt(e.target.textContent);
@@ -493,29 +435,86 @@
                 }
             }
 
-            // Add event listener for the search box if it exists
-            if (searchBox) {
-                searchBox.addEventListener('input', function () {
-                    const searchQuery = this.value.trim();
-                    const filteredProducts = filterProducts(searchQuery);
-                    currentPage = 1; // Reset to first page on new search
-                    displayProducts(currentPage, filteredProducts);
-                });
-
-                // Setup recent searches functionality
-                setupRecentSearches();
-            }
+            // Add event listener for the search box
+            searchBox.addEventListener('input', function () {
+                const searchQuery = this.value.trim();
+                const filteredProducts = filterProducts(searchQuery);
+                currentPage = 1; // Reset to first page on new search
+                displayProducts(currentPage, filteredProducts);
+            });
 
             // Initial display
             displayProducts(currentPage);
         } catch (error) {
-            console.error('Error in fetchProducts:', error);
-            showNotification('Error fetching products: ' + error.message, 'error');
+            showNotification('Error fetching products', 'error');
         }
     };
 
-    // Initialize everything when the DOM is loaded
-    document.addEventListener('DOMContentLoaded', function () {
-        fetchProducts();
-    });
+    // Filter state
+    let currentFilters = {
+        category: '',
+        shop: '',
+        minPrice: null,
+        maxPrice: null
+    };
+
+    // Function to apply all filters
+    function applyFilters(products) {
+        return products.filter(product => {
+            // Category filter
+            if (currentFilters.category && product.category !== currentFilters.category) {
+                return false;
+            }
+
+            // Shop filter
+            if (currentFilters.shop && product.store !== currentFilters.shop) {
+                return false;
+            }
+
+            // Price range filter
+            const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
+            if (currentFilters.minPrice && price < currentFilters.minPrice) {
+                return false;
+            }
+            if (currentFilters.maxPrice && price > currentFilters.maxPrice) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    // Setup filter event listeners
+    function setupFilters() {
+        const productFilter = document.getElementById('product-filter');
+        const shopFilter = document.getElementById('shop-filter');
+        const minPriceInput = document.getElementById('min-price');
+        const maxPriceInput = document.getElementById('max-price');
+        const applyButton = document.getElementById('apply-filters');
+
+        productFilter.addEventListener('change', function () {
+            currentFilters.category = this.value;
+        });
+
+        shopFilter.addEventListener('change', function () {
+            currentFilters.shop = this.value;
+        });
+
+        applyButton.addEventListener('click', function () {
+            currentFilters.minPrice = minPriceInput.value ? parseFloat(minPriceInput.value) : null;
+            currentFilters.maxPrice = maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
+
+            // Get current search query
+            const searchQuery = searchBox.value.trim();
+            const searchFiltered = filterProducts(searchQuery);
+            const filteredProducts = applyFilters(searchFiltered);
+
+            currentPage = 1;
+            displayProducts(currentPage, filteredProducts);
+        });
+    }
+
+    // Initialize filters
+    setupFilters();
+    fetchProducts();
 </script>
