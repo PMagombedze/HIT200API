@@ -61,6 +61,80 @@
 
 {% include 'hero.html' %}
 
+<!-- Filter Section -->
+<div class="container mt-4">
+    <div class="columns">
+        <!-- Product Filter -->
+        <div class="column is-3">
+            <div class="field">
+                <label class="label">Product Category</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="product-filter">
+                            <option value="">All Categories</option>
+                            <option value="electronics">Smartphones</option>
+                            <option value="clothing">Headphones</option>
+                            <option value="home">Laptops</option>
+                            <option value="sports">Tablets</option>
+                            <option value="beauty">Smartwatches</option>
+                            <option value="toys">UPS</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Filter -->
+        <div class="column is-3">
+            <div class="field">
+                <label class="label">Shop</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="shop-filter">
+                            <option value="">All Shops</option>
+                            <option value="">FuserTech</option>
+                            <option value="">ZimexApp</option>
+                            <option value="">Ubuy</option>
+                            <option value="">Topdeals</option>
+                            <option value="">ShumbaAfrica</option>
+                            <option value="">RainesAfrica</option>
+                            <option value="">FirstPack</option>
+                            <option value="">EverythingZim</option>
+                            <option value="">Dailysale</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="column is-6">
+            <div class="field">
+                <label class="label">Price Range</label>
+                <div class="columns">
+                    <div class="column">
+                        <div class="control">
+                            <input class="input" type="number" id="min-price" placeholder="Min Price">
+                        </div>
+                    </div>
+                    <div class="column is-narrow">
+                        <p class="has-text-centered mt-2">to</p>
+                    </div>
+                    <div class="column">
+                        <div class="control">
+                            <input class="input" type="number" id="max-price" placeholder="Max Price">
+                        </div>
+                    </div>
+                    <div class="column is-narrow">
+                        <button class="button is-link" id="apply-filters">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="container mt-6">
     <h1 class="is-4 title has-text-black-ter has-text-weight-bold">Featured Products</h1>
 </div>
@@ -76,15 +150,13 @@
 <script>
     AOS.init();
 
-    // Add this code to your existing JavaScript
-
     // Get the search box element
     const searchBox = document.getElementById('searchbox');
 
     // Store the original products for filtering
     let allProducts = [];
 
-    // Modify your fetchProducts function to store all products globally
+    // Fetch products function with modified pagination
     const fetchProducts = async () => {
         try {
             const response = await fetch('/api/products', {
@@ -94,7 +166,12 @@
                 }
             });
             const data = await response.json();
-            allProducts = data.products; // Store all products globally
+            console.log('API Response:', data); // Debug API response structure
+            
+            // Flatten the array of arrays into a single array
+            allProducts = data.flat();
+            
+            console.log('All Products:', allProducts); // Debug combined products
 
             const productsContainer = document.querySelector('#products-container');
             let currentPage = 1;
@@ -111,7 +188,7 @@
                 );
             }
 
-            // Modified to handle both pagination and search
+            // Function to display products with pagination
             function displayProducts(page, productsToDisplay = allProducts) {
                 const totalPages = Math.ceil(productsToDisplay.length / itemsPerPage);
                 const start = (page - 1) * itemsPerPage;
@@ -122,7 +199,6 @@
 
                 if (paginatedProducts.length === 0) {
                     productsContainer.innerHTML = '<div class="column is-12"><p class="has-text-centered">No products found matching your search.</p></div>';
-                    // Hide pagination if no results
                     const existingPagination = document.querySelector('.pagination');
                     if (existingPagination) {
                         existingPagination.remove();
@@ -136,57 +212,98 @@
                     productElement.setAttribute('data-aos', 'fade-up');
                     productElement.setAttribute('data-aos-duration', '1000');
                     productElement.innerHTML = `
-            <div class="card product-card animate__animated animate__fadeInUp">
-                <div class="card-image">
-                        <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
-                </div>
-                <div class="card-content">
-                    <div class="media">
-                        <div class="media-content">
-                            <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
-                            <p class="subtitle is-6">$${product.price}</p> 
-                            <p class="subtitle is-6">${product.store}</p> 
+                        <div class="card product-card animate__animated animate__fadeInUp">
+                            <div class="card-image">
+                                <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
+                            </div>
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
+                                        <p class="subtitle is-6">${product.price}</p> 
+                                        <p class="subtitle is-6">${product.store || 'Unknown store'}</p>
+                                    </div>
+                                </div>
+                                <div class="buttons">
+                                    <button class="button is-link" onclick="showNotification('Please login to add items to cart', 'warning')">Add to cart</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="buttons">
-                        <button class="button is-link" onclick="showNotification('Please login to add items to cart', 'warning')">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-            `;
+                    `;
                     productsContainer.appendChild(productElement);
                 });
 
-                // Create pagination only if we have enough products
                 if (productsToDisplay.length > itemsPerPage) {
                     const paginationContainer = document.createElement('nav');
                     paginationContainer.className = 'pagination is-centered mt-6';
                     paginationContainer.setAttribute('role', 'navigation');
                     paginationContainer.setAttribute('aria-label', 'pagination');
-                    paginationContainer.innerHTML = `
-                <a class="pagination-previous" ${page === 1 ? 'disabled' : ''}>Previous</a>
-                <a class="pagination-next" ${page === totalPages ? 'disabled' : ''}>Next</a>
-                <ul class="pagination-list">
-                    ${Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => `
-                        <li>
-                            <a class="pagination-link ${pageNum === page ? 'is-current' : ''}" 
-                               aria-label="Page ${pageNum}" 
-                               aria-current="${pageNum === page ? 'page' : 'false'}">${pageNum}</a>
-                        </li>
-                    `).join('')}
-                </ul>
-            `;
+                    
+                    // Create Previous button
+                    const prevButton = document.createElement('a');
+                    prevButton.className = 'pagination-previous';
+                    prevButton.textContent = 'Previous';
+                    if (page === 1) prevButton.setAttribute('disabled', '');
+                    paginationContainer.appendChild(prevButton);
 
+                    // Create Next button
+                    const nextButton = document.createElement('a');
+                    nextButton.className = 'pagination-next';
+                    nextButton.textContent = 'Next';
+                    if (page === totalPages) nextButton.setAttribute('disabled', '');
+                    paginationContainer.appendChild(nextButton);
+
+                    // Create pagination list with limited buttons
+                    const paginationList = document.createElement('ul');
+                    paginationList.className = 'pagination-list';
+                    
+                    // Logic for showing only a max of 10 page buttons
+                    const maxButtons = 10;
+                    let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
+                    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+                    
+                    // Adjust if we're near the end
+                    if (endPage - startPage + 1 < maxButtons && startPage > 1) {
+                        startPage = Math.max(1, endPage - maxButtons + 1);
+                    }
+
+                    // First page and ellipsis if needed
+                    if (startPage > 1) {
+                        paginationList.innerHTML += `
+                            <li><a class="pagination-link" aria-label="Page 1">1</a></li>
+                            ${startPage > 2 ? '<li><span class="pagination-ellipsis">&hellip;</span></li>' : ''}
+                        `;
+                    }
+
+                    // Main page buttons
+                    for (let i = startPage; i <= endPage; i++) {
+                        paginationList.innerHTML += `
+                            <li>
+                                <a class="pagination-link ${i === page ? 'is-current' : ''}" 
+                                   aria-label="Page ${i}" 
+                                   aria-current="${i === page ? 'page' : 'false'}">${i}</a>
+                            </li>
+                        `;
+                    }
+
+                    // Last page and ellipsis if needed
+                    if (endPage < totalPages) {
+                        paginationList.innerHTML += `
+                            ${endPage < totalPages - 1 ? '<li><span class="pagination-ellipsis">&hellip;</span></li>' : ''}
+                            <li><a class="pagination-link" aria-label="Page ${totalPages}">${totalPages}</a></li>
+                        `;
+                    }
+
+                    paginationContainer.appendChild(paginationList);
+
+                    // Replace existing pagination if present
                     const existingPagination = document.querySelector('.pagination');
                     if (existingPagination) {
                         existingPagination.remove();
                     }
                     productsContainer.after(paginationContainer);
 
-                    const prevButton = paginationContainer.querySelector('.pagination-previous');
-                    const nextButton = paginationContainer.querySelector('.pagination-next');
-                    const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
-
+                    // Add event listeners
                     prevButton.addEventListener('click', () => {
                         if (currentPage > 1) {
                             currentPage--;
@@ -201,6 +318,7 @@
                         }
                     });
 
+                    const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
                     pageLinks.forEach(link => {
                         link.addEventListener('click', (e) => {
                             currentPage = parseInt(e.target.textContent);
@@ -225,8 +343,8 @@
         }
     };
 
+    // Removed duplicate fetchProducts call
     fetchProducts();
-
 </script>
 
 <script>

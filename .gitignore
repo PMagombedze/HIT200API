@@ -9,3 +9,4 @@ instance
 uploads
 *.pem
 api.http
+venv

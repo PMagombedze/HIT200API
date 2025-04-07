@@ -1,17 +1,38 @@
-from flask import jsonify, Blueprint
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from auth.api import jwt_redis_blocklist
-from models.db import Product
+from flask import Blueprint, request
+import json
+from flask import jsonify
 
 products = Blueprint('products', __name__)
 
 @products.route('/products', methods=['GET'])
-@jwt_required()
 def get_products():
-    if jwt_redis_blocklist.get(get_jwt()['jti']):
-        return jsonify({'message': 'Token revoked'}), 401
-    user = get_jwt_identity()
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-    products = Product.query.all()
-    return jsonify({'products': [product.to_dict() for product in products]}), 200
+    try:
+        with open('/home/percy/Documents/HIT200API/scraper/products.json', 'r') as file:
+            content = file.read()
+            if not content.strip():
+                return jsonify([])
+            products_data = json.loads(content)
+        return jsonify(products_data)
+    except FileNotFoundError:
+        return jsonify([])
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON data"}), 500
+
+@products.route('/products', methods=['POST'])
+def add_product():
+    data = request.get_json()
+    try:
+        with open('/home/percy/Documents/HIT200API/scraper/products.json', 'r') as file:
+            products_data = json.load(file)
+    except FileNotFoundError:
+        products_data = []
+    
+    if isinstance(products_data, dict):
+        if 'products' not in products_data:
+            products_data['products'] = []
+        products_data['products'].append(data)
+    else:
+        products_data.append(data)
+        with open('/home/percy/Documents/HIT200API/scraper/products.json', 'w') as file:
+            json.dump(products_data, file)
+    return jsonify(data), 201
