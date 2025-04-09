@@ -104,7 +104,7 @@
                     <!-- Cart Count -->
                     <span id="cart-count" class="ml-2"
                         style="background-color: #ff4757; color: white; border-radius: 50%; padding: 2px 8px; font-size: 14px;">
-                        0
+                        
                     </span>
                 </button>
             </div>
@@ -204,8 +204,12 @@
 
 <script>
     AOS.init();
+
     // Get the search box element
     const searchBox = document.getElementById('searchbox');
+
+    const cartCount = document.getElementById('cart-count');
+    cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length || 0;
 
     // Store the original products for filtering
     let allProducts = [];
@@ -265,29 +269,6 @@
                     productElement.className = 'column is-3';
                     productElement.setAttribute('data-aos', 'fade-up');
                     productElement.setAttribute('data-aos-duration', '1000');
-                    
-                    // Create a function to handle adding to cart
-                    const handleAddToCart = (productName, productPrice, productImage) => {
-                        const cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
-                        const existingProduct = cartItems.find(item => item.name === productName);
-
-                        if (!existingProduct) {
-                            cartItems.push({
-                                name: productName,
-                                price: productPrice,
-                                image: productImage
-                            });
-
-                            localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
-
-                            const cartCount = document.getElementById('cart-count');
-                            cartCount.textContent = cartItems.length;
-                            showNotification('Product added to cart', 'success');
-                        } else {
-                            showNotification('This product is already in your cart', 'warning');
-                        }
-                    };
-
                     productElement.innerHTML = `
                         <div class="card product-card animate__animated animate__fadeInUp">
                             <div class="card-image">
@@ -297,46 +278,17 @@
                                 <div class="media">
                                     <div class="media-content">
                                         <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
-                                        <p class="subtitle is-6">${product.price}</p>
-                                        <p class="subtitle is-6">${product.store || 'Unknown store'}</p>
+                                        <p class="subtitle is-6">${product.price}</p> 
+                                        <p class="subtitle is-6">${product.store}</p>
                                     </div>
                                 </div>
                                 <div class="buttons">
-                                    <button class="button is-link track-button" data-product-id="${product.name}">Track</button>
-                                    <button class="button add-to-cart-button">Add to cart</button>
-                                    <button class="has-text-link has-text-weight-bold" onclick="window.location.href='/u/reviews?product_name=${product.name}'" style="text-decoration: underline;">Reviews</button>
+                                    <button class="button is-link" onclick="addToCart('${product.name}', '${product.url}', '${product.price}')">Add to cart</button>
+                                    <button class="button" onclick="trackProduct('${product.name}')">Track</button>
                                 </div>
                             </div>
                         </div>
                     `;
-
-                    // Add event listener for add to cart button
-                    const addToCartButton = productElement.querySelector('.add-to-cart-button');
-                    addToCartButton.addEventListener('click', () => {
-                        handleAddToCart(product.name, product.price, product.url);
-                    });
-
-                    productElement.querySelector('.track-button').addEventListener('click', async (e) => {
-                        const productName = e.target.getAttribute('data-product-id');
-                        try {
-                            const response = await fetch('/api/track_price', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${cookie.get('dash_token')}`
-                                },
-                                body: JSON.stringify({ product_name: productName })
-                            });
-                            const result = await response.json();
-                            if (result.message === "Product is now being tracked. Check your email") {
-                                showNotification(result.message, 'success');
-                            } else {
-                                showNotification(result.message, 'warning');
-                            }
-                        } catch (error) {
-                            showNotification('Error tracking product', 'error');
-                        }
-                    });
                     productsContainer.appendChild(productElement);
                 });
 
@@ -386,9 +338,9 @@
                     for (let i = startPage; i <= endPage; i++) {
                         paginationList.innerHTML += `
                             <li>
-                                <a class="pagination-link ${i === page ? 'is-current' : ''}"
-                                    aria-label="Page ${i}"
-                                    aria-current="${i === page ? 'page' : 'false'}">${i}</a>
+                                <a class="pagination-link ${i === page ? 'is-current' : ''}" 
+                                   aria-label="Page ${i}" 
+                                   aria-current="${i === page ? 'page' : 'false'}">${i}</a>
                             </li>
                         `;
                     }
@@ -449,6 +401,49 @@
             showNotification('Error fetching products', 'error');
         }
     };
+
+    // Function to add product to cart
+    function addToCart(productName, productImage, productPrice) {
+        let cart = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+        
+        // Check if item already exists in cart
+        const itemExists = cart.some(item => item.name === productName);
+        
+        if (itemExists) {
+            showNotification('Item is already in your cart', 'warning');
+            return;
+        }
+        
+        cart.push({
+            name: productName,
+            image: productImage,
+            price: productPrice
+        });
+        localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
+        showNotification('Product added to cart', 'success');
+    }
+
+    // Function to track product
+    async function trackProduct(productName) {
+        try {
+            const response = await fetch('/api/track_price', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cookie.get('dash_token')}`
+                },
+                body: JSON.stringify({ product_name: productName })
+            });
+            const result = await response.json();
+            if (result.message === "Product is now being tracked. Check your email") {
+                showNotification(result.message, 'success');
+            } else {
+                showNotification(result.message, 'warning');
+            }
+        } catch (error) {
+            showNotification('Error tracking product', 'error');
+        }
+    }
 
     // Filter state
     let currentFilters = {

@@ -25,7 +25,7 @@ def get_products():
             'url': url,
             'image': image,
             'id': product_id,
-            'store': 'shumba.africa'
+            'store': 'shumba africa'
         })
 
     return products

@@ -84,7 +84,7 @@
                     <!-- Cart Count -->
                     <span id="cart-count" class="ml-2"
                         style="background-color: #ff4757; color: white; border-radius: 50%; padding: 2px 8px; font-size: 14px;">
-                        
+
                     </span>
                 </button>
             </div>
@@ -97,168 +97,164 @@
         <h1 class="is-4 title has-text-black-ter has-text-weight-bold">Your Cart</h1>
     </div>
 
-    <div class="container mt-6">
-        <div class="columns is-multiline">
-            <style>
-                .product-image {
-                    max-width: 100px;
-                }
+    <!--shopping cart table with image, price, product name, quantity, and total price and remove button-->
+    <div class="container">
+        <div class="table-container">
+            <table class="table is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-items">
+                    <!-- Cart items will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
 
-                .cart-container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    padding: 2rem;
-                }
-
-                .payment-buttons {
-                    display: flex;
-                    gap: 10px;
-                    margin-top: 20px;
-                }
-
-                .payment-button {
-                    border-radius: 4px;
-                    border: none;
-                    color: white;
-                    font-weight: bold;
-                    cursor: pointer;
-                    width: 150px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-            </style>
-            <div class="cart-container">
-                <script>
-                     const cartCount = document.getElementById('cart-count');
-                     cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length;
-
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
-                        const cartItemsContainer = document.getElementById('cart-items');
-                        const cartTable = document.getElementById('cart-table');
-                        const emptyCartMessage = document.getElementById('empty-cart-message');
-                        let subtotal = 0;
-
-                        if (cartItems.length === 0) {
-                            cartTable.style.display = 'none';
-                            emptyCartMessage.style.display = 'block';
-                            document.getElementById('cart-summary').style.display = 'none'
-                        } else {
-                            cartTable.style.display = 'table';
-                            emptyCartMessage.style.display = 'none';
-
-                            cartItems.forEach(item => {
-                                const row = document.createElement('tr');
-                                subtotal += parseFloat(item.price);
-
-                                row.innerHTML = `
-                                    <td>
-                                        <div class="columns is-vcentered">
-                                            <div class="column is-narrow">
-                                                <img src="${item.image}" alt="${item.name}" class="product-image">
-                                            </div>
-                                            <div class="column">
-                                                <p class="has-text-weight-bold">${item.name}</p>
-                                                <a class="is-size-6 has-text-weight-bold" onclick="removeItem('${item.id}')">Remove</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="has-text-right">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input class="button has-text-right" value="${item.price}" style="width: 80px; border: none; background-color: transparent; box-shadow: none;" readonly>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="has-text-right">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input class="input has-text-right quantity-input" type="number" value="1" min="1" style="width: 80px;" onchange="updateTotal('${item.id}', this.value)">
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="has-text-right">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input class="button has-text-right item-total" data-id="${item.id}" value="${item.price}" style="width: 80px; border: none; background-color: transparent; box-shadow: none;" readonly>
-                                            </div>
-                                        </div>
-                                    </td>
-                                `;
-
-                                cartItemsContainer.appendChild(row);
-                            });
-                            
-                            document.querySelector('.subtotal-amount').textContent = `${subtotal.toFixed(2)}`;
-                        }
-                    });
-
-                    function removeItem(id) {
-                        let cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
-                        cartItems = cartItems.filter(item => item.id !== id);
-                        localStorage.setItem('pricepick.shop_cart', JSON.stringify(cartItems));
-                        location.reload();
-                    }
-
-                    function updateTotal(id, quantity) {
-                        const cartItems = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
-                        const item = cartItems.find(item => item.id === id);
-                        if (item) {
-                            const total = (parseFloat(item.price) * parseInt(quantity)).toFixed(2);
-                            document.querySelector(`input[data-id="${id}"].item-total`).value = total;
-                            
-                            // Update subtotal
-                            let subtotal = 0;
-                            document.querySelectorAll('.item-total').forEach(input => {
-                                subtotal += parseFloat(input.value);
-                            });
-                            document.querySelector('.subtotal-amount').textContent = `${subtotal.toFixed(2)}`;
-                        }
-                    }
-                </script>
-
-                <h1 id="empty-cart-message" class="title has-text-centered is-size-2" style="display: none;">Cart is Empty</h1>
-
-                <table id="cart-table" class="table is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>PRODUCT</th>
-                            <th class="has-text-right">PRICE</th>
-                            <th class="has-text-right">QUANTITY</th>
-                            <th class="has-text-right">TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cart-items">
-                        <!-- Cart items will be dynamically inserted here -->
-                    </tbody>
-                </table>
-
-                <div class="columns is-multiline" id="cart-summary">
-                    <div class="column is-8"></div>
-                    <div class="column is-4">
-                        <div class="content">
-                            <div class="columns is-mobile">
-                                <div class="column">
-                                    <p class="has-text-weight-bold">Subtotal</p>
-                                </div>
-                                <div class="column has-text-right">
-                                    <p class="has-text-weight-bold subtotal-amount">$0.00</p>
-                                </div>
-                            </div>
-
-                            <div class="field">
-                                <div class="control">
-                                    <button class="button is-dark is-fullwidth has-text-weight-bold">CHECK OUT</button>
-                                </div>
-                            </div>
-
+        <div class="columns is-mobile is-multiline mt-6">
+            <div class="column is-12-mobile is-6-tablet is-offset-6-tablet">
+                <div class="box" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+;">
+                    <div class="content">
+                        <h3 class="title is-4">Cart Summary</h3>
+                        <div class="is-flex is-justify-content-space-between">
+                            <span class="has-text-weight-bold">Total:</span>
+                            <span id="cart-total" class="has-text-weight-bold">$0.00</span>
                         </div>
+                        <button class="button is-dark is-fullwidth mt-4">Proceed to Checkout</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadCartItems();
+        });
+
+        const cartCount = document.getElementById('cart-count');
+        cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length || 0;
+
+
+        function loadCartItems() {
+            const cartContainer = document.getElementById('cart-items');
+            // Get cart data from localStorage instead of hardcoded array
+            const cartData = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+            let total = 0;
+
+            cartContainer.innerHTML = '';
+
+            if (cartData.length === 0) {
+                // Display a message when cart is empty
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+            <td colspan="6" class="has-text-centered">
+                Your cart is empty
+            </td>
+        `;
+                cartContainer.appendChild(emptyRow);
+
+                // Update cart total to zero
+                document.getElementById('cart-total').textContent = '$0.00';
+                return;
+            }
+
+            cartData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const price = item.price;
+                // Get quantity from the item if it exists, otherwise default to 1
+                const quantity = item.quantity || 1;
+                total += price * quantity;
+
+                row.innerHTML = `
+            <td>
+                <figure class="image is-64x64">
+                    <img src="${item.image}" alt="${item.name}">
+                </figure>
+            </td>
+            <td>${item.name}</td>
+            <td>${item.price}</td>
+            <td>
+                <div class="field has-addons">
+                    <div class="control">
+                        <button class="button is-small" onclick="updateQuantity(${index}, -1)">-</button>
+                    </div>
+                    <div class="control">
+                        <input class="input is-small quantity-input" type="text" value="${quantity}" readonly>
+                    </div>
+                    <div class="control">
+                        <button class="button is-small" onclick="updateQuantity(${index}, 1)">+</button>
+                    </div>
+                </div>
+            </td>
+            <td>$${(price * quantity).toFixed(2)}</td>
+            <td>
+                <button class="button is-small" onclick="removeItem(${index})">
+                    <span class="icon">
+                        <i class="fas fa-trash is-danger"></i>
+                    </span>
+                </button>
+            </td>
+        `;
+
+                cartContainer.appendChild(row);
+            });
+
+            // Update the total in the UI
+            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function updateQuantity(index, change) {
+            let cart = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+
+            // If item exists in cart
+            if (cart[index]) {
+                // Initialize quantity if it doesn't exist
+                if (!cart[index].quantity) {
+                    cart[index].quantity = 1;
+                }
+
+                // Update quantity
+                cart[index].quantity += change;
+
+                // Ensure quantity doesn't go below 1
+                if (cart[index].quantity < 1) {
+                    cart[index].quantity = 1;
+                }
+
+                // Save updated cart to localStorage
+                localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
+
+                // Reload cart items to reflect changes
+                loadCartItems();
+            }
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
+
+            // Remove item at the specified index
+            if (index >= 0 && index < cart.length) {
+                cart.splice(index, 1);
+
+                // Save updated cart to localStorage
+                localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
+
+                // Show notification
+                showNotification('Item removed from cart', 'info');
+
+                // Reload cart items to reflect changes
+                loadCartItems();
+            }
+        }
+    </script>
 
     {% include 'footer.html' %}
 </div>

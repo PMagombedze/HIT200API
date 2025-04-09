@@ -7,7 +7,7 @@ from datetime import datetime
 # Import all scraper modules
 from scraper.dailysale.scraper import get_products as dailysale_products
 from scraper.everything_zimbabwe.scraper import get_products as everything_zimbabwe_products
-from scraper.firstpack.scraper import get_products as firstpack_products
+# from scraper.firstpack.scraper import get_products as firstpack_products
 from scraper.fusertech.scraper import get_products as fusertech_products
 from scraper.raines_africa.scraper import get_products as raines_africa_products
 from scraper.shumba_africa.scraper import get_products as shumba_africa_products
@@ -26,7 +26,6 @@ def run_scrapers():
         scrapers = [
             dailysale_products,
             everything_zimbabwe_products,
-            firstpack_products,
             fusertech_products,
             raines_africa_products,
             shumba_africa_products,
