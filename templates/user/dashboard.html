@@ -117,7 +117,7 @@
     <div class="container mt-4">
         <div class="columns">
             <!-- Product Filter -->
-            <div class="column is-3">
+            <div class="column is-3" style="display: none;">
                 <div class="field">
                     <label class="label">Product Category</label>
                     <div class="control">
@@ -206,7 +206,8 @@
     AOS.init();
 
     const cartCount = document.getElementById('cart-count');
-    cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length || 0;
+    const cartData = localStorage.getItem('pricepick.shop_cart');
+    cartCount.textContent = cartData ? JSON.parse(cartData).length : 0;
 
     // Global variables
     let allProducts = [];

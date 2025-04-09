@@ -118,14 +118,38 @@
         </div>
 
         <div class="columns is-mobile is-multiline mt-6">
-            <div class="column is-12-mobile is-6-tablet is-offset-6-tablet">
-                <div class="box" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-;">
+            <div class="column is-12-mobile is-6-tablet">
+                <div class="box" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
+                    <h3 class="title is-4">Delivery Information</h3>
+                    <div class="field">
+                        <label class="label">Delivery Address</label>
+                        <div class="control">
+                            <input id="delivery-address" class="input" type="text" placeholder="Enter your delivery address">
+                        </div>
+                    </div>
+                    <div id="delivery-map" style="height: 300px; width: 100%; margin-top: 1rem;"></div>
+                </div>
+            </div>
+            <div class="column is-12-mobile is-6-tablet">
+                <div class="box" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
                     <div class="content">
                         <h3 class="title is-4">Cart Summary</h3>
                         <div class="is-flex is-justify-content-space-between">
-                            <span class="has-text-weight-bold">Total:</span>
+                            <span class="has-text-weight-bold">Subtotal:</span>
                             <span id="cart-total" class="has-text-weight-bold">$0.00</span>
+                        </div>
+                        <div class="is-flex is-justify-content-space-between mt-2">
+                            <span class="has-text-weight-bold">Delivery Distance:</span>
+                            <span id="delivery-distance" class="has-text-weight-bold">0 km</span>
+                        </div>
+                        <div class="is-flex is-justify-content-space-between mt-2">
+                            <span class="has-text-weight-bold">Delivery Fee:</span>
+                            <span id="delivery-fee" class="has-text-weight-bold">$0.00</span>
+                        </div>
+                        <hr>
+                        <div class="is-flex is-justify-content-space-between mt-2">
+                            <span class="has-text-weight-bold is-size-5">Grand Total:</span>
+                            <span id="grand-total" class="has-text-weight-bold is-size-5">$0.00</span>
                         </div>
                         <button class="button is-dark is-fullwidth mt-4">Proceed to Checkout</button>
                     </div>
@@ -140,7 +164,8 @@
         });
 
         const cartCount = document.getElementById('cart-count');
-        cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length || 0;
+        const cartData = localStorage.getItem('pricepick.shop_cart');
+        cartCount.textContent = cartData ? JSON.parse(cartData).length : 0;
 
 
         function loadCartItems() {
@@ -248,10 +273,7 @@
                 localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
 
                 // Show notification
-                showNotification('Item removed from cart', 'success');
-                setTimeout(() => {
-                   window.location.reload();
-                }, 2500);
+                showNotification('Item removed from cart', 'info');
 
                 // Reload cart items to reflect changes
                 loadCartItems();

@@ -30,8 +30,25 @@
 <!--cookie-js-->
 <script src="{{ url_for('static', filename='js/cookie.js') }}"></script>
 
-<!--scripts js-->
-<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Geoapify Maps -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/delivery.js') }}"></script>
+
+<style>
+    #delivery-map {
+        height: 300px;
+        width: 100%;
+        margin-top: 1rem;
+        border-radius: 8px;
+        z-index: 1;
+    }
+    .leaflet-container {
+        background: #f8f9fa;
+    }
+</style>
 
 <style>
     @font-face {
