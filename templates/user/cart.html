@@ -248,7 +248,10 @@
                 localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
 
                 // Show notification
-                showNotification('Item removed from cart', 'info');
+                showNotification('Item removed from cart', 'success');
+                setTimeout(() => {
+                   window.location.reload();
+                }, 2500);
 
                 // Reload cart items to reflect changes
                 loadCartItems();

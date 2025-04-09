@@ -104,7 +104,7 @@
                     <!-- Cart Count -->
                     <span id="cart-count" class="ml-2"
                         style="background-color: #ff4757; color: white; border-radius: 50%; padding: 2px 8px; font-size: 14px;">
-                        
+
                     </span>
                 </button>
             </div>
@@ -205,215 +205,32 @@
 <script>
     AOS.init();
 
-    // Get the search box element
-    const searchBox = document.getElementById('searchbox');
-
     const cartCount = document.getElementById('cart-count');
     cartCount.textContent = JSON.parse(localStorage.getItem('pricepick.shop_cart')).length || 0;
 
-    // Store the original products for filtering
+    // Global variables
     let allProducts = [];
-
-    // Fetch products function with modified pagination
-    const fetchProducts = async () => {
-        try {
-            const response = await fetch('/api/products', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const data = await response.json();
-            console.log('API Response:', data); // Debug API response structure
-
-            // Flatten the array of arrays into a single array
-            allProducts = data.flat();
-
-            console.log('All Products:', allProducts); // Debug combined products
-
-            const productsContainer = document.querySelector('#products-container');
-            let currentPage = 1;
-            const itemsPerPage = 8;
-
-            // Function to filter products based on search query
-            function filterProducts(query) {
-                if (!query) return allProducts;
-
-                query = query.toLowerCase();
-                return allProducts.filter(product =>
-                    product.name.toLowerCase().includes(query) ||
-                    product.store.toLowerCase().includes(query)
-                );
-            }
-
-            // Function to display products with pagination
-            function displayProducts(page, productsToDisplay = allProducts) {
-                const totalPages = Math.ceil(productsToDisplay.length / itemsPerPage);
-                const start = (page - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const paginatedProducts = productsToDisplay.slice(start, end);
-
-                productsContainer.innerHTML = '';
-
-                if (paginatedProducts.length === 0) {
-                    productsContainer.innerHTML = '<div class="column is-12"><p class="has-text-centered">No products found matching your search.</p></div>';
-                    const existingPagination = document.querySelector('.pagination');
-                    if (existingPagination) {
-                        existingPagination.remove();
-                    }
-                    return;
-                }
-
-                paginatedProducts.forEach(product => {
-                    const productElement = document.createElement('div');
-                    productElement.className = 'column is-3';
-                    productElement.setAttribute('data-aos', 'fade-up');
-                    productElement.setAttribute('data-aos-duration', '1000');
-                    productElement.innerHTML = `
-                        <div class="card product-card animate__animated animate__fadeInUp">
-                            <div class="card-image">
-                                <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
-                            </div>
-                            <div class="card-content">
-                                <div class="media">
-                                    <div class="media-content">
-                                        <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
-                                        <p class="subtitle is-6">${product.price}</p> 
-                                        <p class="subtitle is-6">${product.store}</p>
-                                    </div>
-                                </div>
-                                <div class="buttons">
-                                    <button class="button is-link" onclick="addToCart('${product.name}', '${product.url}', '${product.price}')">Add to cart</button>
-                                    <button class="button" onclick="trackProduct('${product.name}')">Track</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    productsContainer.appendChild(productElement);
-                });
-
-                if (productsToDisplay.length > itemsPerPage) {
-                    const paginationContainer = document.createElement('nav');
-                    paginationContainer.className = 'pagination is-centered mt-6';
-                    paginationContainer.setAttribute('role', 'navigation');
-                    paginationContainer.setAttribute('aria-label', 'pagination');
-
-                    // Create Previous button
-                    const prevButton = document.createElement('a');
-                    prevButton.className = 'pagination-previous';
-                    prevButton.textContent = 'Previous';
-                    if (page === 1) prevButton.setAttribute('disabled', '');
-                    paginationContainer.appendChild(prevButton);
-
-                    // Create Next button
-                    const nextButton = document.createElement('a');
-                    nextButton.className = 'pagination-next';
-                    nextButton.textContent = 'Next';
-                    if (page === totalPages) nextButton.setAttribute('disabled', '');
-                    paginationContainer.appendChild(nextButton);
-
-                    // Create pagination list with limited buttons
-                    const paginationList = document.createElement('ul');
-                    paginationList.className = 'pagination-list';
-
-                    // Logic for showing only a max of 10 page buttons
-                    const maxButtons = 10;
-                    let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
-                    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-
-                    // Adjust if we're near the end
-                    if (endPage - startPage + 1 < maxButtons && startPage > 1) {
-                        startPage = Math.max(1, endPage - maxButtons + 1);
-                    }
-
-                    // First page and ellipsis if needed
-                    if (startPage > 1) {
-                        paginationList.innerHTML += `
-                            <li><a class="pagination-link" aria-label="Page 1">1</a></li>
-                            ${startPage > 2 ? '<li><span class="pagination-ellipsis">…</span></li>' : ''}
-                        `;
-                    }
-
-                    // Main page buttons
-                    for (let i = startPage; i <= endPage; i++) {
-                        paginationList.innerHTML += `
-                            <li>
-                                <a class="pagination-link ${i === page ? 'is-current' : ''}" 
-                                   aria-label="Page ${i}" 
-                                   aria-current="${i === page ? 'page' : 'false'}">${i}</a>
-                            </li>
-                        `;
-                    }
-
-                    // Last page and ellipsis if needed
-                    if (endPage < totalPages) {
-                        paginationList.innerHTML += `
-                            ${endPage < totalPages - 1 ? '<li><span class="pagination-ellipsis">…</span></li>' : ''}
-                            <li><a class="pagination-link" aria-label="Page ${totalPages}">${totalPages}</a></li>
-                        `;
-                    }
-
-                    paginationContainer.appendChild(paginationList);
-
-                    // Replace existing pagination if present
-                    const existingPagination = document.querySelector('.pagination');
-                    if (existingPagination) {
-                        existingPagination.remove();
-                    }
-                    productsContainer.after(paginationContainer);
-
-                    // Add event listeners
-                    prevButton.addEventListener('click', () => {
-                        if (currentPage > 1) {
-                            currentPage--;
-                            displayProducts(currentPage, productsToDisplay);
-                        }
-                    });
-
-                    nextButton.addEventListener('click', () => {
-                        if (currentPage < totalPages) {
-                            currentPage++;
-                            displayProducts(currentPage, productsToDisplay);
-                        }
-                    });
-
-                    const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
-                    pageLinks.forEach(link => {
-                        link.addEventListener('click', (e) => {
-                            currentPage = parseInt(e.target.textContent);
-                            displayProducts(currentPage, productsToDisplay);
-                        });
-                    });
-                }
-            }
-
-            // Add event listener for the search box
-            searchBox.addEventListener('input', function () {
-                const searchQuery = this.value.trim();
-                const filteredProducts = filterProducts(searchQuery);
-                currentPage = 1; // Reset to first page on new search
-                displayProducts(currentPage, filteredProducts);
-            });
-
-            // Initial display
-            displayProducts(currentPage);
-        } catch (error) {
-            showNotification('Error fetching products', 'error');
-        }
+    let currentPage = 1;
+    const itemsPerPage = 8;
+    let currentFilters = {
+        category: '',
+        shop: '',
+        minPrice: null,
+        maxPrice: null
     };
 
-    // Function to add product to cart
+    // Function to add to cart
     function addToCart(productName, productImage, productPrice) {
         let cart = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
-        
+
         // Check if item already exists in cart
         const itemExists = cart.some(item => item.name === productName);
-        
+
         if (itemExists) {
             showNotification('Item is already in your cart', 'warning');
             return;
         }
-        
+
         cart.push({
             name: productName,
             image: productImage,
@@ -421,6 +238,9 @@
         });
         localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
         showNotification('Product added to cart', 'success');
+        setTimeout(() => {
+            window.location.reload();
+        }, 2500);
     }
 
     // Function to track product
@@ -445,33 +265,44 @@
         }
     }
 
-    // Filter state
-    let currentFilters = {
-        category: '',
-        shop: '',
-        minPrice: null,
-        maxPrice: null
-    };
+    // Function to filter products by search query
+    function filterBySearch(query, products) {
+        if (!query) return products;
 
-    // Function to apply all filters
+        query = query.toLowerCase();
+        return products.filter(product =>
+            product.name.toLowerCase().includes(query) ||
+            product.store.toLowerCase().includes(query)
+        );
+    }
+
+    // Function to apply all category, shop, and price filters
     function applyFilters(products) {
         return products.filter(product => {
             // Category filter
-            if (currentFilters.category && product.category !== currentFilters.category) {
+            if (currentFilters.category &&
+                (!product.category ||
+                    product.category.toLowerCase() !== currentFilters.category.toLowerCase())) {
                 return false;
             }
 
             // Shop filter
-            if (currentFilters.shop && product.store !== currentFilters.shop) {
+            if (currentFilters.shop &&
+                (!product.store ||
+                    product.store.toLowerCase() !== currentFilters.shop.toLowerCase())) {
                 return false;
             }
 
             // Price range filter
-            const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
-            if (currentFilters.minPrice && price < currentFilters.minPrice) {
-                return false;
-            }
-            if (currentFilters.maxPrice && price > currentFilters.maxPrice) {
+            if (product.price) {
+                const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
+                if (currentFilters.minPrice && price < currentFilters.minPrice) {
+                    return false;
+                }
+                if (currentFilters.maxPrice && price > currentFilters.maxPrice) {
+                    return false;
+                }
+            } else if (currentFilters.minPrice || currentFilters.maxPrice) {
                 return false;
             }
 
@@ -479,13 +310,178 @@
         });
     }
 
-    // Setup filter event listeners
-    function setupFilters() {
+    // Function to display products with pagination
+    function displayProducts(page, productsToDisplay = allProducts) {
+        const productsContainer = document.querySelector('#products-container');
+        const totalPages = Math.ceil(productsToDisplay.length / itemsPerPage);
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedProducts = productsToDisplay.slice(start, end);
+
+        productsContainer.innerHTML = '';
+
+        if (paginatedProducts.length === 0) {
+            productsContainer.innerHTML = '<div class="column is-12"><p class="has-text-centered">No products found matching your criteria.</p></div>';
+            const existingPagination = document.querySelector('.pagination');
+            if (existingPagination) {
+                existingPagination.remove();
+            }
+            return;
+        }
+
+        paginatedProducts.forEach(product => {
+            const productElement = document.createElement('div');
+            productElement.className = 'column is-3';
+            productElement.setAttribute('data-aos', 'fade-up');
+            productElement.setAttribute('data-aos-duration', '1000');
+            productElement.innerHTML = `
+                <div class="card product-card animate__animated animate__fadeInUp">
+                            <div class="card-image">
+                                <img src="${product.url}" alt="${product.name}" style="object-fit: cover; height: 200px; width: 100%;">
+                            </div>
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="subtitle has-text-weight-bold has-text-black is-6" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${product.name}</p>
+                                        <p class="subtitle is-6">${product.price}</p> 
+                                        <p class="subtitle is-6">${product.store}</p>
+                                    </div>
+                                </div>
+                                <div class="buttons">
+                                    <button class="button is-link" onclick="addToCart('${product.name}', '${product.url}', '${product.price}')">Add to cart</button>
+                                    <button class="button" onclick="trackProduct('${product.name}')">Track</button>
+                                </div>
+                            </div>
+                        </div>
+            `;
+            productsContainer.appendChild(productElement);
+        });
+
+        if (productsToDisplay.length > itemsPerPage) {
+            createPagination(page, totalPages, productsToDisplay);
+        } else {
+            const existingPagination = document.querySelector('.pagination');
+            if (existingPagination) {
+                existingPagination.remove();
+            }
+        }
+    }
+
+    // Function to create pagination controls
+    function createPagination(page, totalPages, productsToDisplay) {
+        const paginationContainer = document.createElement('nav');
+        paginationContainer.className = 'pagination is-centered mt-6';
+        paginationContainer.setAttribute('role', 'navigation');
+        paginationContainer.setAttribute('aria-label', 'pagination');
+
+        const prevButton = document.createElement('a');
+        prevButton.className = 'pagination-previous';
+        prevButton.textContent = 'Previous';
+        if (page === 1) prevButton.setAttribute('disabled', '');
+        paginationContainer.appendChild(prevButton);
+
+        const nextButton = document.createElement('a');
+        nextButton.className = 'pagination-next';
+        nextButton.textContent = 'Next';
+        if (page === totalPages) nextButton.setAttribute('disabled', '');
+        paginationContainer.appendChild(nextButton);
+
+        const paginationList = document.createElement('ul');
+        paginationList.className = 'pagination-list';
+
+        const maxButtons = 10;
+        let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+        if (endPage - startPage + 1 < maxButtons && startPage > 1) {
+            startPage = Math.max(1, endPage - maxButtons + 1);
+        }
+
+        if (startPage > 1) {
+            paginationList.innerHTML += `
+                <li><a class="pagination-link" aria-label="Page 1">1</a></li>
+                ${startPage > 2 ? '<li><span class="pagination-ellipsis">…</span></li>' : ''}
+            `;
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationList.innerHTML += `
+                <li>
+                    <a class="pagination-link ${i === page ? 'is-current' : ''}" 
+                       aria-label="Page ${i}" 
+                       aria-current="${i === page ? 'page' : 'false'}">${i}</a>
+                </li>
+            `;
+        }
+
+        if (endPage < totalPages) {
+            paginationList.innerHTML += `
+                ${endPage < totalPages - 1 ? '<li><span class="pagination-ellipsis">…</span></li>' : ''}
+                <li><a class="pagination-link" aria-label="Page ${totalPages}">${totalPages}</a></li>
+            `;
+        }
+
+        paginationContainer.appendChild(paginationList);
+
+        const existingPagination = document.querySelector('.pagination');
+        if (existingPagination) {
+            existingPagination.remove();
+        }
+        const productsContainer = document.querySelector('#products-container');
+        productsContainer.after(paginationContainer);
+
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayProducts(currentPage, productsToDisplay);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayProducts(currentPage, productsToDisplay);
+            }
+        });
+
+        const pageLinks = paginationContainer.querySelectorAll('.pagination-link');
+        pageLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                currentPage = parseInt(e.target.textContent);
+                displayProducts(currentPage, productsToDisplay);
+            });
+        });
+    }
+
+    async function fetchProducts() {
+        try {
+            const response = await fetch('/api/products', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            allProducts = data.flat();
+            displayProducts(currentPage);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            showNotification('Error fetching products', 'error');
+        }
+    }
+
+    function setupEventListeners() {
+        const searchBox = document.getElementById('searchbox');
+        searchBox.addEventListener('input', function () {
+            const searchQuery = this.value.trim();
+            const filteredBySearch = filterBySearch(searchQuery, allProducts);
+            const finalFiltered = applyFilters(filteredBySearch);
+            currentPage = 1;
+            displayProducts(currentPage, finalFiltered);
+        });
+
         const productFilter = document.getElementById('product-filter');
         const shopFilter = document.getElementById('shop-filter');
-        const minPriceInput = document.getElementById('min-price');
-        const maxPriceInput = document.getElementById('max-price');
-        const applyButton = document.getElementById('apply-filters');
 
         productFilter.addEventListener('change', function () {
             currentFilters.category = this.value;
@@ -495,21 +491,23 @@
             currentFilters.shop = this.value;
         });
 
+        const minPriceInput = document.getElementById('min-price');
+        const maxPriceInput = document.getElementById('max-price');
+        const applyButton = document.getElementById('apply-filters');
+
         applyButton.addEventListener('click', function () {
             currentFilters.minPrice = minPriceInput.value ? parseFloat(minPriceInput.value) : null;
             currentFilters.maxPrice = maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
-
-            // Get current search query
             const searchQuery = searchBox.value.trim();
-            const searchFiltered = filterProducts(searchQuery);
-            const filteredProducts = applyFilters(searchFiltered);
-
+            const filteredBySearch = filterBySearch(searchQuery, allProducts);
+            const finalFiltered = applyFilters(filteredBySearch);
             currentPage = 1;
-            displayProducts(currentPage, filteredProducts);
+            displayProducts(currentPage, finalFiltered);
         });
     }
 
-    // Initialize filters
-    setupFilters();
-    fetchProducts();
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchProducts();
+        setupEventListeners();
+    });
 </script>
