@@ -119,19 +119,22 @@
 
         <div class="columns is-mobile is-multiline mt-6">
             <div class="column is-12-mobile is-6-tablet">
-                <div class="box" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
+                <div class="box"
+                    style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
                     <h3 class="title is-4">Delivery Information</h3>
                     <div class="field">
                         <label class="label">Delivery Address</label>
                         <div class="control">
-                            <input id="delivery-address" class="input" type="text" placeholder="Enter your delivery address">
+                            <input id="delivery-address" class="input" type="text"
+                                placeholder="Enter your delivery address">
                         </div>
                     </div>
                     <div id="delivery-map" style="height: 300px; width: 100%; margin-top: 1rem;"></div>
                 </div>
             </div>
             <div class="column is-12-mobile is-6-tablet">
-                <div class="box" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
+                <div class="box"
+                    style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;">
                     <div class="content">
                         <h3 class="title is-4">Cart Summary</h3>
                         <div class="is-flex is-justify-content-space-between">
@@ -151,7 +154,41 @@
                             <span class="has-text-weight-bold is-size-5">Grand Total:</span>
                             <span id="grand-total" class="has-text-weight-bold is-size-5">$0.00</span>
                         </div>
-                        <button class="button is-dark is-fullwidth mt-4" style="border-radius: 25px; padding: 15px 15px;">Proceed to Checkout</button>
+
+                        <!-- Payment Form (initially hidden) -->
+                        <div id="payment-form" style="display: none;">
+                            <h4 class="title is-5 mt-4">Payment Details</h4>
+                            <div class="field">
+                                <label class="label">Card Number</label>
+                                <div class="control">
+                                    <input id="card-number" class="input" type="text" placeholder="1234 5678 9012 3456">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">Expiry Date</label>
+                                <div class="control">
+                                    <input id="card-expiry" class="input" type="text" placeholder="MM/YY">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">CVV</label>
+                                <div class="control">
+                                    <input id="card-cvv" class="input" type="text" placeholder="123">
+                                </div>
+                            </div>
+                            <button id="pay-now" class="button is-link is-fullwidth mt-4"
+                                style="border-radius: 25px; padding: 15px 15px;">Pay Now</button>
+                        </div>
+
+                        <!-- Success Message (initially hidden) -->
+                        <div id="payment-success" class="notification is-success" style="display: none;">
+                            <button class="delete"
+                                onclick="document.getElementById('payment-success').style.display='none'"></button>
+                            <p>Payment successful! Your order has been placed.</p>
+                        </div>
+
+                        <button id="checkout-btn" class="button is-dark is-fullwidth mt-4"
+                            style="border-radius: 25px; padding: 15px 15px;">Proceed to Checkout</button>
                     </div>
                 </div>
             </div>
@@ -161,23 +198,42 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             loadCartItems();
+            setupCardValidation();
         });
 
         const cartCount = document.getElementById('cart-count');
         const cartData = localStorage.getItem('pricepick.shop_cart');
         cartCount.textContent = cartData ? JSON.parse(cartData).length : 0;
 
+        function setupCardValidation() {
+            const cardInput = document.getElementById('card-number');
+            const errorLabel = document.createElement('p');
+            errorLabel.className = 'help is-danger';
+            cardInput.parentNode.appendChild(errorLabel);
+
+            cardInput.addEventListener('input', function(e) {
+                const mastercardRegex = /^5[1-5][0-9]{14}$/;
+                const value = e.target.value.replace(/\D/g, '');
+                
+                if (!mastercardRegex.test(value)) {
+                    errorLabel.textContent = 'Please enter a valid Mastercard number';
+                    errorLabel.style.fontSize = '12pt';
+                    cardInput.classList.add('is-danger');
+                } else {
+                    errorLabel.textContent = '';
+                    cardInput.classList.remove('is-danger');
+                }
+            });
+        }
 
         function loadCartItems() {
             const cartContainer = document.getElementById('cart-items');
-            // Get cart data from localStorage instead of hardcoded array
             const cartData = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
             let total = 0;
 
             cartContainer.innerHTML = '';
 
             if (cartData.length === 0) {
-                // Display a message when cart is empty
                 const emptyRow = document.createElement('tr');
                 emptyRow.innerHTML = `
             <td colspan="6" class="has-text-centered">
@@ -186,7 +242,6 @@
         `;
                 cartContainer.appendChild(emptyRow);
 
-                // Update cart total to zero
                 document.getElementById('cart-total').textContent = 0.0.toFixed(2);
                 return;
             }
@@ -194,7 +249,6 @@
             cartData.forEach((item, index) => {
                 const row = document.createElement('tr');
                 const price = item.price.replace("$", "");
-                // Get quantity from the item if it exists, otherwise default to 1
                 const quantity = item.quantity || 1;
                 total += price * quantity;
 
@@ -232,34 +286,26 @@
                 cartContainer.appendChild(row);
             });
 
-            // Update the total in the UI
             document.getElementById('cart-total').textContent = `${total.toFixed(2)}`;
             const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent.replace('$', '')) || 0;
-            document.getElementById('grand-total').textContent = `$${(total + deliveryFee).toFixed(2)}`;
+            document.getElementById('grand-total').textContent = `${(total + deliveryFee).toFixed(2)}`;
         }
 
         function updateQuantity(index, change) {
             let cart = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
 
-            // If item exists in cart
             if (cart[index]) {
-                // Initialize quantity if it doesn't exist
                 if (!cart[index].quantity) {
                     cart[index].quantity = 1;
                 }
 
-                // Update quantity
                 cart[index].quantity += change;
 
-                // Ensure quantity doesn't go below 1
                 if (cart[index].quantity < 1) {
                     cart[index].quantity = 1;
                 }
 
-                // Save updated cart to localStorage
                 localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
-
-                // Reload cart items to reflect changes
                 loadCartItems();
             }
         }
@@ -267,21 +313,37 @@
         function removeItem(index) {
             let cart = JSON.parse(localStorage.getItem('pricepick.shop_cart')) || [];
 
-            // Remove item at the specified index
             if (index >= 0 && index < cart.length) {
                 cart.splice(index, 1);
-
-                // Save updated cart to localStorage
                 localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
-
-                // Show notification
                 showNotification('Item removed from cart', 'success');
-
-                // Reload cart items to reflect changes
                 loadCartItems();
             }
         }
-    </script>
 
+        document.getElementById('checkout-btn').addEventListener('click', function () {
+            this.style.display = 'none';
+            document.getElementById('payment-form').style.display = 'block';
+        });
+
+        document.getElementById('pay-now').addEventListener('click', function () {
+            const cardInput = document.getElementById('card-number');
+            const mastercardRegex = /^5[1-5][0-9]{14}$/;
+            const value = cardInput.value.replace(/\D/g, '');
+
+            if (!mastercardRegex.test(value)) {
+                return;
+            }
+
+            setTimeout(function () {
+                document.getElementById('payment-form').style.display = 'none';
+                document.getElementById('payment-success').style.display = 'block';
+                localStorage.removeItem('pricepick.shop_cart');
+                document.getElementById('cart-count').textContent = '0';
+                loadCartItems();
+            }, 1000);
+        });
+
+    </script>
     {% include 'footer.html' %}
 </div>
