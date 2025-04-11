@@ -151,7 +151,7 @@
                             <span class="has-text-weight-bold is-size-5">Grand Total:</span>
                             <span id="grand-total" class="has-text-weight-bold is-size-5">$0.00</span>
                         </div>
-                        <button class="button is-dark is-fullwidth mt-4">Proceed to Checkout</button>
+                        <button class="button is-dark is-fullwidth mt-4" style="border-radius: 25px; padding: 15px 15px;">Proceed to Checkout</button>
                     </div>
                 </div>
             </div>
@@ -187,13 +187,13 @@
                 cartContainer.appendChild(emptyRow);
 
                 // Update cart total to zero
-                document.getElementById('cart-total').textContent = '$0.00';
+                document.getElementById('cart-total').textContent = 0.0.toFixed(2);
                 return;
             }
 
             cartData.forEach((item, index) => {
                 const row = document.createElement('tr');
-                const price = item.price;
+                const price = item.price.replace("$", "");
                 // Get quantity from the item if it exists, otherwise default to 1
                 const quantity = item.quantity || 1;
                 total += price * quantity;
@@ -219,11 +219,11 @@
                     </div>
                 </div>
             </td>
-            <td>$${(price * quantity).toFixed(2)}</td>
+            <td>${(price.replace("$", "") * quantity).toFixed(2)}</td>
             <td>
                 <button class="button is-small" onclick="removeItem(${index})">
                     <span class="icon">
-                        <i class="fas fa-trash is-danger"></i>
+                        <i class="fas fa-trash has-text-danger"></i>
                     </span>
                 </button>
             </td>
@@ -233,7 +233,9 @@
             });
 
             // Update the total in the UI
-            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `${total.toFixed(2)}`;
+            const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent.replace('$', '')) || 0;
+            document.getElementById('grand-total').textContent = `$${(total + deliveryFee).toFixed(2)}`;
         }
 
         function updateQuantity(index, change) {
@@ -273,7 +275,7 @@
                 localStorage.setItem('pricepick.shop_cart', JSON.stringify(cart));
 
                 // Show notification
-                showNotification('Item removed from cart', 'info');
+                showNotification('Item removed from cart', 'success');
 
                 // Reload cart items to reflect changes
                 loadCartItems();
